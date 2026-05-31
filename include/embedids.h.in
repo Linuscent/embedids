@@ -1,0 +1,377 @@
+/*
+ * Copyright 2026 Linuscent Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef EMBEDIDS_H
+#define EMBEDIDS_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
+#include <stdint.h>
+
+/**
+ * @brief EmbedIDS library version information
+ */
+#define EMBEDIDS_VERSION_MAJOR @PROJECT_VERSION_MAJOR @
+#define EMBEDIDS_VERSION_MINOR @PROJECT_VERSION_MINOR @
+#define EMBEDIDS_VERSION_PATCH @PROJECT_VERSION_PATCH @
+#define EMBEDIDS_VERSION_STRING "@PROJECT_VERSION@"
+
+/**
+ * @brief Compile-time configuration options
+ */
+#ifndef EMBEDIDS_MAX_METRICS
+#define EMBEDIDS_MAX_METRICS 32
+#endif
+
+#ifndef EMBEDIDS_MAX_METRIC_NAME_LEN
+#define EMBEDIDS_MAX_METRIC_NAME_LEN 32
+#endif
+
+#ifndef EMBEDIDS_MAX_ALGORITHMS_PER_METRIC
+#define EMBEDIDS_MAX_ALGORITHMS_PER_METRIC 4
+#endif
+
+#ifndef EMBEDIDS_ENABLE_FLOATING_POINT
+#define EMBEDIDS_ENABLE_FLOATING_POINT 1
+#endif
+
+#ifndef EMBEDIDS_ENABLE_DOUBLE_PRECISION
+#define EMBEDIDS_ENABLE_DOUBLE_PRECISION 0 // Disabled by default for embedded
+#endif
+
+/**
+ * @brief Compile-time assertions for configuration validation
+ */
+#ifdef __cplusplus
+static_assert(EMBEDIDS_MAX_METRICS > 0 && EMBEDIDS_MAX_METRICS <= 256,
+              "EMBEDIDS_MAX_METRICS must be between 1 and 256");
+static_assert(EMBEDIDS_MAX_METRIC_NAME_LEN >= 8 &&
+                  EMBEDIDS_MAX_METRIC_NAME_LEN <= 128,
+              "EMBEDIDS_MAX_METRIC_NAME_LEN must be between 8 and 128");
+static_assert(EMBEDIDS_MAX_ALGORITHMS_PER_METRIC > 0 &&
+                  EMBEDIDS_MAX_ALGORITHMS_PER_METRIC <= 8,
+              "EMBEDIDS_MAX_ALGORITHMS_PER_METRIC must be between 1 and 8");
+#else
+_Static_assert(EMBEDIDS_MAX_METRICS > 0 && EMBEDIDS_MAX_METRICS <= 256,
+               "EMBEDIDS_MAX_METRICS must be between 1 and 256");
+_Static_assert(EMBEDIDS_MAX_METRIC_NAME_LEN >= 8 &&
+                   EMBEDIDS_MAX_METRIC_NAME_LEN <= 128,
+               "EMBEDIDS_MAX_METRIC_NAME_LEN must be between 8 and 128");
+_Static_assert(EMBEDIDS_MAX_ALGORITHMS_PER_METRIC > 0 &&
+                   EMBEDIDS_MAX_ALGORITHMS_PER_METRIC <= 8,
+               "EMBEDIDS_MAX_ALGORITHMS_PER_METRIC must be between 1 and 8");
+#endif
+
+/**
+ * @brief EmbedIDS - Embedded Intrusion Detection System
+ *
+ * A modern, extensible intrusion detection library for embedded systems
+ * featuring user-managed memory, custom metrics, and pluggable algorithms.
+ */
+
+/**
+ * @brief Return codes for EmbedIDS functions
+ */
+typedef enum {
+  EMBEDIDS_OK = 0,
+
+  // Configuration errors (1-10)
+  EMBEDIDS_ERROR_INVALID_PARAM = -1,
+  EMBEDIDS_ERROR_NOT_INITIALIZED = -2,
+  EMBEDIDS_ERROR_ALREADY_INITIALIZED = -3,
+  EMBEDIDS_ERROR_CONFIG_INVALID = -4,
+
+  // Memory errors (11-20)
+  EMBEDIDS_ERROR_OUT_OF_MEMORY = -11,
+  EMBEDIDS_ERROR_BUFFER_FULL = -12,
+  EMBEDIDS_ERROR_BUFFER_CORRUPT = -13,
+  EMBEDIDS_ERROR_ALIGNMENT_ERROR = -14,
+
+  // Metric errors (21-30)
+  EMBEDIDS_ERROR_METRIC_NOT_FOUND = -21,
+  EMBEDIDS_ERROR_METRIC_DISABLED = -22,
+  EMBEDIDS_ERROR_METRIC_TYPE_MISMATCH = -23,
+  EMBEDIDS_ERROR_METRIC_NAME_TOO_LONG = -24,
+
+  // Algorithm errors (31-40)
+  EMBEDIDS_ERROR_ALGORITHM_FAILED = -31,
+  EMBEDIDS_ERROR_ALGORITHM_NOT_SUPPORTED = -32,
+  EMBEDIDS_ERROR_CUSTOM_ALGORITHM_NULL = -33,
+
+  // Detection results (41-50)
+  EMBEDIDS_ERROR_THRESHOLD_EXCEEDED = -41,
+  EMBEDIDS_ERROR_TREND_ANOMALY = -42,
+  EMBEDIDS_ERROR_CUSTOM_DETECTION = -43,
+  EMBEDIDS_ERROR_STATISTICAL_ANOMALY = -44,
+
+  // System errors (51-60)
+  EMBEDIDS_ERROR_TIMEOUT = -51,
+  EMBEDIDS_ERROR_HARDWARE_FAULT = -52,
+  EMBEDIDS_ERROR_TIMESTAMP_INVALID = -53,
+  EMBEDIDS_ERROR_THREAD_UNSAFE = -54
+} embedids_result_t;
+
+/**
+ * @brief Metric data types
+ */
+typedef enum {
+  EMBEDIDS_METRIC_TYPE_UINT32, /**< 32-bit unsigned integer */
+  EMBEDIDS_METRIC_TYPE_UINT64, /**< 64-bit unsigned integer */
+#if EMBEDIDS_ENABLE_FLOATING_POINT
+  EMBEDIDS_METRIC_TYPE_FLOAT, /**< 32-bit floating point */
+#if EMBEDIDS_ENABLE_DOUBLE_PRECISION
+  EMBEDIDS_METRIC_TYPE_DOUBLE, /**< 64-bit floating point */
+#endif
+  EMBEDIDS_METRIC_TYPE_PERCENTAGE, /**< Percentage (0.0 - 100.0) */
+  EMBEDIDS_METRIC_TYPE_RATE,       /**< Rate per second */
+#endif
+  EMBEDIDS_METRIC_TYPE_BOOL, /**< Boolean value */
+  EMBEDIDS_METRIC_TYPE_ENUM  /**< Enumerated value */
+} embedids_metric_type_t;
+
+/**
+ * @brief Detection algorithm types
+ */
+typedef enum {
+  EMBEDIDS_ALGORITHM_THRESHOLD, /**< Simple threshold-based detection */
+  EMBEDIDS_ALGORITHM_TREND,     /**< Trend analysis over time */
+  EMBEDIDS_ALGORITHM_CUSTOM     /**< User-provided algorithm */
+} embedids_algorithm_type_t;
+
+/**
+ * @brief Trend direction indicators
+ */
+typedef enum {
+  EMBEDIDS_TREND_STABLE,     /**< No significant trend */
+  EMBEDIDS_TREND_INCREASING, /**< Values are increasing */
+  EMBEDIDS_TREND_DECREASING  /**< Values are decreasing */
+} embedids_trend_t;
+
+/**
+ * @brief Union to hold different metric value types
+ */
+typedef union {
+  uint32_t u32; /**< 32-bit unsigned integer value */
+  uint64_t u64; /**< 64-bit unsigned integer value */
+#if EMBEDIDS_ENABLE_FLOATING_POINT
+  float f32; /**< 32-bit floating point value */
+#if EMBEDIDS_ENABLE_DOUBLE_PRECISION
+  double f64; /**< 64-bit floating point value */
+#endif
+#endif
+  bool boolean;     /**< Boolean value */
+  uint8_t enum_val; /**< Enumerated value (0-255) */
+} embedids_metric_value_t;
+
+/**
+ * @brief Time-stamped metric data point
+ * @note Packed structure for memory efficiency on embedded systems
+ */
+typedef struct __attribute__((packed)) {
+  uint64_t timestamp_ms; /**< Timestamp in milliseconds (aligned first) */
+  embedids_metric_value_t value; /**< Metric value */
+  uint16_t flags;                /**< Status flags for validation */
+  uint16_t reserved;             /**< Reserved for future use */
+} embedids_metric_datapoint_t;
+
+/**
+ * @brief User-provided metric configuration
+ */
+typedef struct {
+  char name[EMBEDIDS_MAX_METRIC_NAME_LEN]; /**< Human-readable metric name */
+  embedids_metric_type_t type;             /**< Data type of the metric */
+  embedids_metric_datapoint_t *history;    /**< User-provided history buffer */
+  uint32_t max_history_size; /**< Maximum points in history buffer */
+  uint32_t current_size;     /**< Current number of points in buffer */
+  uint32_t write_index;      /**< Next write position (circular buffer) */
+  bool enabled;              /**< Whether this metric is active */
+} embedids_metric_t;
+
+/**
+ * @brief Algorithm configuration for threshold-based detection
+ */
+typedef struct {
+  embedids_metric_value_t min_threshold; /**< Minimum acceptable value */
+  embedids_metric_value_t max_threshold; /**< Maximum acceptable value */
+  bool check_min; /**< Whether to check minimum threshold */
+  bool check_max; /**< Whether to check maximum threshold */
+} embedids_threshold_config_t;
+
+/**
+ * @brief Algorithm configuration for trend analysis
+ */
+typedef struct {
+  uint32_t window_size; /**< Number of points for trend calculation */
+  float max_slope;      /**< Maximum acceptable slope (change/time) */
+  float max_variance;   /**< Maximum acceptable variance */
+  embedids_trend_t expected_trend; /**< Expected trend direction */
+} embedids_trend_config_t;
+
+/**
+ * @brief Custom algorithm function signature
+ * @param metric Pointer to the metric being analyzed
+ * @param config User-provided algorithm configuration
+ * @param context User-provided algorithm context/state
+ * @return EMBEDIDS_OK if normal, error code if anomaly detected
+ */
+typedef embedids_result_t (*embedids_custom_algorithm_fn)(
+    const embedids_metric_t *metric, const void *config, void *context);
+
+/**
+ * @brief Detection algorithm configuration
+ */
+typedef struct {
+  embedids_algorithm_type_t type; /**< Algorithm type */
+  bool enabled;                   /**< Whether this algorithm is active */
+
+  union {
+    embedids_threshold_config_t threshold; /**< Threshold algorithm config */
+    embedids_trend_config_t trend;         /**< Trend algorithm config */
+    struct {
+      embedids_custom_algorithm_fn function; /**< Custom algorithm function */
+      void *config;                          /**< Custom algorithm config */
+      void *context;                         /**< Custom algorithm context */
+    } custom;
+  } config;
+} embedids_algorithm_t;
+
+/**
+ * @brief Complete metric configuration with algorithms
+ */
+typedef struct {
+  embedids_metric_t metric; /**< Base metric configuration */
+  embedids_algorithm_t
+      algorithms[EMBEDIDS_MAX_ALGORITHMS_PER_METRIC]; /**< Detection algorithms
+                                                       */
+  uint32_t num_algorithms; /**< Number of active algorithms */
+} embedids_metric_config_t;
+
+/**
+ * @brief System configuration for EmbedIDS
+ */
+/**
+ * @brief Main system configuration for EmbedIDS
+ */
+typedef struct {
+  embedids_metric_config_t
+      *metrics;         /**< User-provided array of metric configurations */
+  uint32_t max_metrics; /**< Maximum number of metrics in the array */
+  uint32_t num_active_metrics; /**< Number of currently active metrics */
+  void *user_context;          /**< User-provided context for callbacks */
+} embedids_system_config_t;
+
+/**
+ * @brief EmbedIDS context structure for stateless operation
+ */
+typedef struct {
+  bool initialized;
+  embedids_system_config_t *system_config; /**< System configuration */
+} embedids_context_t;
+
+/**
+ * @brief Initialize the EmbedIDS library with extensible configuration
+ * @param context Pointer to EmbedIDS context structure
+ * @param config Pointer to system configuration
+ * @return EMBEDIDS_OK on success, error code on failure
+ */
+embedids_result_t embedids_init(embedids_context_t *context, const embedids_system_config_t *config);
+
+/**
+ * @brief Cleanup and deinitialize the EmbedIDS library
+ * @param context Pointer to EmbedIDS context structure
+ */
+void embedids_cleanup(embedids_context_t *context);
+
+/**
+ * @brief Add a metric data point for analysis
+ * @param context Pointer to EmbedIDS context structure
+ * @param metric_name Name of the metric to update
+ * @param value New metric value
+ * @param timestamp_ms Timestamp for the data point
+ * @return EMBEDIDS_OK on success, error code on failure
+ */
+embedids_result_t embedids_add_datapoint(embedids_context_t *context, const char *metric_name,
+                                         embedids_metric_value_t value,
+                                         uint64_t timestamp_ms);
+
+/**
+ * @brief Analyze all active metrics for anomalies
+ * @param context Pointer to EmbedIDS context structure
+ * @return EMBEDIDS_OK if all normal, error code if anomaly detected
+ */
+embedids_result_t embedids_analyze_all(embedids_context_t *context);
+
+/**
+ * @brief Analyze a specific metric for anomalies
+ * @param context Pointer to EmbedIDS context structure
+ * @param metric_name Name of the metric to analyze
+ * @return EMBEDIDS_OK if normal, error code if anomaly detected
+ */
+embedids_result_t embedids_analyze_metric(embedids_context_t *context, const char *metric_name);
+
+/**
+ * @brief Get trend information for a metric
+ * @param context Pointer to EmbedIDS context structure
+ * @param metric_name Name of the metric
+ * @param trend Pointer to store trend information
+ * @return EMBEDIDS_OK on success, error code on failure
+ */
+embedids_result_t embedids_get_trend(embedids_context_t *context, const char *metric_name,
+                                     embedids_trend_t *trend);
+
+/**
+ * @brief Get the version string of the library
+ * @return Version string in format "major.minor.patch"
+ */
+const char *embedids_get_version(void);
+
+/**
+ * @brief Check if the library context is initialized
+ * @param context Pointer to EmbedIDS context structure
+ * @return true if initialized, false otherwise
+ */
+bool embedids_is_initialized(const embedids_context_t *context);
+
+/**
+ * @brief Validate system configuration before initialization
+ * @param config Pointer to system configuration to validate
+ * @return EMBEDIDS_OK if valid, error code indicating specific issue
+ */
+embedids_result_t
+embedids_validate_config(const embedids_system_config_t *config);
+
+/**
+ * @brief Get human-readable error string
+ * @param error_code Error code to convert to string
+ * @return Pointer to static error string
+ */
+const char *embedids_get_error_string(embedids_result_t error_code);
+
+/**
+ * @brief Reset all metrics and clear history
+ * @param context Pointer to EmbedIDS context structure
+ * @return EMBEDIDS_OK on success, error code on failure
+ */
+embedids_result_t embedids_reset_all_metrics(embedids_context_t *context);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* EMBEDIDS_H */

@@ -1,0 +1,122 @@
+site_name: EmbedIDS, Cybersecurity for Embedded Systems 
+site_author: Linuscent Ltd
+site_url: http://embedids.linuscent.com/
+repo_url: https://github.com/Linuscent/EmbedIDS
+docs_dir: "docs"
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: en
+  logo: assets/images/embedIDS_logo.png
+  favicon: assets/images/favicon.png
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+      # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+      primary: white
+      accent: red
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+      primary: red
+      accent: red
+
+  features:
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.footer
+    - header.autohide
+    - toc.integrate
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Linuscent/EmbedIDS
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/embedids
+  analytics:
+    provider: google
+    property: G-5ZPJDQ0248
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 1
+          note: >-
+            Thanks for your feedback!
+        - icon: material/emoticon-sad-outline
+          name: This page could be improved
+          data: 0
+          note: >- 
+            Thanks for your feedback! Help us improve this page by
+            using our <a href="..." target="_blank" rel="noopener">feedback form</a>.
+  consent:
+    title: Cookie consent
+    description: >- 
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.superfences
+  - md_in_html
+  - attr_list
+  - toc:
+      permalink: true
+      toc_depth: 2
+  - pymdownx.blocks.caption
+
+plugins:
+  - search
+  - mike
+  - social
+  - glightbox
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - git-committers:
+      repository: Linuscent/EmbedIDS
+      branch: main
+nav:
+  - "index.md"
+  - "quickstart.md"
+  - "tutorial.md"
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+extra_javascript:
+  - assets/javascripts/extra.js
+
+copyright: Copyright &copy; 2026 Linuscent Ltd –
+  <a href="#__consent">Change cookie settings</a>
