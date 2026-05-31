@@ -1,0 +1,20 @@
+name: Check Pull Request Title
+
+on:
+  pull_request:
+    branches: [main, feat/*, fix/*]
+
+jobs:
+  semantic_pull_request:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Check PR title uses conventional commit spec
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            fix
+            feat
