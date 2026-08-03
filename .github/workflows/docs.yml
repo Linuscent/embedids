@@ -40,9 +40,48 @@ jobs:
 
       - name: Extract branch name
         shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
         id: extract_branch
 
       - name: Build docs
+        env:
+          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          poetry run mike deploy --push ${{ steps.extract_branch.outputs.branch }}
+          poetry run mike deploy --push --update-aliases \
+            "${{ steps.extract_branch.outputs.branch }}"
+
+      # mike serves every version under /<version>/, so the crawler entry points
+      # (/robots.txt and /sitemap.xml) do not exist at the domain root. Publish
+      # them so search engines can discover the default version's sitemap.
+      - name: Publish root robots.txt and sitemap index
+        if: steps.extract_branch.outputs.branch == 'main'
+        env:
+          SITE_URL: https://embedids.linuscent.com
+          DEFAULT_VERSION: main
+        run: |
+          set -euo pipefail
+          git fetch origin gh-pages
+          git worktree add ../gh-pages origin/gh-pages
+          cd ../gh-pages
+
+          cat > robots.txt <<EOF
+          User-agent: *
+          Allow: /
+
+          Sitemap: ${SITE_URL}/sitemap.xml
+          EOF
+
+          cat > sitemap.xml <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+              <sitemap>
+                   <loc>${SITE_URL}/${DEFAULT_VERSION}/sitemap.xml</loc>
+              </sitemap>
+          </sitemapindex>
+          EOF
+
+          git add robots.txt sitemap.xml
+          git diff --cached --quiet || {
+            git commit -m "chore(docs): update root robots.txt and sitemap index"
+            git push origin HEAD:gh-pages
+          }

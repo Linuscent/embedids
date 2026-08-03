@@ -41,3 +41,5 @@ coverage_summary.txt
 .Trashes
 ehthumbs.db
 Thumbs.db
+# Build output
+site/

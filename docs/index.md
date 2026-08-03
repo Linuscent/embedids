@@ -1,14 +1,14 @@
 ---
-title: Home 
-description: EmbedIDS is a lightweight Runtime Intrusion Detection SDK specifically designed for low-power embedded Internet of Things (IoT) devices. Our open-source SDK provides AI-driven protection to address the critical security gap in constrained IoT environments.
+title: Open Source IDS for Embedded Systems
+description: EmbedIDS is a lightweight, open-source runtime intrusion detection SDK that brings on-device anomaly detection to low-power embedded and IoT devices.
 hide:
   - toc
 ---
 
 # EmbedIDS: Open Source Intrusion Detection System (IDS) for Embedded Systems
 
-![EmbedIDS Logo](assets/images/embedIDS_logo_text.png#only-light)
-![EmbedIDS Logo](assets/images/embedIDS_logo_text.jpeg#only-dark)
+![EmbedIDS Logo](assets/images/embedIDS_logo_text.png#only-light){ .off-glb }
+![EmbedIDS Logo](assets/images/embedIDS_logo_text_dark.png#only-dark){ .off-glb }
 
 **🚀 New to EmbedIDS?** 
 - **[Quick Start Guide](quickstart.md)** - Get running in 5 minutes

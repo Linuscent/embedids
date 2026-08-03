@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {#- Metadata the social plugin does not emit -#}
+  {%- set og_locale = (config.theme.locale or 'en') | string | replace('-', '_') -%}
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:locale" content="{{ og_locale if '_' in og_locale else og_locale ~ '_US' }}">
+  <meta property="og:image:alt" content="{{ (page.meta.title if page and page.meta else none) or config.site_name }}">
+
+  {#- Structured data: helps search engines understand the project and enables
+      sitelinks / knowledge-panel style results. Only emitted on the home page. -#}
+  {% if page and page.is_homepage %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "{{ config.site_url }}#software",
+          "name": "EmbedIDS",
+          "description": {{ config.site_description | tojson }},
+          "url": "{{ config.site_url }}",
+          "applicationCategory": "SecurityApplication",
+          "operatingSystem": "Embedded Linux, RTOS, bare-metal",
+          "programmingLanguage": "C",
+          "license": "https://www.apache.org/licenses/LICENSE-2.0",
+          "codeRepository": "{{ config.repo_url }}",
+          "isAccessibleForFree": true,
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "author": { "@id": "{{ config.site_url }}#organization" }
+        },
+        {
+          "@type": "Organization",
+          "@id": "{{ config.site_url }}#organization",
+          "name": "{{ config.site_author }}",
+          "url": "https://www.linuscent.com/",
+          "sameAs": [
+            "{{ config.repo_url }}",
+            "https://www.linkedin.com/company/linuscent"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "{{ config.site_url }}#website",
+          "url": "{{ config.site_url }}",
+          "name": "{{ config.site_name }}",
+          "description": {{ config.site_description | tojson }},
+          "publisher": { "@id": "{{ config.site_url }}#organization" }
+        }
+      ]
+    }
+  </script>
+  {% endif %}
+{% endblock %}
+
+{% block announce %}
+  <!-- Add announcement here, including arbitrary HTML -->
+   EmbedIDS is launching soon! Stay tuned for updates. Follow us on <a href="https://www.linkedin.com/company/linuscent">LinkedIn</a> for the latest news.
+{% endblock %}

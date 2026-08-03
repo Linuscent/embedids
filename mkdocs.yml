@@ -1,11 +1,15 @@
-site_name: EmbedIDS, Cybersecurity for Embedded Systems 
+site_name: EmbedIDS
 site_author: Linuscent Ltd
-site_url: http://embedids.linuscent.com/
+site_url: https://embedids.linuscent.com/
+site_description: >-
+  EmbedIDS is a lightweight, open-source runtime Intrusion Detection SDK for
+  low-power embedded and IoT devices, providing on-device anomaly detection
+  with no dynamic memory allocation.
 repo_url: https://github.com/Linuscent/EmbedIDS
 docs_dir: "docs"
 theme:
   name: material
-  custom_dir: docs/overrides
+  custom_dir: overrides
   language: en
   logo: assets/images/embedIDS_logo.png
   favicon: assets/images/favicon.png
@@ -30,7 +34,7 @@ theme:
       scheme: slate
       toggle:
         icon: material/weather-night
-        name: Switch to light mode
+        name: Switch to system preference
       primary: red
       accent: red
 
@@ -54,7 +58,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/Linuscent/EmbedIDS
     - icon: fontawesome/brands/linkedin
-      link: https://www.linkedin.com/company/embedids
+      link: https://www.linkedin.com/company/linuscent
   analytics:
     provider: google
     property: G-5ZPJDQ0248
@@ -69,9 +73,9 @@ extra:
         - icon: material/emoticon-sad-outline
           name: This page could be improved
           data: 0
-          note: >- 
+          note: >-
             Thanks for your feedback! Help us improve this page by
-            using our <a href="..." target="_blank" rel="noopener">feedback form</a>.
+            <a href="https://github.com/Linuscent/EmbedIDS/issues/new?title=[Docs]+{title}+-+{url}" target="_blank" rel="noopener">opening an issue</a>.
   consent:
     title: Cookie consent
     description: >- 
@@ -94,7 +98,7 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: true
-      toc_depth: 2
+      toc_depth: 3
   - pymdownx.blocks.caption
 
 plugins:
@@ -107,10 +111,11 @@ plugins:
   - git-committers:
       repository: Linuscent/EmbedIDS
       branch: main
+      token: !ENV [MKDOCS_GIT_COMMITTERS_APIKEY, ""]
 nav:
-  - "index.md"
-  - "quickstart.md"
-  - "tutorial.md"
+  - Home: index.md
+  - Quick Start: quickstart.md
+  - Tutorial: tutorial.md
 
 extra_css:
   - assets/stylesheets/extra.css

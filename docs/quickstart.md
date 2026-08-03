@@ -1,3 +1,8 @@
+---
+title: Quick Start
+description: Install EmbedIDS, build the SDK and run your first CPU-usage anomaly monitor in about five minutes.
+---
+
 # Quick Start
 
 Get up and running with EmbedIDS in 5 minutes!

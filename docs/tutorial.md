@@ -1,3 +1,8 @@
+---
+title: Tutorial
+description: A complete guide to the EmbedIDS API - contexts, metrics, detection algorithms and custom extensions for embedded and IoT devices.
+---
+
 # Tutorial
 
 ## Introduction
