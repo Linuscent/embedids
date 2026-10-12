@@ -60,7 +60,7 @@ services:
           memory: 128M
 
   dashboard:
-    image: nginx:1.25.5-alpine
+    image: nginx:1.30.5-alpine
     container_name: embedids-dashboard
     depends_on:
       embedids-agent:

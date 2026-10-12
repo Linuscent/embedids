@@ -9,18 +9,12 @@ if(POLICY CMP0135)
     cmake_policy(SET CMP0135 NEW)
 endif()
 
-# yaml-cpp 0.8.0 declares cmake_minimum_required(VERSION 3.4), which CMake 4.x
-# rejects unless a policy floor is provided.
-if(NOT DEFINED CMAKE_POLICY_VERSION_MINIMUM)
-    set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
-endif()
-
 # --- nlohmann/json -----------------------------------------------------------
 find_package(nlohmann_json 3.10 QUIET)
 if(NOT nlohmann_json_FOUND)
     FetchContent_Declare(nlohmann_json
-        URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz
-        URL_HASH SHA256=d6c65aca6b1ed68e7a182f4757257b107ae403032760ed6ef121c9d55e81757d
+        URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz
+        URL_HASH SHA256=42f6e95cad6ec532fd372391373363b62a14af6d771056dbfc86160e6dfff7aa
     )
     set(JSON_BuildTests OFF CACHE INTERNAL "")
     set(JSON_Install OFF CACHE INTERNAL "")
@@ -31,8 +25,8 @@ endif()
 find_package(yaml-cpp 0.7 QUIET)
 if(NOT yaml-cpp_FOUND)
     FetchContent_Declare(yaml-cpp
-        URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz
-        URL_HASH SHA256=fbe74bbdcee21d656715688706da3c8becfd946d92cd44705cc6098bb23b3a16
+        URL https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.9.0.tar.gz
+        URL_HASH SHA256=25cb043240f828a8c51beb830569634bc7ac603978e0f69d6b63558dadefd49a
     )
     set(YAML_CPP_BUILD_TESTS OFF CACHE INTERNAL "")
     set(YAML_CPP_BUILD_TOOLS OFF CACHE INTERNAL "")
@@ -47,8 +41,8 @@ endif()
 
 # --- cpp-httplib (header only) ------------------------------------------------
 FetchContent_Declare(httplib
-    URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.18.3.tar.gz
-    URL_HASH SHA256=a0567bcd6c3fe5cef1b329b96245119047f876b49e06cc129a36a7a8dffe173e
+    URL https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.60.1.tar.gz
+    URL_HASH SHA256=f42fc046e55f968a9dd43b272251f033b08538d3e359235608f980f551053215
     # Header-only: populate without running its CMake project.
     SOURCE_SUBDIR do-not-configure
 )
@@ -66,8 +60,8 @@ if(SQLite3_FOUND)
 else()
     message(STATUS "System SQLite3 not found - building bundled amalgamation")
     FetchContent_Declare(sqlite_amalgamation
-        URL https://www.sqlite.org/2024/sqlite-amalgamation-3460100.zip
-        URL_HASH SHA256=77823cb110929c2bcb0f5d48e4833b5c59a8a6e40cdea3936b99e199dbbe5784
+        URL https://www.sqlite.org/2026/sqlite-amalgamation-3540000.zip
+        URL_HASH SHA256=68e913b0fe8ec6b4e5f391c594a28872884e80d6cd042a1e50c957be46b5aa4d
         SOURCE_SUBDIR do-not-configure
     )
     FetchContent_MakeAvailable(sqlite_amalgamation)

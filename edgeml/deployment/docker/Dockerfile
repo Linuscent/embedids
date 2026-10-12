@@ -4,7 +4,7 @@
 # edgeml-simulator. Build context is the repository root:
 #   docker build -f edgeml/deployment/docker/Dockerfile -t embedids-edgeml .
 
-ARG BASE_IMAGE=ubuntu:24.04
+ARG BASE_IMAGE=ubuntu:26.04
 
 FROM ${BASE_IMAGE} AS build
 RUN apt-get update \
