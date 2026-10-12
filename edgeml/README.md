@@ -6,7 +6,10 @@ activity and model integrity, and its detection rules are built around how
 Edge AI workloads behave. It runs entirely in simulation today, and the same
 detection engine is designed to move to NVIDIA Jetson by swapping collectors.
 
-![Correlated GPU incident](docs/screenshots/02-cryptominer-correlated.png)
+![Correlated GPU incident](../docs/assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.png)
+
+The public case study is on the EmbedIDS website: [Runtime security for Edge AI devices](https://embedids.linuscent.com/main/case-studies/edgeml-runtime-security/)
+(source: [`docs/case-studies/edgeml-runtime-security.md`](../docs/case-studies/edgeml-runtime-security.md)).
 
 ## Quick start
 
@@ -56,7 +59,8 @@ in YAML ([`configs/`](configs)).
 | `configs/` | `default.yaml` (single process), `demo.yaml` (Docker), `linux-example.yaml`, `jetson-example.yaml` |
 | `deployment/` | Dockerfile, `docker-compose.yml`, systemd unit |
 | `tests/` | Unit, integration (virtual-clock scenarios, API, HTTP topology) and real-process attack scenarios |
-| `docs/` | Architecture, demo guide, API, hardware porting guide, screenshots |
+| `docs/` | Architecture, demo guide, API, hardware porting guide |
+| `tools/` | `case_study_charts.py`: records live telemetry and renders the website case-study charts |
 
 Dependencies are only for the agent and simulator; the EmbedIDS C library
 stays dependency-free. The build fetches them with pinned SHA-256 hashes:

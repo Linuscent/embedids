@@ -139,13 +139,26 @@ Set `EMBEDIDS_API=http://<host>:8080/api` to target a remote stack.
 4. Narrate along with `demo_walkthrough.sh` running in a second terminal
    with `PAUSE=6`, or press the buttons by hand following section 2. The
    whole flow fits in about 3 minutes.
-5. Screenshots for marketing are in `docs/screenshots/`:
-   - healthy state;
-   - correlated GPU incident with evidence;
-   - model integrity violation;
-   - data exfiltration incident.
+5. Marketing screenshots and charts live with the website case study in
+   [`docs/assets/case-studies/edgeml/`](../../docs/assets/case-studies/edgeml):
+   - `screenshots/`: healthy state, correlated GPU incident with evidence,
+     model integrity violation, data exfiltration incident;
+   - `*-timeline.svg`: charts rendered from recorded telemetry.
 
-   To regenerate them, take browser screenshots after each stage.
+   To regenerate the screenshots, take browser screenshots after each stage
+   at 1600x1750. To regenerate the charts, run the stack and:
+
+   ```bash
+   D=docs/assets/case-studies/edgeml
+   T=edgeml/tools/case_study_charts.py
+   python3 $T record --api http://localhost:8081 --scenario cryptominer \
+       --then model-tamper@28 --baseline 35 --duration 45 --out $D/data/gpu-workload.json
+   python3 $T record --api http://localhost:8081 --scenario network-exfil \
+       --baseline 25 --duration 30 --out $D/data/exfiltration.json
+   python3 $T render-gpu $D/data/gpu-workload.json $D/gpu-workload-timeline.svg
+   python3 $T render-exfil $D/data/exfiltration.json $D/exfiltration-timeline.svg
+   python3 $T render-latency $D/data/detection-latency.json $D/detection-latency.svg
+   ```
 
 ## 6. Measured agent resource usage
 

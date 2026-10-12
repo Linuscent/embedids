@@ -65,6 +65,8 @@ poetry run mkdocs serve   # local preview
 ```
 CI deploys versioned docs via `mike` on push to `main` or `v*.*` branches.
 
+- Case studies live in `docs/case-studies/`; their charts under `docs/assets/case-studies/` are rendered from recorded telemetry by `edgeml/tools/case_study_charts.py` (see `edgeml/docs/demo-guide.md`). Don't hand-edit the `*-timeline.svg` / `detection-latency.svg` files.
+
 ## CI
 
 - No CI workflow builds or tests the C library — only docs are CI-tested.
