@@ -6,7 +6,7 @@ activity and model integrity, and its detection rules are built around how
 Edge AI workloads behave. It runs entirely in simulation today, and the same
 detection engine is designed to move to NVIDIA Jetson by swapping collectors.
 
-![Correlated GPU incident](../docs/assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.png)
+![Correlated GPU incident](../docs/assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.webp)
 
 The public case study is on the EmbedIDS website: [Runtime security for Edge AI devices](https://embedids.linuscent.com/main/case-studies/edgeml-runtime-security/)
 (source: [`docs/case-studies/edgeml-runtime-security.md`](../docs/case-studies/edgeml-runtime-security.md)).

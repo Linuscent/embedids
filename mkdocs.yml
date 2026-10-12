@@ -7,6 +7,13 @@ site_description: >-
   with no dynamic memory allocation.
 repo_url: https://github.com/Linuscent/EmbedIDS
 docs_dir: "docs"
+
+# Surface broken internal links and anchors at build time.
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
 theme:
   name: material
   custom_dir: overrides

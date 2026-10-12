@@ -1,6 +1,15 @@
 ---
 title: "Case Study: Runtime Security for Edge AI Devices"
-description: How EmbedIDS EdgeML detects rogue GPU workloads, AI model tampering and data exfiltration on a Jetson-class edge AI device in seconds, using about 9 MB of memory.
+schema_type: TechArticle
+keywords:
+  - edge AI security
+  - runtime intrusion detection
+  - NVIDIA Jetson
+  - AI model integrity
+  - GPU cryptojacking detection
+  - TensorRT
+  - embedded IDS
+description: How EmbedIDS EdgeML detects rogue GPU workloads, AI model tampering and data exfiltration on a Jetson-class edge AI device, using about 9 MB of memory.
 ---
 
 # Runtime security for Edge AI devices
@@ -9,7 +18,7 @@ description: How EmbedIDS EdgeML detects rogue GPU workloads, AI model tampering
 exfiltration on a vision-inference device, in seconds, from about 9 MB of
 memory.**
 
-![EmbedIDS EdgeML: runtime security for Edge AI devices](../assets/case-studies/edgeml/hero.svg){ .off-glb }
+![EmbedIDS EdgeML: runtime security for Edge AI devices](../assets/case-studies/edgeml/hero.svg){ .off-glb fetchpriority=high width="1200" height="440" }
 
 <div class="grid cards" markdown>
 
@@ -114,7 +123,7 @@ against thresholds and "sustained for N seconds" conditions every second.
 
 ## Architecture
 
-![EmbedIDS EdgeML architecture](../assets/case-studies/edgeml/architecture.svg)
+![EmbedIDS EdgeML architecture](../assets/case-studies/edgeml/architecture.svg){ loading=lazy width="1200" height="860" }
 
 - **Collectors are the only hardware-aware layer.** Simulation, generic
   Linux (`/proc`, `/sys`) and NVIDIA Jetson (`tegrastats`, GPU sysfs) all
@@ -136,7 +145,7 @@ A rogue process, `unknown_worker`, starts on the device and saturates the
 GPU. Inference throughput drops from 30 FPS to around 10 FPS. Later in the
 same run, the deployed model file is modified.
 
-![GPU utilization and inference throughput with EmbedIDS alerts during a cryptominer attack](../assets/case-studies/edgeml/gpu-workload-timeline.svg)
+![GPU utilization and inference throughput with EmbedIDS alerts during a cryptominer attack](../assets/case-studies/edgeml/gpu-workload-timeline.svg){ loading=lazy width="1200" height="836" }
 
 The chart above is **recorded telemetry, not an illustration**. Here is what
 EmbedIDS saw:
@@ -156,15 +165,15 @@ pages anyone.
 
 === "Correlated incident"
 
-    ![Dashboard showing the correlated GPU incident with evidence](../assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.png)
+    ![Dashboard showing the correlated GPU incident with evidence](../assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.webp){ loading=lazy width="1600" height="1750" }
 
 === "Model integrity violation"
 
-    ![Dashboard showing the CRITICAL model integrity violation with expected and current hashes](../assets/case-studies/edgeml/screenshots/03-model-integrity.png)
+    ![Dashboard showing the CRITICAL model integrity violation with expected and current hashes](../assets/case-studies/edgeml/screenshots/03-model-integrity.webp){ loading=lazy width="1600" height="1750" }
 
 === "Healthy baseline"
 
-    ![Dashboard in the healthy state](../assets/case-studies/edgeml/screenshots/01-healthy.png)
+    ![Dashboard in the healthy state](../assets/case-studies/edgeml/screenshots/01-healthy.webp){ loading=lazy width="1600" height="1750" }
 
 Every alert explains itself. This is the correlated incident exactly as the
 agent's REST API returned it:
@@ -218,7 +227,7 @@ This attacker is quieter. Nothing new is launched: the allow-listed
 `mqtt-client` reads the model and streams it to an unknown host. A
 process allow list alone would miss it entirely.
 
-![Outbound traffic and connections with EmbedIDS alerts during model exfiltration](../assets/case-studies/edgeml/exfiltration-timeline.svg)
+![Outbound traffic and connections with EmbedIDS alerts during model exfiltration](../assets/case-studies/edgeml/exfiltration-timeline.svg){ loading=lazy width="1200" height="836" }
 
 Within **half a second**, EmbedIDS flags two things:
 
@@ -229,6 +238,8 @@ Within **half a second**, EmbedIDS flags two things:
 By **+4.5 s** the sustained outbound anomaly confirms the pattern, and the
 three signals correlate into a `CRITICAL` **Possible model/data
 exfiltration** incident.
+
+![Dashboard showing the correlated model/data exfiltration incident with its evidence](../assets/case-studies/edgeml/screenshots/04-data-exfiltration.webp){ loading=lazy width="1600" height="1750" }
 
 ### More scenarios
 
@@ -242,7 +253,7 @@ exfiltration** incident.
 
 ## From signals to incidents
 
-![How individual alerts are correlated into incidents](../assets/case-studies/edgeml/correlation.svg)
+![How individual alerts are correlated into incidents](../assets/case-studies/edgeml/correlation.svg){ loading=lazy width="1200" height="560" }
 
 Correlation is rule-based and configured in YAML, so it stays predictable
 and auditable:
@@ -260,7 +271,7 @@ correlations:
 
 ## Results
 
-![Time to detect for each attack scenario](../assets/case-studies/edgeml/detection-latency.svg)
+![Time to detect for each attack scenario](../assets/case-studies/edgeml/detection-latency.svg){ loading=lazy width="1200" height="644" }
 
 <div class="grid cards" markdown>
 
@@ -332,7 +343,7 @@ The release is backed by an automated test suite:
 
 ## Path to NVIDIA Jetson
 
-![One detection engine, swappable collectors, and the roadmap to Jetson hardware](../assets/case-studies/edgeml/portability.svg)
+![One detection engine, swappable collectors, and the roadmap to Jetson hardware](../assets/case-studies/edgeml/portability.svg){ loading=lazy width="1200" height="520" }
 
 Moving from simulation to hardware is a configuration change, not a rewrite:
 

@@ -143,21 +143,25 @@ Set `EMBEDIDS_API=http://<host>:8080/api` to target a remote stack.
    [`docs/assets/case-studies/edgeml/`](../../docs/assets/case-studies/edgeml):
    - `screenshots/`: healthy state, correlated GPU incident with evidence,
      model integrity violation, data exfiltration incident;
-   - `*-timeline.svg`: charts rendered from recorded telemetry.
+   - `*-timeline.svg`, `detection-latency.svg`: charts rendered from the
+     datasets in `edgeml/tools/case-study-data/`. These are kept outside the
+     website source so raw JSON is never published as crawlable assets.
 
    To regenerate the screenshots, take browser screenshots after each stage
-   at 1600x1750. To regenerate the charts, run the stack and:
+   at 1600x1750 and publish them as WebP (about half the size of PNG at
+   quality 88, with no visible loss on UI text). To regenerate the charts, run the stack and:
 
    ```bash
-   D=docs/assets/case-studies/edgeml
+   D=docs/assets/case-studies/edgeml            # published charts
+   R=edgeml/tools/case-study-data               # recorded datasets (not published)
    T=edgeml/tools/case_study_charts.py
    python3 $T record --api http://localhost:8081 --scenario cryptominer \
-       --then model-tamper@28 --baseline 35 --duration 45 --out $D/data/gpu-workload.json
+       --then model-tamper@28 --baseline 35 --duration 45 --out $R/gpu-workload.json
    python3 $T record --api http://localhost:8081 --scenario network-exfil \
-       --baseline 25 --duration 30 --out $D/data/exfiltration.json
-   python3 $T render-gpu $D/data/gpu-workload.json $D/gpu-workload-timeline.svg
-   python3 $T render-exfil $D/data/exfiltration.json $D/exfiltration-timeline.svg
-   python3 $T render-latency $D/data/detection-latency.json $D/detection-latency.svg
+       --baseline 25 --duration 30 --out $R/exfiltration.json
+   python3 $T render-gpu $R/gpu-workload.json $D/gpu-workload-timeline.svg
+   python3 $T render-exfil $R/exfiltration.json $D/exfiltration-timeline.svg
+   python3 $T render-latency $R/detection-latency.json $D/detection-latency.svg
    ```
 
 ## 6. Measured agent resource usage
