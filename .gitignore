@@ -43,3 +43,6 @@ ehthumbs.db
 Thumbs.db
 # Build output
 site/
+
+# EdgeML local demo data
+edgeml-data/

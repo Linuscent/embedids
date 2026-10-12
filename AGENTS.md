@@ -13,6 +13,7 @@ make -j$(nproc)
 Key CMake options:
 - `BUILD_TESTS=OFF` (default) — must enable to build tests
 - `BUILD_EXAMPLES=OFF` (default)
+- `BUILD_EDGEML=OFF` (default) — EdgeML agent, simulator and tests (see below)
 - `ENABLE_COVERAGE=OFF` — adds `--coverage` and a `coverage` target
 
 ## Test
@@ -36,6 +37,24 @@ Five CTest suites: `core_tests`, `metrics_tests`, `algorithms_tests`, `analysis_
 - Floating point is optional: guarded by `EMBEDIDS_ENABLE_FLOATING_POINT` / `EMBEDIDS_ENABLE_DOUBLE_PRECISION`.
 - Library is C11; tests are C++17 with `extern "C"` wrapper.
 - `run_trend_algorithm()` in `src/embedids.c` is a stub with a TODO — trend analysis is incomplete.
+- `embedids_analyze_metric_detailed()` evaluates every algorithm on a metric (unlike `embedids_analyze_metric()`, which stops at the first anomaly).
+
+## EdgeML Runtime Security MVP (`edgeml/`)
+
+C++17 agent, simulator, REST API and dashboard built on the core library. Off by default; enable with `-DBUILD_EDGEML=ON`. See `edgeml/README.md`.
+
+```bash
+cmake -S . -B build -DBUILD_EDGEML=ON -DBUILD_TESTS=ON && cmake --build build -j
+cd build && ctest -E e2e          # edgeml unit + integration (~5 s)
+ctest -R e2e                      # real-process attack scenarios (~3 min)
+cd edgeml/deployment && docker compose up --build   # demo at http://localhost:8080
+```
+
+- Dependencies (nlohmann/json, yaml-cpp, cpp-httplib, SQLite amalgamation) are fetched via FetchContent with pinned hashes in `edgeml/cmake/Dependencies.cmake`; the core C library stays dependency-free.
+- Library layering: `edgeml_core` (no collector/hardware deps) ← `edgeml_sim` ← `edgeml_collectors` ← `edgeml_agent`. Keep detection code free of platform APIs.
+- New collectors implement `MetricCollector` (`edgeml/collectors/common/collector.h`) and are wired in `collector_factory.cpp`.
+- Integration tests drive `Agent::run_cycle()` with a `ManualClock` (`edgeml/tests/support/test_support.h`); prefer that over sleeps.
+- The simulator's approved model SHA-256 is pinned in `edgeml/configs/*.yaml` and `test_simulator.cpp`; changing the model generator breaks both.
 
 ## Docs
 

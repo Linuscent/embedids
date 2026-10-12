@@ -453,3 +453,82 @@ TEST_F(EmbedIDSAnalysisTest, SequentialAnalysisCalls) {
   EXPECT_EQ(embedids_add_datapoint(&context, "test_metric", value, 2000), EMBEDIDS_OK);
   EXPECT_EQ(embedids_analyze_metric(&context, "test_metric"), EMBEDIDS_OK);
 }
+
+// ============================================================================
+// Detailed (per-algorithm) Analysis Tests
+// ============================================================================
+
+TEST_F(EmbedIDSAnalysisTest, DetailedAnalysisReportsEveryAlgorithm) {
+  embedids_metric_datapoint_t history_buffer[10];
+  embedids_metric_config_t metric_config;
+
+  setupBasicMetric(metric_config, history_buffer, "fps",
+                   EMBEDIDS_METRIC_TYPE_FLOAT, 10);
+
+  // Algorithm 0: below 27 is anomalous, algorithm 1: below 20 is anomalous
+  metric_config.algorithms[0].type = EMBEDIDS_ALGORITHM_THRESHOLD;
+  metric_config.algorithms[0].enabled = true;
+  metric_config.algorithms[0].config.threshold.min_threshold.f32 = 27.0f;
+  metric_config.algorithms[0].config.threshold.check_min = true;
+  metric_config.algorithms[0].config.threshold.check_max = false;
+  metric_config.algorithms[1].type = EMBEDIDS_ALGORITHM_THRESHOLD;
+  metric_config.algorithms[1].enabled = true;
+  metric_config.algorithms[1].config.threshold.min_threshold.f32 = 20.0f;
+  metric_config.algorithms[1].config.threshold.check_min = true;
+  metric_config.algorithms[1].config.threshold.check_max = false;
+  metric_config.num_algorithms = 2;
+
+  ASSERT_EQ(initializeWithMetric(&metric_config), EMBEDIDS_OK);
+
+  embedids_metric_value_t value;
+  value.f32 = 24.0f;
+  ASSERT_EQ(embedids_add_datapoint(&context, "fps", value, 1000), EMBEDIDS_OK);
+
+  embedids_result_t results[EMBEDIDS_MAX_ALGORITHMS_PER_METRIC];
+  uint32_t count = 0;
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "fps", results,
+                                             EMBEDIDS_MAX_ALGORITHMS_PER_METRIC,
+                                             &count),
+            EMBEDIDS_ERROR_THRESHOLD_EXCEEDED);
+  ASSERT_EQ(count, 2u);
+  EXPECT_EQ(results[0], EMBEDIDS_ERROR_THRESHOLD_EXCEEDED);
+  EXPECT_EQ(results[1], EMBEDIDS_OK);
+
+  // Disabled algorithms report OK and later algorithms still run
+  metric_config.algorithms[0].enabled = false;
+  value.f32 = 10.0f;
+  ASSERT_EQ(embedids_add_datapoint(&context, "fps", value, 2000), EMBEDIDS_OK);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "fps", results,
+                                             EMBEDIDS_MAX_ALGORITHMS_PER_METRIC,
+                                             &count),
+            EMBEDIDS_ERROR_THRESHOLD_EXCEEDED);
+  EXPECT_EQ(results[0], EMBEDIDS_OK);
+  EXPECT_EQ(results[1], EMBEDIDS_ERROR_THRESHOLD_EXCEEDED);
+}
+
+TEST_F(EmbedIDSAnalysisTest, DetailedAnalysisParameterValidation) {
+  embedids_metric_datapoint_t history_buffer[4];
+  embedids_metric_config_t metric_config;
+  setupBasicMetric(metric_config, history_buffer, "m",
+                   EMBEDIDS_METRIC_TYPE_FLOAT, 4);
+
+  embedids_result_t results[2];
+  uint32_t count = 99;
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "m", results, 2, &count),
+            EMBEDIDS_ERROR_NOT_INITIALIZED);
+  EXPECT_EQ(count, 0u);
+
+  ASSERT_EQ(initializeWithMetric(&metric_config), EMBEDIDS_OK);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, NULL, results, 2, NULL),
+            EMBEDIDS_ERROR_INVALID_PARAM);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "m", NULL, 2, NULL),
+            EMBEDIDS_ERROR_INVALID_PARAM);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "m", results, 0, NULL),
+            EMBEDIDS_ERROR_INVALID_PARAM);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "missing", results, 2,
+                                             NULL),
+            EMBEDIDS_ERROR_METRIC_NOT_FOUND);
+  EXPECT_EQ(embedids_analyze_metric_detailed(&context, "m", results, 2, &count),
+            EMBEDIDS_OK);
+  EXPECT_EQ(count, 0u);
+}

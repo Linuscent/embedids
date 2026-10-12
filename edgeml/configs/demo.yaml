@@ -1,0 +1,122 @@
+# EmbedIDS EdgeML - Docker Compose demo configuration.
+# Mounted as /etc/embedids/config.yaml in the embedids-agent container.
+
+device:
+  id: demo-edge-001
+  platform: simulation
+  workload: vision-inference
+
+sampling:
+  interval_ms: 1000
+  history_seconds: 600
+
+simulation:
+  mode: http
+  endpoint: "http://simulator:9100"
+  request_timeout_ms: 800
+
+system:
+  cpu_exhaustion: 95
+  memory_exhaustion: 90
+  exhaustion_seconds: 5
+
+gpu:
+  high_utilization: 85
+  sustain_seconds: 10
+
+ai:
+  expected_fps: 30
+  minimum_fps: 20
+  baseline_ratio: 0.9
+  degradation_seconds: 10
+
+network:
+  allowed_destinations:
+    - "10.0.0.20:1883"
+    - "10.0.0.30:443"
+  baseline_bytes_out: 40000
+  anomaly_multiplier: 5
+  anomaly_seconds: 3
+  escalation_bytes_out: 500000
+
+process:
+  allowed:
+    - systemd
+    - containerd
+    - embedids-agent
+    - inference-service
+    - camera-service
+    - mqtt-client
+  min_runtime_seconds: 5
+
+integrity:
+  model:
+    path: "/models/model.engine"
+    sha256: "57869ad7a571163daf939d5e3ebe1dcfcb81437654d1636b0cdfdc233d92f56c"
+    allowed_readers:
+      - inference-service
+      - embedids-agent
+  verify_config: true
+  rehash_interval_seconds: 30
+  startup_grace_seconds: 15
+  access_window_seconds: 15
+
+heartbeat:
+  interval_seconds: 5
+  timeout_seconds: 15
+
+correlations:
+  - name: unauthorized_gpu_workload
+    title: "Possible unauthorized GPU workload"
+    description: >-
+      GPU utilization increased while inference throughput decreased and an
+      unknown process was detected.
+    severity: high
+    window_seconds: 20
+    requires:
+      - security.unknown_processes
+      - gpu.utilization
+      - ai.inference.rate
+  - name: model_data_exfiltration
+    title: "Possible model/data exfiltration"
+    description: >-
+      An unexpected process read the deployed model while high-volume traffic
+      flowed to an unknown destination.
+    severity: critical
+    window_seconds: 30
+    requires:
+      - unknown_destination
+      - outbound_traffic_anomaly
+      - model_file_access
+  - name: privileged_resource_hijack
+    title: "Privileged process exhausting device resources"
+    description: >-
+      A process running as root outside the allow list appeared while CPU and
+      memory were exhausted.
+    severity: critical
+    window_seconds: 30
+    requires:
+      - security.privileged_processes
+      - resource_exhaustion
+
+alerts:
+  console: true
+  json_file: true
+  json_file_path: "/var/lib/embedids/alerts.jsonl"
+  # No syslog daemon inside the container; point syslog_server at a
+  # collector ("host:514") to forward RFC 5424 messages over UDP.
+  syslog: false
+  syslog_server: ""
+  webhook_url: ""
+
+storage:
+  enabled: true
+  path: "/var/lib/embedids/embedids.db"
+  metrics_retention_hours: 24
+  events_retention_days: 7
+  alerts_retention_days: 30
+
+api:
+  bind: "0.0.0.0"
+  port: 8081
+  demo_controls: true

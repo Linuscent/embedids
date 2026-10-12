@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embedids.linuscent.com/schemas/edgeml/event.schema.json",
+  "title": "EmbedIDS EdgeML timeline event",
+  "description": "Entry returned by GET /events and stored in the SQLite events table.",
+  "type": "object",
+  "required": ["id", "timestamp", "type", "severity", "source", "message"],
+  "properties": {
+    "id": { "type": "integer" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestamp_ms": { "type": "integer" },
+    "type": {
+      "type": "string",
+      "examples": ["agent.started", "agent.warning", "collector.failed", "collector.recovered",
+                   "alert.raised", "alert.escalated", "alert.resolved", "demo.scenario", "demo.reset"]
+    },
+    "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+    "source": { "type": "string" },
+    "message": { "type": "string" },
+    "data": { "type": "object" }
+  }
+}

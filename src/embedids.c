@@ -127,6 +127,32 @@ run_trend_algorithm(const embedids_metric_t *metric,
   return EMBEDIDS_OK;
 }
 
+/* Run a single algorithm of a metric; disabled algorithms report OK */
+static embedids_result_t run_algorithm(embedids_metric_config_t *config,
+                                       uint32_t index) {
+  embedids_algorithm_t *algorithm = &config->algorithms[index];
+  if (!algorithm->enabled) {
+    return EMBEDIDS_OK;
+  }
+
+  switch (algorithm->type) {
+  case EMBEDIDS_ALGORITHM_THRESHOLD:
+    return run_threshold_algorithm(&config->metric,
+                                   &algorithm->config.threshold);
+  case EMBEDIDS_ALGORITHM_TREND:
+    return run_trend_algorithm(&config->metric, &algorithm->config.trend);
+  case EMBEDIDS_ALGORITHM_CUSTOM:
+    if (algorithm->config.custom.function) {
+      return algorithm->config.custom.function(
+          &config->metric, algorithm->config.custom.config,
+          algorithm->config.custom.context);
+    }
+    return EMBEDIDS_OK;
+  }
+
+  return EMBEDIDS_OK;
+}
+
 embedids_result_t embedids_init(embedids_context_t *context, const embedids_system_config_t *config) {
   if (context == NULL || config == NULL) {
     return EMBEDIDS_ERROR_INVALID_PARAM;
@@ -217,36 +243,62 @@ embedids_result_t embedids_analyze_metric(embedids_context_t *context, const cha
 
   // Run all algorithms for this metric
   for (uint32_t i = 0; i < config->num_algorithms; i++) {
-    embedids_algorithm_t *algorithm = &config->algorithms[i];
-    if (!algorithm->enabled) {
-      continue;
-    }
-
-    embedids_result_t result = EMBEDIDS_OK;
-
-    switch (algorithm->type) {
-    case EMBEDIDS_ALGORITHM_THRESHOLD:
-      result = run_threshold_algorithm(&config->metric,
-                                       &algorithm->config.threshold);
-      break;
-    case EMBEDIDS_ALGORITHM_TREND:
-      result = run_trend_algorithm(&config->metric, &algorithm->config.trend);
-      break;
-    case EMBEDIDS_ALGORITHM_CUSTOM:
-      if (algorithm->config.custom.function) {
-        result = algorithm->config.custom.function(
-            &config->metric, algorithm->config.custom.config,
-            algorithm->config.custom.context);
-      }
-      break;
-    }
-
+    embedids_result_t result = run_algorithm(config, i);
     if (result != EMBEDIDS_OK) {
       return result; // Return first error detected
     }
   }
 
   return EMBEDIDS_OK;
+}
+
+embedids_result_t embedids_analyze_metric_detailed(embedids_context_t *context,
+                                                   const char *metric_name,
+                                                   embedids_result_t *results,
+                                                   uint32_t max_results,
+                                                   uint32_t *num_results) {
+  if (num_results) {
+    *num_results = 0;
+  }
+
+  if (!context || !context->initialized) {
+    return EMBEDIDS_ERROR_NOT_INITIALIZED;
+  }
+
+  if (metric_name == NULL || results == NULL || max_results == 0) {
+    return EMBEDIDS_ERROR_INVALID_PARAM;
+  }
+
+  embedids_metric_config_t *config = find_metric_config(context, metric_name);
+  if (config == NULL) {
+    return EMBEDIDS_ERROR_METRIC_NOT_FOUND;
+  }
+
+  if (!config->metric.enabled) {
+    return EMBEDIDS_ERROR_METRIC_DISABLED;
+  }
+
+  uint32_t count = config->num_algorithms;
+  if (count > EMBEDIDS_MAX_ALGORITHMS_PER_METRIC) {
+    count = EMBEDIDS_MAX_ALGORITHMS_PER_METRIC;
+  }
+  if (count > max_results) {
+    count = max_results;
+  }
+
+  embedids_result_t first_anomaly = EMBEDIDS_OK;
+  for (uint32_t i = 0; i < count; i++) {
+    results[i] = run_algorithm(config, i);
+    if (first_anomaly == EMBEDIDS_OK && results[i] != EMBEDIDS_OK) {
+      first_anomaly = results[i];
+    }
+  }
+
+  if (num_results) {
+    *num_results = count;
+  }
+
+  return first_anomaly;
 }
 
 void embedids_cleanup(embedids_context_t *context) {

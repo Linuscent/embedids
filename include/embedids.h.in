@@ -326,6 +326,28 @@ embedids_result_t embedids_analyze_all(embedids_context_t *context);
 embedids_result_t embedids_analyze_metric(embedids_context_t *context, const char *metric_name);
 
 /**
+ * @brief Analyze a metric and report the result of every algorithm
+ *
+ * Unlike embedids_analyze_metric(), evaluation does not stop at the first
+ * anomaly: every configured algorithm is run and its result is written to
+ * results[i] (disabled algorithms report EMBEDIDS_OK). This allows several
+ * independent detection conditions to share a single metric history.
+ *
+ * @param context Pointer to EmbedIDS context structure
+ * @param metric_name Name of the metric to analyze
+ * @param results User-provided array receiving one result per algorithm
+ * @param max_results Capacity of the results array
+ * @param num_results Optional output: number of results written
+ * @return EMBEDIDS_OK if all algorithms report normal, otherwise the first
+ *         anomaly result (or an error code for invalid usage)
+ */
+embedids_result_t embedids_analyze_metric_detailed(embedids_context_t *context,
+                                                   const char *metric_name,
+                                                   embedids_result_t *results,
+                                                   uint32_t max_results,
+                                                   uint32_t *num_results);
+
+/**
  * @brief Get trend information for a metric
  * @param context Pointer to EmbedIDS context structure
  * @param metric_name Name of the metric

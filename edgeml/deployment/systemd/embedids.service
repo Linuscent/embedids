@@ -1,0 +1,52 @@
+# EmbedIDS EdgeML runtime security agent (hardware porting phase 4).
+#
+#   sudo install -m 0755 embedids-agent /usr/local/bin/
+#   sudo install -D -m 0640 jetson-example.yaml /etc/embedids/config.yaml
+#   sudo useradd --system --home /var/lib/embedids --shell /usr/sbin/nologin embedids
+#   sudo cp embedids.service /etc/systemd/system/ && sudo systemctl daemon-reload
+#   sudo systemctl enable --now embedids
+#   journalctl -u embedids -f
+
+[Unit]
+Description=EmbedIDS EdgeML Runtime Security Agent
+Documentation=https://embedids.linuscent.com
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=embedids
+Group=embedids
+ExecStart=/usr/local/bin/embedids-agent --config /etc/embedids/config.yaml
+Restart=always
+RestartSec=2
+StateDirectory=embedids
+StateDirectoryMode=0750
+
+# Least privilege. /proc/<pid>/status of other users' processes is readable
+# without privileges; CAP_SYS_PTRACE is only needed to map sockets to PIDs.
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+SystemCallArchitectures=native
+ReadOnlyPaths=/etc/embedids /opt/edgeml/models
+ReadWritePaths=/var/lib/embedids
+# tegrastats reads GPU and power counters; grant access via the video group
+SupplementaryGroups=video
+
+# Resource guard rails (spec section 23: < 3 % CPU, < 50 MB on Jetson).
+CPUQuota=10%
+MemoryMax=96M
+
+[Install]
+WantedBy=multi-user.target

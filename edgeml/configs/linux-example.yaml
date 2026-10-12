@@ -1,0 +1,50 @@
+# EmbedIDS EdgeML - generic Linux host (hardware porting phase 1).
+# Uses real /proc and /sys telemetry. GPU rules stay idle on hosts without
+# a GPU collector; process, network and integrity rules are fully active.
+#
+#   ./build/edgeml/embedids-agent --config edgeml/configs/linux-example.yaml
+
+device:
+  id: linux-host-001
+  platform: linux
+  workload: vision-inference
+
+sampling:
+  interval_ms: 1000
+
+ai:
+  stats_file: ""           # set when an inference service publishes stats
+
+network:
+  allowed_destinations:
+    - "10.0.0.20:1883"
+    - "10.0.0.30:443"
+  baseline_bytes_out: 200000
+
+process:
+  # Real hosts run many processes; extend this list for your image.
+  allowed:
+    - "*"
+  min_runtime_seconds: 5
+
+integrity:
+  model:
+    path: "edgeml-data/models/model.engine"
+    sha256: ""
+  verify_config: true
+  startup_grace_seconds: 3600
+
+alerts:
+  console: true
+  json_file: true
+  json_file_path: "edgeml-data/linux-alerts.jsonl"
+
+storage:
+  enabled: true
+  path: "edgeml-data/linux.db"
+
+api:
+  bind: "127.0.0.1"
+  port: 8082
+  static_dir: "edgeml/dashboard/frontend"
+  demo_controls: false

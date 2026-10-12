@@ -1,0 +1,86 @@
+# EmbedIDS EdgeML - NVIDIA Jetson example (hardware porting phases 1-4).
+# Install as /etc/embedids/config.yaml and run via deployment/systemd.
+#
+# Collectors: /proc (CPU, memory, processes, network), tegrastats + GPU load
+# sysfs (GPU, power, thermal) and the inference stats file published by the
+# TensorRT application. See docs/hardware-port.md.
+
+device:
+  id: jetson-orin-001
+  platform: jetson
+  workload: vision-inference
+
+sampling:
+  interval_ms: 1000
+
+gpu:
+  high_utilization: 85
+  sustain_seconds: 10
+
+ai:
+  expected_fps: 30
+  minimum_fps: 20
+  # {"fps": 29.8, "latency_ms": 31.2, "errors": 0, "healthy": true}
+  stats_file: "/run/edgeml/inference.json"
+
+network:
+  allowed_destinations:
+    - "10.0.0.20:1883"
+    - "10.0.0.30:443"
+    - "127.0.0.53"         # systemd-resolved
+  baseline_bytes_out: 40000
+  interface: ""            # e.g. eth0 to ignore docker bridges
+
+process:
+  allowed:
+    - systemd*
+    - containerd*
+    - dockerd
+    - sshd
+    - dbus-daemon
+    - NetworkManager
+    - nvargus-daemon
+    - nvphs*
+    - embedids-agent
+    - inference-service
+    - camera-service
+    - mqtt-client
+    - tegrastats
+    - agetty
+    - cron
+    - rsyslogd
+  min_runtime_seconds: 5
+  ignore_kernel_threads: true
+
+integrity:
+  model:
+    path: "/opt/edgeml/models/model.engine"
+    # Leave empty to trust the engine present at first start, or pin the
+    # hash produced by your release pipeline: sha256sum model.engine
+    sha256: ""
+    allowed_readers:
+      - inference-service
+      - embedids-agent
+  verify_config: true
+
+heartbeat:
+  interval_seconds: 5
+  timeout_seconds: 15
+
+alerts:
+  console: false           # journald captures stdout; keep the log quiet
+  json_file: true
+  json_file_path: "/var/lib/embedids/alerts.jsonl"
+  syslog: true
+
+storage:
+  enabled: true
+  path: "/var/lib/embedids/embedids.db"
+
+api:
+  bind: "127.0.0.1"
+  port: 8081
+  demo_controls: false
+
+jetson:
+  tegrastats_path: "/usr/bin/tegrastats"

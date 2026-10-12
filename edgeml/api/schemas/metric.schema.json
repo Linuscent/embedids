@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embedids.linuscent.com/schemas/edgeml/metric.schema.json",
+  "title": "EmbedIDS EdgeML metric sample",
+  "description": "Normalized telemetry produced by every collector backend (spec section 8).",
+  "type": "object",
+  "required": ["timestamp", "device_id", "source", "metric", "value", "unit", "labels"],
+  "properties": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestamp_ms": { "type": "integer", "minimum": 0 },
+    "device_id": { "type": "string" },
+    "source": {
+      "type": "string",
+      "description": "Collector domain, e.g. system, gpu, ai, network, policy, integrity, agent"
+    },
+    "metric": { "type": "string", "pattern": "^[a-z]+(\\.[a-z_]+)+$" },
+    "value": { "type": "number" },
+    "unit": { "type": "string" },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "examples": [
+    {
+      "timestamp": "2026-10-06T22:00:00Z",
+      "device_id": "demo-edge-001",
+      "source": "gpu",
+      "metric": "gpu.utilization",
+      "value": 87.5,
+      "unit": "percent",
+      "labels": { "workload": "vision-inference" }
+    }
+  ]
+}
