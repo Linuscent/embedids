@@ -76,10 +76,10 @@
       "@graph": [
         {
           "@type": "SoftwareApplication",
-          "@id": "https://embedids.linuscent.com/main#software",
+          "@id": "https://embedids.linuscent.com/main/#software",
           "name": "EmbedIDS",
           "description": "EmbedIDS is a lightweight, open-source runtime Intrusion Detection SDK for low-power embedded and IoT devices, providing on-device anomaly detection with no dynamic memory allocation.",
-          "url": "https://embedids.linuscent.com/main",
+          "url": "https://embedids.linuscent.com/main/",
           "applicationCategory": "SecurityApplication",
           "operatingSystem": "Embedded Linux, RTOS, bare-metal",
           "programmingLanguage": "C",
@@ -91,11 +91,11 @@
             "price": "0",
             "priceCurrency": "USD"
           },
-          "author": { "@id": "https://embedids.linuscent.com/main#organization" }
+          "author": { "@id": "https://embedids.linuscent.com/main/#organization" }
         },
         {
           "@type": "Organization",
-          "@id": "https://embedids.linuscent.com/main#organization",
+          "@id": "https://embedids.linuscent.com/main/#organization",
           "name": "Linuscent Ltd",
           "url": "https://www.linuscent.com/",
           "sameAs": [
@@ -105,11 +105,11 @@
         },
         {
           "@type": "WebSite",
-          "@id": "https://embedids.linuscent.com/main#website",
-          "url": "https://embedids.linuscent.com/main",
+          "@id": "https://embedids.linuscent.com/main/#website",
+          "url": "https://embedids.linuscent.com/main/",
           "name": "EmbedIDS",
           "description": "EmbedIDS is a lightweight, open-source runtime Intrusion Detection SDK for low-power embedded and IoT devices, providing on-device anomaly detection with no dynamic memory allocation.",
-          "publisher": { "@id": "https://embedids.linuscent.com/main#organization" }
+          "publisher": { "@id": "https://embedids.linuscent.com/main/#organization" }
         }
       ]
     }
@@ -384,6 +384,28 @@
 
       </a>
     </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="case-studies/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Case Studies
+
+        </a>
+      </li>
+    
   
 
       
@@ -696,6 +718,110 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4">
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="case-studies/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Case Studies
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Case Studies
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="case-studies/edgeml-runtime-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime Security for Edge AI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -724,7 +850,8 @@
 <p><strong>🚀 New to EmbedIDS?</strong> 
 - <strong><a href="quickstart/">Quick Start Guide</a></strong> - Get running in 5 minutes
 - <strong><a href="tutorial/">Complete Tutorial</a></strong> - Comprehensive learning guide
-- <strong><a href="https://github.com/Linuscent/EmbedIDS/tree/main/examples">Examples</a></strong> - Ready-to-run code samples</p>
+- <strong><a href="https://github.com/Linuscent/EmbedIDS/tree/main/examples">Examples</a></strong> - Ready-to-run code samples
+- <strong><a href="case-studies/edgeml-runtime-security/">Case Study: Runtime Security for Edge AI</a></strong> - EmbedIDS protecting a Jetson-class AI device</p>
 <hr>
 <p>EmbedIDS is a lightweight Runtime Intrusion Detection SDK specifically designed for low-power embedded Internet of Things (IoT) devices. Our open-source SDK provides AI-driven protection to address the critical security gap in constrained IoT environments.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
@@ -827,7 +954,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"></path></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 3, 2026 10:02:17 UTC">August 3, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 12, 2026 15:29:45 UTC">October 12, 2026</span>
   </span>
 
     
@@ -1101,7 +1228,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.tabs", "navigation.top", "navigation.footer", "header.autohide", "toc.integrate", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.indexes", "navigation.tabs", "navigation.top", "navigation.footer", "header.autohide", "toc.integrate", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.d7400e89.min.js"></script>

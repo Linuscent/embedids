@@ -2,14 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://embedids.linuscent.com/main/</loc>
-         <lastmod>2026-08-03</lastmod>
+         <lastmod>2026-10-13</lastmod>
     </url>
     <url>
          <loc>https://embedids.linuscent.com/main/quickstart/</loc>
-         <lastmod>2026-08-03</lastmod>
+         <lastmod>2026-10-13</lastmod>
     </url>
     <url>
          <loc>https://embedids.linuscent.com/main/tutorial/</loc>
-         <lastmod>2026-08-03</lastmod>
+         <lastmod>2026-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://embedids.linuscent.com/main/case-studies/</loc>
+         <lastmod>2026-10-13</lastmod>
+    </url>
+    <url>
+         <loc>https://embedids.linuscent.com/main/case-studies/edgeml-runtime-security/</loc>
+         <lastmod>2026-10-13</lastmod>
     </url>
 </urlset>
