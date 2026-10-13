@@ -1,0 +1,77 @@
+# EmbedIDS EdgeML - single-process demo (no Docker).
+#
+# The simulator runs inside the agent and the agent serves the dashboard:
+#   ./build/edgeml/embedids-agent --config edgeml/configs/default.yaml
+#   open http://localhost:8080
+# Relative paths are resolved from the directory the agent is started in
+# (run it from the repository root).
+
+device:
+  id: demo-edge-001
+  platform: simulation
+  workload: vision-inference
+
+sampling:
+  interval_ms: 1000
+  history_seconds: 600
+
+simulation:
+  mode: embedded
+  seed: 42
+
+gpu:
+  high_utilization: 85
+  sustain_seconds: 10
+
+ai:
+  expected_fps: 30
+  minimum_fps: 20
+  degradation_seconds: 10
+
+network:
+  allowed_destinations:
+    - "10.0.0.20:1883"   # MQTT broker
+    - "10.0.0.30:443"    # detection upload service
+  baseline_bytes_out: 40000
+  anomaly_multiplier: 5
+  escalation_bytes_out: 500000
+
+process:
+  allowed:
+    - systemd
+    - containerd
+    - embedids-agent
+    - inference-service
+    - camera-service
+    - mqtt-client
+  min_runtime_seconds: 5
+
+integrity:
+  model:
+    path: "edgeml-data/models/model.engine"
+    # Approved hash of the simulator's engine (edgeml-simulator --print-model-hash)
+    sha256: "57869ad7a571163daf939d5e3ebe1dcfcb81437654d1636b0cdfdc233d92f56c"
+    allowed_readers:
+      - inference-service
+      - embedids-agent
+  verify_config: true
+
+heartbeat:
+  interval_seconds: 5
+  timeout_seconds: 15
+
+alerts:
+  console: true
+  json_file: true
+  json_file_path: "edgeml-data/alerts.jsonl"
+  syslog: false
+
+storage:
+  enabled: true
+  path: "edgeml-data/embedids.db"
+
+api:
+  bind: "127.0.0.1"
+  port: 8080
+  static_dir: "edgeml/dashboard/frontend"
+  demo_controls: true

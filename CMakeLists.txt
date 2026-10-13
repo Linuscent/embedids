@@ -17,6 +17,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(BUILD_TESTS "Build unit tests" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
 option(ENABLE_COVERAGE "Enable code coverage" OFF)
+option(BUILD_EDGEML "Build the EdgeML runtime security agent, simulator and tests" OFF)
 
 # Compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra -Os -ffunction-sections -fdata-sections")
@@ -50,6 +51,10 @@ endif()
 
 if(BUILD_EXAMPLES)
     add_subdirectory(examples)
+endif()
+
+if(BUILD_EDGEML)
+    add_subdirectory(edgeml)
 endif()
 
 # Installation

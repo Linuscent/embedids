@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" role="img" aria-label="EmbedIDS EdgeML runtime security case study">
+  <title>EmbedIDS EdgeML: runtime security for Edge AI devices</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#161f3a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ef2b2d" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ef2b2d" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-green" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#76b900" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#76b900" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#24314f"/>
+    </pattern>
+    <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#4ea1ff" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#4ea1ff" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ef2b2d" stop-opacity="0.9"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="440" rx="22" fill="url(#bg)"/>
+  <rect width="1200" height="440" rx="22" fill="url(#dots)" opacity="0.6"/>
+
+  <!-- Copy -->
+  <g font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <rect x="56" y="58" width="132" height="28" rx="14" fill="#ef2b2d" opacity="0.18"/>
+    <text x="122" y="77" fill="#ff6b6d" font-size="13" font-weight="700" text-anchor="middle" letter-spacing="2">CASE STUDY</text>
+    <text x="56" y="140" fill="#e6ebf5" font-size="44" font-weight="800">Runtime security</text>
+    <text x="56" y="192" fill="#e6ebf5" font-size="44" font-weight="800">for <tspan fill="#ef2b2d">Edge AI</tspan> devices</text>
+    <text x="56" y="232" fill="#8b97b3" font-size="17">EmbedIDS watches the AI workload itself: GPU, inference,</text>
+    <text x="56" y="256" fill="#8b97b3" font-size="17">model integrity, processes and network, on the device.</text>
+
+    <!-- stat pills -->
+    <g font-size="14">
+      <rect x="56" y="292" width="176" height="64" rx="14" fill="#121a2e" stroke="#24314f"/>
+      <text x="74" y="320" fill="#e6ebf5" font-size="24" font-weight="800">1 s</text>
+      <text x="74" y="343" fill="#8b97b3" font-size="12.5">model tamper detection</text>
+
+      <rect x="246" y="292" width="176" height="64" rx="14" fill="#121a2e" stroke="#24314f"/>
+      <text x="264" y="320" fill="#e6ebf5" font-size="24" font-weight="800">~9 MB</text>
+      <text x="264" y="343" fill="#8b97b3" font-size="12.5">agent memory, ~0.5% CPU</text>
+
+      <rect x="436" y="292" width="176" height="64" rx="14" fill="#121a2e" stroke="#24314f"/>
+      <text x="454" y="320" fill="#e6ebf5" font-size="24" font-weight="800">0</text>
+      <text x="454" y="343" fill="#8b97b3" font-size="12.5">false alarms in 250 min</text>
+    </g>
+    <text x="56" y="396" fill="#56627e" font-size="12">Simulated NVIDIA Jetson-class device · measured on the EmbedIDS EdgeML demo stack</text>
+  </g>
+
+  <!-- Illustration -->
+  <circle cx="900" cy="214" r="190" fill="url(#glow-green)"/>
+  <circle cx="1040" cy="250" r="150" fill="url(#glow)"/>
+
+  <!-- camera -->
+  <g transform="translate(660,96)">
+    <rect width="78" height="52" rx="10" fill="#18223b" stroke="#3a4a6e" stroke-width="2"/>
+    <circle cx="39" cy="26" r="15" fill="#0b1020" stroke="#4ea1ff" stroke-width="3"/>
+    <circle cx="39" cy="26" r="5" fill="#4ea1ff"/>
+    <rect x="58" y="8" width="10" height="6" rx="2" fill="#3ccf7a"/>
+  </g>
+  <path d="M700 150 C700 180 740 190 760 196" fill="none" stroke="#4ea1ff" stroke-width="2.5" stroke-dasharray="5 6"/>
+
+  <!-- edge device board -->
+  <g transform="translate(720,182)">
+    <rect width="250" height="168" rx="16" fill="#121a2e" stroke="#3a4a6e" stroke-width="2"/>
+    <rect x="14" y="14" width="222" height="140" rx="10" fill="#0e1528" stroke="#24314f"/>
+    <!-- SoC with pins -->
+    <g transform="translate(36,34)">
+      <g stroke="#76b900" stroke-width="3" stroke-linecap="round">
+        <line x1="14" y1="-8" x2="14" y2="0"/><line x1="30" y1="-8" x2="30" y2="0"/><line x1="46" y1="-8" x2="46" y2="0"/><line x1="62" y1="-8" x2="62" y2="0"/>
+        <line x1="14" y1="76" x2="14" y2="84"/><line x1="30" y1="76" x2="30" y2="84"/><line x1="46" y1="76" x2="46" y2="84"/><line x1="62" y1="76" x2="62" y2="84"/>
+        <line x1="-8" y1="16" x2="0" y2="16"/><line x1="-8" y1="38" x2="0" y2="38"/><line x1="-8" y1="60" x2="0" y2="60"/>
+        <line x1="76" y1="16" x2="84" y2="16"/><line x1="76" y1="38" x2="84" y2="38"/><line x1="76" y1="60" x2="84" y2="60"/>
+      </g>
+      <rect width="76" height="76" rx="10" fill="#18223b" stroke="#76b900" stroke-width="2.5"/>
+      <text x="38" y="35" fill="#76b900" font-family="'JetBrains Mono', Menlo, monospace" font-size="15" font-weight="700" text-anchor="middle">GPU</text>
+      <text x="38" y="54" fill="#8b97b3" font-family="'JetBrains Mono', Menlo, monospace" font-size="10" text-anchor="middle">TensorRT</text>
+    </g>
+    <!-- workload bars -->
+    <g font-family="'JetBrains Mono', Menlo, monospace" font-size="10" fill="#8b97b3">
+      <text x="140" y="44">inference</text>
+      <rect x="140" y="50" width="80" height="8" rx="4" fill="#24314f"/>
+      <rect x="140" y="50" width="62" height="8" rx="4" fill="#3ccf7a"/>
+      <text x="140" y="78">gpu</text>
+      <rect x="140" y="84" width="80" height="8" rx="4" fill="#24314f"/>
+      <rect x="140" y="84" width="52" height="8" rx="4" fill="#76b900"/>
+      <text x="140" y="112">model.engine</text>
+      <text x="140" y="128" fill="#3ccf7a">sha256 ✓</text>
+    </g>
+  </g>
+
+  <!-- telemetry flow -->
+  <path d="M970 266 C1000 266 1006 214 1032 214" fill="none" stroke="url(#flow)" stroke-width="3"/>
+  <path d="M970 300 C1006 300 1010 260 1032 252" fill="none" stroke="url(#flow)" stroke-width="3" opacity="0.7"/>
+
+  <!-- EmbedIDS chip + binoculars badge -->
+  <g transform="translate(1032,172)">
+    <g stroke="#e6ebf5" stroke-width="3.5" stroke-linecap="round">
+      <line x1="20" y1="-9" x2="20" y2="0"/><line x1="38" y1="-9" x2="38" y2="0"/><line x1="56" y1="-9" x2="56" y2="0"/><line x1="74" y1="-9" x2="74" y2="0"/>
+      <line x1="20" y1="94" x2="20" y2="103"/><line x1="38" y1="94" x2="38" y2="103"/><line x1="56" y1="94" x2="56" y2="103"/><line x1="74" y1="94" x2="74" y2="103"/>
+      <line x1="-9" y1="24" x2="0" y2="24"/><line x1="-9" y1="47" x2="0" y2="47"/><line x1="-9" y1="70" x2="0" y2="70"/>
+      <line x1="94" y1="24" x2="103" y2="24"/><line x1="94" y1="47" x2="103" y2="47"/><line x1="94" y1="70" x2="103" y2="70"/>
+    </g>
+    <rect width="94" height="94" rx="12" fill="#0b1020" stroke="#e6ebf5" stroke-width="3.5"/>
+    <!-- binoculars -->
+    <g fill="#e6ebf5">
+      <rect x="24" y="24" width="14" height="12" rx="3"/>
+      <rect x="56" y="24" width="14" height="12" rx="3"/>
+      <path d="M20 38 h22 l2 30 h-26 z"/>
+      <path d="M52 38 h22 l2 30 h-26 z"/>
+      <rect x="40" y="40" width="14" height="14" rx="3"/>
+    </g>
+    <rect x="18" y="66" width="26" height="7" rx="2" fill="#ef2b2d"/>
+    <rect x="50" y="66" width="26" height="7" rx="2" fill="#ef2b2d"/>
+  </g>
+  <text x="1079" y="306" fill="#e6ebf5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="800" text-anchor="middle">Embed<tspan fill="#ef2b2d">IDS</tspan></text>
+
+  <!-- alert chips -->
+  <g font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12.5">
+    <g transform="translate(888,62)">
+      <rect width="290" height="34" rx="10" fill="#1b1430" stroke="#e0398f" stroke-width="1.5"/>
+      <rect x="10" y="8" width="68" height="18" rx="9" fill="#e0398f" opacity="0.25"/>
+      <text x="44" y="21" fill="#ff7ec0" font-weight="800" font-size="10.5" text-anchor="middle">CRITICAL</text>
+      <text x="88" y="22" fill="#e6ebf5">Model integrity violation</text>
+    </g>
+    <g transform="translate(888,104)">
+      <rect width="290" height="34" rx="10" fill="#1d1626" stroke="#ff6b4a" stroke-width="1.5"/>
+      <rect x="10" y="8" width="68" height="18" rx="9" fill="#ff6b4a" opacity="0.22"/>
+      <text x="44" y="21" fill="#ff8a6f" font-weight="800" font-size="10.5" text-anchor="middle">HIGH</text>
+      <text x="88" y="22" fill="#e6ebf5">Unauthorized GPU workload</text>
+    </g>
+    <line x1="1033" y1="138" x2="1062" y2="164" stroke="#ff6b4a" stroke-width="2" stroke-dasharray="4 4"/>
+  </g>
+</svg>

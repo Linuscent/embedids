@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
+  {#- mike sets site_url to e.g. https://host/main (no trailing slash) per
+      version; normalise once so every URL below joins correctly and matches
+      the canonical form. -#}
+  {%- set base = config.site_url if config.site_url.endswith('/') else config.site_url ~ '/' -%}
   {#- Metadata the social plugin does not emit -#}
   {%- set og_locale = (config.theme.locale or 'en') | string | replace('-', '_') -%}
   <meta property="og:site_name" content="{{ config.site_name }}">
@@ -16,10 +20,10 @@
       "@graph": [
         {
           "@type": "SoftwareApplication",
-          "@id": "{{ config.site_url }}#software",
+          "@id": "{{ base }}#software",
           "name": "EmbedIDS",
           "description": {{ config.site_description | tojson }},
-          "url": "{{ config.site_url }}",
+          "url": "{{ base }}",
           "applicationCategory": "SecurityApplication",
           "operatingSystem": "Embedded Linux, RTOS, bare-metal",
           "programmingLanguage": "C",
@@ -31,11 +35,11 @@
             "price": "0",
             "priceCurrency": "USD"
           },
-          "author": { "@id": "{{ config.site_url }}#organization" }
+          "author": { "@id": "{{ base }}#organization" }
         },
         {
           "@type": "Organization",
-          "@id": "{{ config.site_url }}#organization",
+          "@id": "{{ base }}#organization",
           "name": "{{ config.site_author }}",
           "url": "https://www.linuscent.com/",
           "sameAs": [
@@ -45,12 +49,93 @@
         },
         {
           "@type": "WebSite",
-          "@id": "{{ config.site_url }}#website",
-          "url": "{{ config.site_url }}",
+          "@id": "{{ base }}#website",
+          "url": "{{ base }}",
           "name": "{{ config.site_name }}",
           "description": {{ config.site_description | tojson }},
-          "publisher": { "@id": "{{ config.site_url }}#organization" }
+          "publisher": { "@id": "{{ base }}#organization" }
         }
+      ]
+    }
+  </script>
+  {% endif %}
+
+  {#- Article structured data for pages that opt in via `schema_type` front
+      matter (e.g. case studies). The image is the social card the social
+      plugin renders for the page; dates come from git history. -#}
+  {% if page and page.meta and page.meta.schema_type %}
+  {%- set social_image = base ~ 'assets/images/social/' ~ (page.file.src_uri | replace('.md', '.png')) -%}
+  {%- set published = page.meta.git_creation_date_localized_raw_iso_date -%}
+  {%- set modified = page.meta.git_revision_date_localized_raw_iso_date -%}
+  {% if published %}<meta property="article:published_time" content="{{ published }}">{% endif %}
+  {% if modified %}<meta property="article:modified_time" content="{{ modified }}">{% endif %}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": {{ page.meta.schema_type | tojson }},
+      "@id": "{{ page.canonical_url }}#{{ page.meta.schema_type | lower }}",
+      "headline": {{ (page.meta.title or page.title) | tojson }},
+      "description": {{ (page.meta.description or config.site_description) | tojson }},
+      "url": "{{ page.canonical_url }}",
+      "mainEntityOfPage": "{{ page.canonical_url }}",
+      "image": "{{ social_image }}",
+      "inLanguage": "en",
+      {%- if page.meta.keywords %}
+      "keywords": {{ page.meta.keywords | join(', ') | tojson }},
+      {%- endif %}
+      {%- if published %}
+      "datePublished": "{{ published }}",
+      {%- endif %}
+      {%- if modified %}
+      "dateModified": "{{ modified }}",
+      {%- endif %}
+      "author": {
+        "@type": "Organization",
+        "name": "{{ config.site_author }}",
+        "url": "https://www.linuscent.com/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "{{ config.site_author }}",
+        "url": "https://www.linuscent.com/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "{{ base }}assets/images/embedIDS_logo.png"
+        }
+      },
+      "about": {
+        "@type": "SoftwareApplication",
+        "name": "EmbedIDS",
+        "url": "{{ base }}"
+      }
+    }
+  </script>
+  {% endif %}
+
+  {#- Breadcrumbs for every page below the home page. Sections only become
+      crumbs when they have an index page (navigation.indexes). -#}
+  {% if page and not page.is_homepage %}
+  {%- set crumbs = [{"name": "Home", "url": base}] -%}
+  {%- for section in page.ancestors | reverse -%}
+    {%- set index = section.children | selectattr("is_index") | first if section.children else none -%}
+    {%- if index and index.url != page.url -%}
+      {%- set _ = crumbs.append({"name": section.title, "url": base ~ index.url}) -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- set _ = crumbs.append({"name": page.title, "url": page.canonical_url}) -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {%- for crumb in crumbs %}
+        {
+          "@type": "ListItem",
+          "position": {{ loop.index }},
+          "name": {{ crumb.name | tojson }},
+          "item": "{{ crumb.url }}"
+        }{{ "," if not loop.last }}
+        {%- endfor %}
       ]
     }
   </script>

@@ -1,0 +1,14 @@
+{
+  "source": "edgeml/tests/attack-scenarios/attack_scenarios.py against the Docker Compose stack, 2026-10-12",
+  "scenarios": [
+    {"scenario": "model-tamper", "alert": "AI model integrity violation", "severity": "critical", "seconds": 1.0, "note": "next 1 s sample"},
+    {"scenario": "network-exfil", "alert": "Possible data exfiltration", "severity": "high", "seconds": 1.0},
+    {"scenario": "network-exfil", "alert": "Possible model/data exfiltration", "severity": "critical", "seconds": 4.0, "note": "correlated"},
+    {"scenario": "privilege-escalation", "alert": "Unauthorized privileged process", "severity": "high", "seconds": 5.0, "note": "5 s minimum runtime"},
+    {"scenario": "cryptominer", "alert": "Unknown process detected", "severity": "medium", "seconds": 5.5, "note": "5 s minimum runtime"},
+    {"scenario": "cryptominer", "alert": "Possible unauthorized GPU workload", "severity": "high", "seconds": 12.6, "note": "10 s sustain window, correlated"},
+    {"scenario": "inference-degradation", "alert": "Inference performance degradation", "severity": "medium", "seconds": 12.8, "note": "10 s sustain window"},
+    {"scenario": "telemetry-loss", "alert": "Telemetry heartbeat lost", "severity": "critical", "seconds": 13.1, "note": "15 s heartbeat timeout"},
+    {"scenario": "dos", "alert": "Resource exhaustion", "severity": "high", "seconds": 14.1, "note": "5 s sustain after memory ramp"}
+  ]
+}

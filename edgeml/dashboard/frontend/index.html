@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EmbedIDS EdgeML Runtime Security</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">◆</span>
+      <div>
+        <div class="brand-title">EmbedIDS <span class="muted">EdgeML Runtime Security</span></div>
+        <div class="brand-sub" id="device-line">connecting…</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="heartbeat" id="heartbeat" title="Agent heartbeat">
+        <span class="pulse"></span><span id="heartbeat-text">–</span>
+      </div>
+      <div class="updated" id="updated">–</div>
+    </div>
+  </header>
+
+  <div id="banner" class="banner hidden"></div>
+
+  <main>
+    <!-- Overview -->
+    <section class="overview">
+      <div class="card state-card" id="state-card">
+        <div class="card-label">Security State</div>
+        <div class="state-value" id="security-state">–</div>
+        <div class="card-foot" id="state-foot">&nbsp;</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Active Workload</div>
+        <div class="card-value" id="workload">–</div>
+        <div class="card-foot" id="workload-foot">&nbsp;</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Active Alerts</div>
+        <div class="card-value" id="active-alerts">0</div>
+        <div class="card-foot sev-counts" id="sev-counts">&nbsp;</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Detections</div>
+        <div class="card-value" id="detections">0</div>
+        <div class="card-foot">since agent start</div>
+      </div>
+      <div class="card integrity-card" id="integrity-card">
+        <div class="card-label">Model Integrity</div>
+        <div class="card-value" id="integrity">–</div>
+        <div class="card-foot mono" id="integrity-foot">&nbsp;</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Agent Overhead</div>
+        <div class="card-value" id="agent-cpu">–</div>
+        <div class="card-foot" id="agent-foot">&nbsp;</div>
+      </div>
+    </section>
+
+    <!-- Demo controls -->
+    <section class="panel" id="demo-panel">
+      <div class="panel-head">
+        <h2>Demo Controls</h2>
+        <span class="muted" id="demo-note">Simulated attacks against the EdgeML device</span>
+      </div>
+      <div class="demo-buttons">
+        <button class="btn btn-good" data-scenario="normal">Start Normal Workload</button>
+        <button class="btn" data-scenario="cryptominer">Simulate Cryptominer</button>
+        <button class="btn" data-scenario="network-exfil">Simulate Data Exfiltration</button>
+        <button class="btn" data-scenario="model-tamper">Modify Model</button>
+        <button class="btn" data-scenario="rogue-process">Launch Rogue Process</button>
+        <button class="btn" data-scenario="privilege-escalation">Privilege Escalation</button>
+        <button class="btn" data-scenario="inference-degradation">Degrade Inference</button>
+        <button class="btn" data-scenario="dos">Denial of Service</button>
+        <button class="btn" data-scenario="telemetry-loss">Stop Telemetry</button>
+        <button class="btn btn-reset" data-action="reset">Reset Environment</button>
+      </div>
+    </section>
+
+    <!-- Live telemetry -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Live Telemetry</h2>
+        <span class="muted">last 5 minutes · dashed lines are detection thresholds</span>
+      </div>
+      <div class="charts" id="charts"></div>
+    </section>
+
+    <div class="split">
+      <!-- Security events -->
+      <section class="panel alerts-panel">
+        <div class="panel-head">
+          <h2>Security Events</h2>
+          <label class="muted toggle"><input type="checkbox" id="active-only"> active only</label>
+        </div>
+        <div class="table-wrap">
+          <table class="alerts">
+            <thead>
+              <tr>
+                <th>Time</th><th>Severity</th><th>Alert</th><th>Observed</th>
+                <th>Threshold / Baseline</th><th>Signals</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="alerts-body">
+              <tr><td colspan="7" class="empty">No alerts yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Evidence -->
+      <section class="panel evidence-panel">
+        <div class="panel-head"><h2>Evidence</h2></div>
+        <div id="evidence" class="evidence empty">Select an alert to see why it was flagged.</div>
+      </section>
+    </div>
+
+    <!-- Timeline -->
+    <section class="panel">
+      <div class="panel-head"><h2>Incident Timeline</h2></div>
+      <ol class="timeline" id="timeline"></ol>
+    </section>
+  </main>
+
+  <footer class="footer muted">
+    EmbedIDS EdgeML MVP · simulation of an NVIDIA Jetson-class device ·
+    <span id="footer-agent"></span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

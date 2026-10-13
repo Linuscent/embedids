@@ -1,0 +1,77 @@
+# EmbedIDS EdgeML simulation environment.
+#
+#   cd edgeml/deployment && docker compose up --build
+#   open http://localhost:8080
+#
+# Services:
+#   simulator       Jetson-like EdgeML device: inference workload, GPU, network,
+#                   process table, attack injection, owns /models/model.engine
+#   embedids-agent  EmbedIDS detection agent + REST API (port 8081)
+#   dashboard       Demo dashboard (nginx), proxies /api to the agent
+
+name: embedids-edgeml
+
+x-image: &image
+  image: embedids-edgeml:latest
+  build:
+    context: ../..
+    dockerfile: edgeml/deployment/docker/Dockerfile
+
+services:
+  simulator:
+    <<: *image
+    container_name: edgeml-simulator
+    entrypoint: ["/usr/local/bin/edgeml-simulator"]
+    command: ["--port", "9100", "--model-path", "/models/model.engine",
+              "--device-id", "demo-edge-001", "--seed", "42"]
+    volumes:
+      - models:/models
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9100/health"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+
+  embedids-agent:
+    <<: *image
+    container_name: embedids-agent
+    command: ["--config", "/etc/embedids/config.yaml"]
+    depends_on:
+      simulator:
+        condition: service_healthy
+    volumes:
+      - models:/models:ro
+      - agent-data:/var/lib/embedids
+      - ../configs/demo.yaml:/etc/embedids/config.yaml:ro
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 128M
+
+  dashboard:
+    image: nginx:1.30.5-alpine
+    container_name: embedids-dashboard
+    depends_on:
+      embedids-agent:
+        condition: service_healthy
+    volumes:
+      - ../dashboard/frontend:/usr/share/nginx/html:ro
+      - ../dashboard/backend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  models:
+  agent-data:

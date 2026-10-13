@@ -161,6 +161,16 @@ make -j$(nproc)
 make coverage
 ```
 
+## EdgeML Runtime Security (MVP)
+
+[`edgeml/`](edgeml/README.md) builds a runtime security agent for Edge AI
+devices on top of this library. It includes an NVIDIA Jetson-like
+simulator, a REST API, a demo dashboard and a Docker Compose environment:
+
+```bash
+cd edgeml/deployment && docker compose up --build   # http://localhost:8080
+```
+
 ## License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) file for details.

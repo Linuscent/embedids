@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560" role="img" aria-label="EmbedIDS multi-signal correlation">
+  <title>Multi-signal correlation: individual alerts combine into a security incident</title>
+  <style>
+    .t { font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; fill: #e6ebf5; }
+    .m { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 12px; fill: #8b97b3; }
+    .muted { fill: #8b97b3; }
+    .chip { fill: #121a2e; stroke: #24314f; stroke-width: 1.5; }
+    .sev { font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.6px; }
+  </style>
+  <rect width="1200" height="560" rx="22" fill="#0b1020"/>
+  <text class="t" x="40" y="50" font-size="24" font-weight="700">From signals to incidents</text>
+  <text class="t muted" x="40" y="76" font-size="14">Each rule is useful on its own. Correlated within a time window, they tell an operator what is actually happening.</text>
+
+  <!-- ===== Incident 1 ===== -->
+  <g transform="translate(0,110)">
+    <text class="t" x="40" y="0" font-size="11" font-weight="700" letter-spacing="1.6" style="fill:#5b6b90">SCENARIO · ROGUE GPU WORKLOAD</text>
+
+    <rect class="chip" x="40" y="16" width="420" height="50" rx="12"/>
+    <rect x="56" y="31" width="70" height="20" rx="10" fill="#f5b83d" opacity="0.2"/>
+    <text class="sev" x="91" y="45" fill="#f5b83d" text-anchor="middle">MEDIUM</text>
+    <text class="t" x="140" y="46" font-size="14">Unknown process <tspan class="m">unknown_worker</tspan></text>
+
+    <rect class="chip" x="40" y="76" width="420" height="50" rx="12"/>
+    <rect x="56" y="91" width="70" height="20" rx="10" fill="#ff6b4a" opacity="0.2"/>
+    <text class="sev" x="91" y="105" fill="#ff8a6f" text-anchor="middle">HIGH</text>
+    <text class="t" x="140" y="106" font-size="14">GPU 98% while inference 10 FPS</text>
+
+    <rect class="chip" x="40" y="136" width="420" height="50" rx="12"/>
+    <rect x="56" y="151" width="70" height="20" rx="10" fill="#f5b83d" opacity="0.2"/>
+    <text class="sev" x="91" y="165" fill="#f5b83d" text-anchor="middle">MEDIUM</text>
+    <text class="t" x="140" y="166" font-size="14">Inference below 20 FPS for 10 s</text>
+
+    <!-- merge -->
+    <path d="M460 41 C540 41 540 101 600 101 M460 101 H600 M460 161 C540 161 540 101 600 101" fill="none" stroke="#ff6b4a" stroke-width="2" opacity="0.8"/>
+    <circle cx="600" cy="101" r="7" fill="#0b1020" stroke="#ff6b4a" stroke-width="2.5"/>
+    <text class="m" x="530" y="198" text-anchor="middle">within 20 s</text>
+    <path d="M607 101 H660" stroke="#ff6b4a" stroke-width="2.5"/>
+    <path d="M660 94 L672 101 L660 108 z" fill="#ff6b4a"/>
+
+    <rect x="676" y="16" width="484" height="170" rx="14" fill="#1d1626" stroke="#ff6b4a" stroke-width="1.8"/>
+    <rect x="696" y="34" width="62" height="20" rx="10" fill="#ff6b4a" opacity="0.22"/>
+    <text class="sev" x="727" y="48" fill="#ff8a6f" text-anchor="middle">HIGH</text>
+    <rect x="766" y="34" width="96" height="20" rx="10" fill="#e0398f" opacity="0.2"/>
+    <text class="sev" x="814" y="48" fill="#ff9fd0" text-anchor="middle">CORRELATED</text>
+    <text class="t" x="696" y="84" font-size="19" font-weight="700">Possible unauthorized GPU workload</text>
+    <text class="t muted" x="696" y="110" font-size="13">GPU utilization increased while inference throughput</text>
+    <text class="t muted" x="696" y="128" font-size="13">decreased and an unknown process was detected.</text>
+    <text class="m" x="696" y="160">evidence: GPU 98.4% · 10 FPS · unknown_worker</text>
+  </g>
+
+  <!-- ===== Incident 2 ===== -->
+  <g transform="translate(0,330)">
+    <text class="t" x="40" y="0" font-size="11" font-weight="700" letter-spacing="1.6" style="fill:#5b6b90">SCENARIO · MODEL EXFILTRATION</text>
+
+    <rect class="chip" x="40" y="16" width="420" height="50" rx="12"/>
+    <rect x="56" y="31" width="70" height="20" rx="10" fill="#ff6b4a" opacity="0.2"/>
+    <text class="sev" x="91" y="45" fill="#ff8a6f" text-anchor="middle">HIGH</text>
+    <text class="t" x="140" y="46" font-size="14">Unknown destination <tspan class="m">203.0.113.45:8443</tspan></text>
+
+    <rect class="chip" x="40" y="76" width="420" height="50" rx="12"/>
+    <rect x="56" y="91" width="70" height="20" rx="10" fill="#f5b83d" opacity="0.2"/>
+    <text class="sev" x="91" y="105" fill="#f5b83d" text-anchor="middle">MEDIUM</text>
+    <text class="t" x="140" y="106" font-size="14">Outbound traffic 2.4 MB/s (≫ 5× baseline)</text>
+
+    <rect class="chip" x="40" y="136" width="420" height="50" rx="12"/>
+    <rect x="56" y="151" width="70" height="20" rx="10" fill="#f5b83d" opacity="0.2"/>
+    <text class="sev" x="91" y="165" fill="#f5b83d" text-anchor="middle">MEDIUM</text>
+    <text class="t" x="140" y="166" font-size="14">Model read by <tspan class="m">mqtt-client</tspan></text>
+
+    <path d="M460 41 C540 41 540 101 600 101 M460 101 H600 M460 161 C540 161 540 101 600 101" fill="none" stroke="#e0398f" stroke-width="2" opacity="0.85"/>
+    <circle cx="600" cy="101" r="7" fill="#0b1020" stroke="#e0398f" stroke-width="2.5"/>
+    <text class="m" x="530" y="198" text-anchor="middle">within 30 s</text>
+    <path d="M607 101 H660" stroke="#e0398f" stroke-width="2.5"/>
+    <path d="M660 94 L672 101 L660 108 z" fill="#e0398f"/>
+
+    <rect x="676" y="16" width="484" height="170" rx="14" fill="#1b1430" stroke="#e0398f" stroke-width="1.8"/>
+    <rect x="696" y="34" width="78" height="20" rx="10" fill="#e0398f" opacity="0.25"/>
+    <text class="sev" x="735" y="48" fill="#ff7ec0" text-anchor="middle">CRITICAL</text>
+    <rect x="782" y="34" width="96" height="20" rx="10" fill="#e0398f" opacity="0.2"/>
+    <text class="sev" x="830" y="48" fill="#ff9fd0" text-anchor="middle">CORRELATED</text>
+    <text class="t" x="696" y="84" font-size="19" font-weight="700">Possible model/data exfiltration</text>
+    <text class="t muted" x="696" y="110" font-size="13">An allow-listed process read the deployed model while</text>
+    <text class="t muted" x="696" y="128" font-size="13">high-volume traffic flowed to an unknown destination.</text>
+    <text class="m" x="696" y="160">first alert +0.5 s · incident +4.5 s after attack start</text>
+  </g>
+</svg>

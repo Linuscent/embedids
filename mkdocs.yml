@@ -7,6 +7,13 @@ site_description: >-
   with no dynamic memory allocation.
 repo_url: https://github.com/Linuscent/EmbedIDS
 docs_dir: "docs"
+
+# Surface broken internal links and anchors at build time.
+validation:
+  omitted_files: warn
+  absolute_links: info
+  unrecognized_links: warn
+  anchors: warn
 theme:
   name: material
   custom_dir: overrides
@@ -40,6 +47,7 @@ theme:
 
   features:
     - navigation.sections
+    - navigation.indexes
     - navigation.tabs
     - navigation.top
     - navigation.footer
@@ -100,6 +108,11 @@ markdown_extensions:
       permalink: true
       toc_depth: 3
   - pymdownx.blocks.caption
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.tabbed:
+      alternate_style: true
 
 plugins:
   - search
@@ -116,6 +129,9 @@ nav:
   - Home: index.md
   - Quick Start: quickstart.md
   - Tutorial: tutorial.md
+  - Case Studies:
+      - case-studies/index.md
+      - Runtime Security for Edge AI: case-studies/edgeml-runtime-security.md
 
 extra_css:
   - assets/stylesheets/extra.css

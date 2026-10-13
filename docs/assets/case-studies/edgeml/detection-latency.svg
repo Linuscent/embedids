@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 644" width="1200" height="644" role="img" aria-label="Time to detect per scenario">
+<title>Time to detect per scenario</title>
+<rect width="100%" height="100%" rx="18" fill="#0b1020"/>
+<text x="40.0" y="46.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="24" font-weight="700" fill="#e6ebf5" text-anchor="start" opacity="1.0">Time to detect, per attack scenario</text>
+<text x="40.0" y="72.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#8b97b3" text-anchor="start" opacity="1.0">Seconds from attack start to the first alert of each kind. Includes intentional sustain windows.</text>
+<line x1="420.0" y1="120" x2="420.0" y2="544" stroke="#24314f"/>
+<text x="420.0" y="566.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="middle" opacity="1.0">0s</text>
+<line x1="590.0" y1="120" x2="590.0" y2="544" stroke="#24314f"/>
+<text x="590.0" y="566.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="middle" opacity="1.0">5s</text>
+<line x1="760.0" y1="120" x2="760.0" y2="544" stroke="#24314f"/>
+<text x="760.0" y="566.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="middle" opacity="1.0">10s</text>
+<line x1="930.0" y1="120" x2="930.0" y2="544" stroke="#24314f"/>
+<text x="930.0" y="566.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="middle" opacity="1.0">15s</text>
+<line x1="1100.0" y1="120" x2="1100.0" y2="544" stroke="#24314f"/>
+<text x="1100.0" y="566.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="middle" opacity="1.0">20s</text>
+<text x="400.0" y="150.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">AI model integrity violation</text>
+<text x="400.0" y="166.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">model-tamper</text>
+<rect x="420" y="138" width="34.0" height="24" rx="6" fill="#e0398f" opacity="0.85"/>
+<text x="464.0" y="155.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">1 s  ·  next 1 s sample</text>
+<text x="400.0" y="196.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Possible data exfiltration</text>
+<text x="400.0" y="212.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">network-exfil</text>
+<rect x="420" y="184" width="34.0" height="24" rx="6" fill="#ff6b4a" opacity="0.85"/>
+<text x="464.0" y="201.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">1 s</text>
+<text x="400.0" y="242.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Possible model/data exfiltration</text>
+<text x="400.0" y="258.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">network-exfil</text>
+<rect x="420" y="230" width="136.0" height="24" rx="6" fill="#e0398f" opacity="0.85"/>
+<text x="566.0" y="247.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">4 s  ·  correlated</text>
+<text x="400.0" y="288.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Unauthorized privileged process</text>
+<text x="400.0" y="304.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">privilege-escalation</text>
+<rect x="420" y="276" width="170.0" height="24" rx="6" fill="#ff6b4a" opacity="0.85"/>
+<text x="600.0" y="293.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">5 s  ·  5 s minimum runtime</text>
+<text x="400.0" y="334.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Unknown process detected</text>
+<text x="400.0" y="350.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">cryptominer</text>
+<rect x="420" y="322" width="187.0" height="24" rx="6" fill="#f5b83d" opacity="0.85"/>
+<text x="617.0" y="339.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">6 s  ·  5 s minimum runtime</text>
+<text x="400.0" y="380.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Possible unauthorized GPU workload</text>
+<text x="400.0" y="396.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">cryptominer</text>
+<rect x="420" y="368" width="428.4" height="24" rx="6" fill="#ff6b4a" opacity="0.85"/>
+<text x="858.4" y="385.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">13 s  ·  10 s sustain window, correlated</text>
+<text x="400.0" y="426.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Inference performance degradation</text>
+<text x="400.0" y="442.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">inference-degradation</text>
+<rect x="420" y="414" width="435.2" height="24" rx="6" fill="#f5b83d" opacity="0.85"/>
+<text x="865.2" y="431.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">13 s  ·  10 s sustain window</text>
+<text x="400.0" y="472.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Telemetry heartbeat lost</text>
+<text x="400.0" y="488.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">telemetry-loss</text>
+<rect x="420" y="460" width="445.4" height="24" rx="6" fill="#e0398f" opacity="0.85"/>
+<text x="875.4" y="477.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">13 s  ·  15 s heartbeat timeout</text>
+<text x="400.0" y="518.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="600" fill="#e6ebf5" text-anchor="end" opacity="1.0">Resource exhaustion</text>
+<text x="400.0" y="534.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">dos</text>
+<rect x="420" y="506" width="479.4" height="24" rx="6" fill="#ff6b4a" opacity="0.85"/>
+<text x="909.4" y="523.0" font-family="'JetBrains Mono', Menlo, Consolas, monospace" font-size="12" font-weight="400" fill="#e6ebf5" text-anchor="start" opacity="1.0">14 s  ·  5 s sustain after memory ramp</text>
+<rect x="760" y="92" width="14" height="14" rx="4" fill="#e0398f" opacity="0.85"/>
+<text x="782.0" y="104.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#8b97b3" text-anchor="start" opacity="1.0">critical</text>
+<rect x="870" y="92" width="14" height="14" rx="4" fill="#ff6b4a" opacity="0.85"/>
+<text x="892.0" y="104.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#8b97b3" text-anchor="start" opacity="1.0">high</text>
+<rect x="980" y="92" width="14" height="14" rx="4" fill="#f5b83d" opacity="0.85"/>
+<text x="1002.0" y="104.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#8b97b3" text-anchor="start" opacity="1.0">medium</text>
+<text x="1160.0" y="620.0" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#8b97b3" text-anchor="end" opacity="1.0">Measured on the Docker Compose demo stack via the REST API (attack_scenarios.py)</text>
+</svg>

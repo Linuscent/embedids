@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="1200" height="520" role="img" aria-label="Path from simulation to NVIDIA Jetson hardware">
+  <title>Portability: one detection engine, swappable collectors, roadmap to Jetson hardware</title>
+  <style>
+    .t { font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; fill: #e6ebf5; }
+    .m { font-family: 'JetBrains Mono', Menlo, Consolas, monospace; font-size: 12px; fill: #8b97b3; }
+    .muted { fill: #8b97b3; }
+    .card { fill: #121a2e; stroke: #24314f; stroke-width: 1.5; }
+    .pill { font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 800; letter-spacing: 0.6px; }
+  </style>
+  <rect width="1200" height="520" rx="22" fill="#0b1020"/>
+  <text class="t" x="40" y="50" font-size="24" font-weight="700">From simulation to Jetson, one config line</text>
+  <text class="t muted" x="40" y="76" font-size="14">The detection engine never changes. Each platform only swaps the collectors behind the same interface.</text>
+
+  <!-- engine -->
+  <rect x="40" y="110" width="330" height="180" rx="16" fill="#1a1530" stroke="#ef2b2d" stroke-width="1.8"/>
+  <text class="t" x="64" y="146" font-size="18" font-weight="800">Embed<tspan fill="#ef2b2d">IDS</tspan> detection engine</text>
+  <text class="t muted" x="64" y="172" font-size="13">rules · signals · correlation · alerts</text>
+  <text class="m" x="64" y="206">identical binary logic</text>
+  <text class="m" x="64" y="226">identical configuration schema</text>
+  <text class="m" x="64" y="246">identical alerts &amp; REST API</text>
+  <rect x="64" y="258" width="282" height="22" rx="6" fill="#0b1020"/>
+  <text class="m" x="74" y="274" fill="#ff8a6f">device.platform: jetson</text>
+
+  <!-- interface -->
+  <path d="M370 200 H430" stroke="#5b6b90" stroke-width="2"/>
+  <rect x="430" y="112" width="40" height="176" rx="10" fill="#18223b" stroke="#5b6b90" stroke-width="1.5"/>
+  <text class="m" x="455" y="200" transform="rotate(-90 455 200)" text-anchor="middle">MetricCollector</text>
+  <path d="M470 140 H510 M470 200 H510 M470 260 H510" stroke="#5b6b90" stroke-width="2"/>
+
+  <!-- backends -->
+  <g>
+    <rect class="card" x="510" y="114" width="650" height="52" rx="12" stroke="#3ccf7a"/>
+    <text class="t" x="530" y="146" font-size="15" font-weight="700">simulation</text>
+    <text class="t muted" x="650" y="146" font-size="13">Jetson-class workload model, 9 attack scenarios</text>
+    <rect x="1036" y="128" width="108" height="22" rx="11" fill="#3ccf7a" opacity="0.18"/>
+    <text class="pill" x="1090" y="143" fill="#3ccf7a" text-anchor="middle">VALIDATED</text>
+
+    <rect class="card" x="510" y="174" width="650" height="52" rx="12" stroke="#4ea1ff"/>
+    <text class="t" x="530" y="206" font-size="15" font-weight="700">linux</text>
+    <text class="t muted" x="650" y="206" font-size="13">/proc and /sys: CPU, memory, processes, TCP, thermal</text>
+    <rect x="1036" y="188" width="108" height="22" rx="11" fill="#4ea1ff" opacity="0.18"/>
+    <text class="pill" x="1090" y="203" fill="#4ea1ff" text-anchor="middle">IMPLEMENTED</text>
+
+    <rect class="card" x="510" y="234" width="650" height="52" rx="12" stroke="#76b900"/>
+    <text class="t" x="530" y="266" font-size="15" font-weight="700">jetson</text>
+    <text class="t muted" x="650" y="266" font-size="13">tegrastats · GPU load sysfs · power rails · TensorRT stats</text>
+    <rect x="1036" y="248" width="108" height="22" rx="11" fill="#f5b83d" opacity="0.18"/>
+    <text class="pill" x="1090" y="263" fill="#f5b83d" text-anchor="middle">HW PENDING</text>
+  </g>
+
+  <!-- roadmap -->
+  <text class="t" x="40" y="340" font-size="11" font-weight="700" letter-spacing="1.6" style="fill:#5b6b90">HARDWARE PORTING ROADMAP</text>
+  <line x1="100" y1="392" x2="1100" y2="392" stroke="#24314f" stroke-width="4" stroke-linecap="round"/>
+  <line x1="100" y1="392" x2="600" y2="392" stroke="#3ccf7a" stroke-width="4" stroke-linecap="round"/>
+  <line x1="600" y1="392" x2="850" y2="392" stroke="#f5b83d" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>
+
+  <g>
+    <circle cx="100" cy="392" r="14" fill="#3ccf7a"/>
+    <text class="t" x="100" y="397" font-size="12" font-weight="800" style="fill:#0b1020" text-anchor="middle">✓</text>
+    <text class="t" x="100" y="432" font-size="14" font-weight="700" text-anchor="middle">Simulation MVP</text>
+    <text class="t muted" x="100" y="452" font-size="12" text-anchor="middle">rules, demo, tests</text>
+
+    <circle cx="350" cy="392" r="14" fill="#3ccf7a"/>
+    <text class="t" x="350" y="397" font-size="12" font-weight="800" style="fill:#0b1020" text-anchor="middle">✓</text>
+    <text class="t" x="350" y="432" font-size="14" font-weight="700" text-anchor="middle">1 · Linux telemetry</text>
+    <text class="t muted" x="350" y="452" font-size="12" text-anchor="middle">/proc and /sys collectors</text>
+
+    <circle cx="600" cy="392" r="14" fill="#0b1020" stroke="#f5b83d" stroke-width="3"/>
+    <text class="t" x="600" y="432" font-size="14" font-weight="700" text-anchor="middle">2 · Jetson metrics</text>
+    <text class="t muted" x="600" y="452" font-size="12" text-anchor="middle">collectors built, on-device</text>
+    <text class="t muted" x="600" y="468" font-size="12" text-anchor="middle">validation next</text>
+
+    <circle cx="850" cy="392" r="14" fill="#0b1020" stroke="#5b6b90" stroke-width="3"/>
+    <text class="t" x="850" y="432" font-size="14" font-weight="700" text-anchor="middle">3 · TensorRT workload</text>
+    <text class="t muted" x="850" y="452" font-size="12" text-anchor="middle">FPS, latency, engine hash</text>
+
+    <circle cx="1100" cy="392" r="14" fill="#0b1020" stroke="#5b6b90" stroke-width="3"/>
+    <text class="t" x="1100" y="432" font-size="14" font-weight="700" text-anchor="middle">4 · System service</text>
+    <text class="t muted" x="1100" y="452" font-size="12" text-anchor="middle">hardened systemd unit</text>
+  </g>
+</svg>

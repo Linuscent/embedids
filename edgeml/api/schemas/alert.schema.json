@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://embedids.linuscent.com/schemas/edgeml/alert.schema.json",
+  "title": "EmbedIDS EdgeML alert",
+  "description": "Alert returned by GET /alerts and exported to JSON lines, syslog and webhooks (spec section 12). Exports add an \"event\" field: raised | escalated | resolved.",
+  "type": "object",
+  "required": ["alert_id", "timestamp", "device_id", "severity", "category", "rule", "title", "description", "evidence", "status"],
+  "properties": {
+    "alert_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "timestamp_ms": { "type": "integer" },
+    "device_id": { "type": "string" },
+    "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+    "category": {
+      "enum": ["runtime_anomaly", "process", "network", "integrity", "performance", "availability", "correlated_incident"]
+    },
+    "rule": { "type": "string" },
+    "subject": { "type": "string", "description": "Process name or destination for per-subject rules" },
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "evidence": { "type": "object" },
+    "signals": { "type": "array", "items": { "type": "string" } },
+    "related_alerts": { "type": "array", "items": { "type": "string" } },
+    "status": { "enum": ["active", "resolved"] },
+    "escalated": { "type": "boolean" },
+    "updated": { "type": "string", "format": "date-time" },
+    "resolved": { "type": "string", "format": "date-time" },
+    "resolved_ms": { "type": "integer" },
+    "resolution": { "type": "string" },
+    "event": { "enum": ["raised", "escalated", "resolved"] }
+  },
+  "examples": [
+    {
+      "alert_id": "ALT-000142",
+      "timestamp": "2026-10-06T22:01:04Z",
+      "device_id": "demo-edge-001",
+      "severity": "high",
+      "category": "correlated_incident",
+      "rule": "unauthorized_gpu_workload",
+      "title": "Possible unauthorized GPU workload",
+      "description": "GPU utilization increased while inference throughput decreased and an unknown process was detected.",
+      "evidence": {
+        "gpu_utilization": 97.4,
+        "inference_rate": 11.2,
+        "process": "unknown_worker",
+        "correlated_alerts": [
+          { "alert_id": "ALT-000139", "rule": "rogue_process", "severity": "medium", "title": "Unknown process detected" }
+        ]
+      },
+      "signals": ["security.unknown_processes", "gpu.utilization", "ai.inference.rate"],
+      "related_alerts": ["ALT-000139", "ALT-000140", "ALT-000141"],
+      "status": "active",
+      "escalated": false
+    }
+  ]
+}

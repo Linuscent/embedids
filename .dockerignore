@@ -1,0 +1,19 @@
+# Build context is the repository root; keep it small and reproducible.
+.git
+.github
+.venv
+.cache
+build*/
+site/
+docs/
+overrides/
+examples/
+tests/
+poetry.lock
+pyproject.toml
+mkdocs.yml
+edgeml-data/
+**/*.o
+**/*.a
+**/CMakeCache.txt
+**/CMakeFiles
