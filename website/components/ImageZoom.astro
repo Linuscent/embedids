@@ -1,0 +1,36 @@
+<dialog class="image-viewer" aria-label="Enlarged documentation figure">
+  <form method="dialog"><button type="submit" autofocus>Close image</button></form>
+  <div class="image-container"></div>
+  <p></p>
+</dialog>
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('.image-viewer')!;
+  const enlarged = document.createElement('img');
+  dialog.querySelector('.image-container')!.append(enlarged);
+  const caption = dialog.querySelector('p')!;
+  document.querySelectorAll<HTMLImageElement>('.sl-markdown-content img').forEach((image) => {
+    if (image.closest('a')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'figure-zoom';
+    button.setAttribute('aria-label', `Enlarge image: ${image.alt}`);
+    image.before(button);
+    button.append(image);
+    button.addEventListener('click', () => {
+      enlarged.src = image.currentSrc || image.src;
+      enlarged.alt = image.alt;
+      caption.textContent = image.alt;
+      dialog.showModal();
+    });
+  });
+  dialog.addEventListener('click', (event) => { if (event.target === dialog) dialog.close(); });
+</script>
+<style>
+  dialog { width: min(96vw, 100rem); max-width: 96vw; max-height: 94dvh; padding: 1rem; border: 1px solid var(--sl-color-gray-4); border-radius: 0.5rem; background: var(--sl-color-bg); color: var(--sl-color-text); }
+  dialog::backdrop { background: #05060ae6; }
+  form { position: sticky; top: 0; display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+  button { cursor: pointer; min-height: 2.75rem; padding: 0.5rem 1rem; font: inherit; border: 1px solid var(--sl-color-gray-4); border-radius: 0.375rem; background: var(--sl-color-bg); color: var(--sl-color-text-accent); }
+  .image-container :global(img) { display: block; width: 100%; height: auto; }
+  p { margin-top: 1rem; }
+  :global(.figure-zoom) { display: block; max-width: 100%; padding: 0; background: none; border: none; cursor: zoom-in; }
+</style>

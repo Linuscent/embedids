@@ -1,87 +1,84 @@
-name: Docs latest and released versions
+name: Documentation
 
 on:
   push:
-    branches:
-      - "v*.*"
-      - main
+    branches: [main, 'v*.*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build_docs:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    name: Build and Deploy Job
+    env:
+      DOCS_VERSION: ${{ startsWith(github.ref, 'refs/heads/v') && github.ref_name || 'main' }}
     steps:
       - uses: actions/checkout@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Full history: page dates (structured data, sitemap lastmod, "Last updated") come from git.
           fetch-depth: 0
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v7
+      # v6 is the first release that supports pnpm 11 (pinned in package.json).
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
         with:
-          python-version: 3.12
-
-      - name: Install poetry
-        uses: abatilo/actions-poetry@v4
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm check:links
+      - run: pnpm check:seo
+      - name: Keep published URLs, anchors and assets
+        run: |
+          git fetch --depth=1 origin gh-pages
+          mkdir -p "$RUNNER_TEMP/published"
+          git archive FETCH_HEAD | tar -x -C "$RUNNER_TEMP/published"
+          if [ -d "$RUNNER_TEMP/published/$DOCS_VERSION" ]; then
+            pnpm check:urls "$RUNNER_TEMP/published/$DOCS_VERSION" dist
+          else
+            echo "No published $DOCS_VERSION yet; nothing to compare."
+          fi
+      - uses: actions/upload-artifact@v7
         with:
-          poetry-version: latest
+          name: docs
+          path: dist
+          if-no-files-found: error
 
-      - name: Install packages
+  deploy:
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v'))
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: docs-gh-pages
+      cancel-in-progress: false
+    env:
+      DOCS_VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v8
+        with:
+          name: docs
+          path: dist
+      - name: Update the published version
         run: |
-          poetry install
-
-      - name: Configure Git user
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
-        id: extract_branch
-
-      - name: Build docs
-        env:
-          MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          poetry run mike deploy --push --update-aliases \
-            "${{ steps.extract_branch.outputs.branch }}"
-
-      # mike serves every version under /<version>/, so the crawler entry points
-      # (/robots.txt and /sitemap.xml) do not exist at the domain root. Publish
-      # them so search engines can discover the default version's sitemap.
-      - name: Publish root robots.txt and sitemap index
-        if: steps.extract_branch.outputs.branch == 'main'
-        env:
-          SITE_URL: https://embedids.linuscent.com
-          DEFAULT_VERSION: main
-        run: |
-          set -euo pipefail
           git fetch origin gh-pages
-          git worktree add ../gh-pages origin/gh-pages
-          cd ../gh-pages
-
-          cat > robots.txt <<EOF
-          User-agent: *
-          Allow: /
-
-          Sitemap: ${SITE_URL}/sitemap.xml
-          EOF
-
-          cat > sitemap.xml <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-              <sitemap>
-                   <loc>${SITE_URL}/${DEFAULT_VERSION}/sitemap.xml</loc>
-              </sitemap>
-          </sitemapindex>
-          EOF
-
-          git add robots.txt sitemap.xml
-          git diff --cached --quiet || {
-            git commit -m "chore(docs): update root robots.txt and sitemap index"
+          git worktree add "$RUNNER_TEMP/gh-pages" origin/gh-pages
+          node scripts/publish-docs.mjs "$RUNNER_TEMP/gh-pages"
+      - name: Publish to GitHub Pages
+        run: |
+          cd "$RUNNER_TEMP/gh-pages"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add --all
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: publish ${DOCS_VERSION}"
             git push origin HEAD:gh-pages
-          }
+          fi

@@ -171,6 +171,57 @@ simulator, a REST API, a demo dashboard and a Docker Compose environment:
 cd edgeml/deployment && docker compose up --build   # http://localhost:8080
 ```
 
+## Documentation website
+
+The website uses **Astro + Starlight**, with Linuscent branding. Requires Node.js 24 and pnpm (the version is pinned in `package.json`).
+
+```bash
+pnpm install
+pnpm dev                 # http://localhost:4321
+pnpm check
+pnpm test
+pnpm build
+pnpm check:links
+pnpm preview             # production build, including search
+```
+
+Edit pages in `docs/`; use MDX for Starlight components such as tabs and callouts.
+Keep repository-relative `.md`/`.mdx` links: the build converts them to the correct
+published URLs. Charts and source screenshots remain in `docs/assets/` and are
+processed by Astro. Site configuration and branding live in `astro.config.mjs`
+and `website/`, independently of the C library build.
+
+CI validates pull requests. Pushes to `main` and `v*.*` publish versioned builds
+to the existing `gh-pages` branch, preserving archives and `CNAME`. The root
+continues to redirect to `/main/`. To test the production base locally:
+
+```bash
+DOCS_VERSION=main pnpm build
+DOCS_VERSION=main pnpm check:links
+DOCS_VERSION=main pnpm preview
+```
+
+Published URLs are kept stable for search engines and shared links. CI compares
+each build against the live `gh-pages` version, covering page URLs, canonical links,
+heading anchors and anchor text, and every published asset URL. To run the same
+check locally:
+
+```bash
+git fetch origin gh-pages && mkdir -p /tmp/pages
+git archive origin/gh-pages | tar -x -C /tmp/pages
+DOCS_VERSION=main pnpm build && pnpm check:urls /tmp/pages/main dist
+```
+
+Renaming a heading changes its anchor, so keep existing section headings unchanged.
+Old page-title anchors such as `#quick-start` are listed under `legacyAnchors` in
+each page's frontmatter.
+
+Search, code copying, theme selection and mobile navigation are provided by
+Starlight. Documentation versions appear in the footer when multiple versions
+are published. Google Analytics loads only after explicit consent, which can be
+changed using Cookie settings. Feedback is available through page edit links
+and GitHub issues; figures can be enlarged for closer inspection.
+
 ## License
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) file for details.
