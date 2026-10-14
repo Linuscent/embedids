@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import darkLogo from '../../docs/assets/images/embedIDS_logo_text_dark.png';
+import lightLogo from '../../docs/assets/images/embedIDS_logo_text.png';
+---
+<a class="product-brand" href={import.meta.env.BASE_URL} aria-label="EmbedIDS by Linuscent">
+  <Image class="light:sl-hidden" src={darkLogo} alt="EmbedIDS" width={150} loading="eager" />
+  <Image class="dark:sl-hidden" src={lightLogo} alt="EmbedIDS" width={150} loading="eager" />
+  <span class="brand-byline">by Linuscent</span>
+</a>
+<style>
+  .product-brand { display: flex; flex-direction: column; align-items: flex-start; color: var(--sl-color-white); text-decoration: none; white-space: nowrap; }
+  .brand-byline { margin-top: -0.6rem; margin-left: 2.5rem; font: 400 0.65rem/1.2 var(--sl-font); color: var(--sl-color-gray-2); }
+</style>

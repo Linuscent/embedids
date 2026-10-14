@@ -1,0 +1,735 @@
+---
+/**
+ * Overview hero: a simulated edge device whose trust checks and intrusion detectors
+ * feed the EmbedIDS engine. Four scenarios from the recorded EdgeML case study play in
+ * turn. Alert titles, hashes, values and detection times are taken from
+ * docs/case-studies/edgeml-runtime-security.mdx; on-screen timing is compressed.
+ */
+const trust = [
+  { id: 'model', label: 'Model integrity', value: 'sha256 5786…f56c', text: 'Approved' },
+  { id: 'config', label: 'Config integrity', value: 'hash matches startup', text: 'Verified' },
+  { id: 'agent', label: 'Agent binary', value: 'hash exposed for attestation', text: 'Verified' },
+  { id: 'heartbeat', label: 'Telemetry heartbeat', value: 'every 1 s', text: 'Alive' },
+];
+const detect = [
+  { id: 'compute', label: 'GPU / CPU', value: 'GPU 41% · CPU 23%', text: 'In profile' },
+  { id: 'inference', label: 'Inference', value: '30.0 FPS', text: 'Baseline' },
+  { id: 'processes', label: 'Processes', value: 'allow-listed only', text: 'Known' },
+  { id: 'network', label: 'Network', value: 'known destinations', text: 'Normal' },
+];
+const scenes = ['GPU hijack', 'Model tampering', 'Data exfiltration', 'Telemetry loss'];
+---
+
+<figure class="dtm" data-device-monitor data-trust="verified" data-intrusion="clear" aria-labelledby="dtm-caption">
+  <div class="dtm-bar">
+    <span class="dtm-device">
+      <span class="live-dot" aria-hidden="true"></span>
+      <code>demo-edge-001</code>
+      <span class="dtm-muted">Jetson-class device · simulated</span>
+    </span>
+    <button class="dtm-toggle" type="button" aria-pressed="false">Pause</button>
+  </div>
+
+  <div class="dtm-scenes" role="group" aria-label="Scenarios">
+    {
+      scenes.map((scene, i) => (
+        <button type="button" data-scene={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <span>{scene}</span>
+          <i class="dtm-progress" aria-hidden="true" />
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="dtm-status">
+    <p class="pill" data-pill="trust"><span>Device trust</span><strong data-pill-text>Verified</strong></p>
+    <p class="pill" data-pill="intrusion"><span>Intrusion</span><strong data-pill-text>Clear</strong></p>
+  </div>
+
+  <div class="dtm-stage">
+    <svg class="dtm-wires" aria-hidden="true"></svg>
+
+    <div class="lane lane-trust" data-lane="trust">
+      <p class="lane-label">Trust checks</p>
+      {
+        trust.map((tile) => (
+          <div class="tile" data-tile={tile.id} data-state="ok" data-base-value={tile.value} data-base-text={tile.text}>
+            <span class="tile-dot" aria-hidden="true" />
+            <span class="tile-label">{tile.label}</span>
+            <span class="tile-value" data-value>{tile.value}</span>
+            <span class="tile-text" data-text>{tile.text}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="core" data-core="scan">
+      <div class="core-ring" aria-hidden="true"></div>
+      <div class="core-chip">
+        <span class="core-name">Embed<b>IDS</b></span>
+        <span class="core-state" data-core-text>Monitoring</span>
+        <span class="core-meta">11 rules · 1 s cycle</span>
+      </div>
+    </div>
+
+    <div class="lane lane-detect" data-lane="detect">
+      <p class="lane-label">Intrusion detection</p>
+      {
+        detect.map((tile) => (
+          <div class="tile" data-tile={tile.id} data-state="ok" data-base-value={tile.value} data-base-text={tile.text}>
+            <span class="tile-dot" aria-hidden="true" />
+            <span class="tile-label">{tile.label}</span>
+            <span class="tile-value" data-value>{tile.value}</span>
+            <span class="tile-text" data-text>{tile.text}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <ol class="dtm-feed" data-feed aria-label="Latest alerts"></ol>
+
+  <figcaption id="dtm-caption">
+    Simulated device. Alerts, hashes and detection times come from the recorded
+    <a href={`${import.meta.env.BASE_URL}case-studies/edgeml-runtime-security/`}>EdgeML case study</a>; timings are compressed.
+  </figcaption>
+</figure>
+
+<script>
+  type TileState = 'ok' | 'warn' | 'alert' | 'lost';
+  type Severity = 'critical' | 'high' | 'medium' | 'signal';
+  interface SceneEvent {
+    at: number;
+    tiles?: Record<string, { state: TileState; value?: string; text?: string; scramble?: boolean }>;
+    trust?: 'verified' | 'violated';
+    intrusion?: 'clear' | 'detected';
+    core?: 'scan' | 'correlate' | 'alert';
+    alert?: { severity: Severity; title: string; detail: string; time?: string };
+  }
+
+  const SCENE_SECONDS = 8.5;
+  const scenes: SceneEvent[][] = [
+    // Scenario A: a cryptominer hijacks the GPU. Trust holds; intrusion is detected.
+    [
+      { at: 1.0, tiles: { processes: { state: 'warn', value: 'unknown_worker', text: 'Unknown' } },
+        alert: { severity: 'medium', title: 'Unknown process detected', detail: 'unknown_worker, past the 5 s grace period', time: '+6 s' } },
+      { at: 2.4, tiles: { compute: { state: 'alert', value: 'GPU 96.5% · CPU 31%', text: 'Out of profile' } },
+        alert: { severity: 'high', title: 'GPU workload outside expected profile', detail: 'GPU above 85% for the 10 s sustain window', time: '+13 s' } },
+      { at: 2.9, tiles: { inference: { state: 'warn', value: '12.8 FPS', text: 'Degraded' } },
+        alert: { severity: 'medium', title: 'Inference performance degradation', detail: 'Throughput below the 30 FPS baseline', time: '+13 s' } },
+      { at: 3.6, core: 'correlate' },
+      { at: 4.4, core: 'alert', intrusion: 'detected',
+        alert: { severity: 'high', title: 'Possible unauthorized GPU workload', detail: 'Process, GPU and inference signals correlated within 20 s', time: 'same cycle' } },
+    ],
+    // Scenario B: the deployed model is overwritten on disk. Trust is violated.
+    [
+      { at: 1.4, tiles: { model: { state: 'warn', value: '', text: 'Re-hashing', scramble: true } } },
+      { at: 2.5, core: 'alert', trust: 'violated',
+        tiles: { model: { state: 'alert', value: 'sha256 e406…eae2', text: 'Mismatch' } },
+        alert: { severity: 'critical', title: 'AI model integrity violation', detail: 'Expected 5786…f56c, current e406…eae2', time: '1 s after write' } },
+    ],
+    // Scenario C: an allow-listed process streams the model out. Trust holds; intrusion is detected.
+    [
+      { at: 1.0, tiles: { network: { state: 'alert', value: '203.0.113.45:8443', text: 'Unknown host' } },
+        alert: { severity: 'high', title: 'Unexpected outbound connection', detail: '203.0.113.45:8443, escalated for its volume', time: '+0.5 s' } },
+      { at: 1.5, tiles: { processes: { state: 'warn', value: 'mqtt-client', text: 'Read model file' } },
+        alert: { severity: 'signal', title: 'Unexpected read of the model file', detail: 'By the allow-listed mqtt-client', time: '+0.5 s' } },
+      { at: 2.7, core: 'correlate' },
+      { at: 3.5, core: 'alert', intrusion: 'detected',
+        alert: { severity: 'critical', title: 'Possible model/data exfiltration', detail: 'Sustained outbound anomaly confirms the pattern', time: '+4.5 s' } },
+    ],
+    // Agent tampering: security telemetry stops. Trust in the monitoring itself is lost.
+    [
+      { at: 1.6, core: 'alert', trust: 'violated',
+        tiles: { heartbeat: { state: 'lost', value: 'no signal', text: 'Lost' } },
+        alert: { severity: 'critical', title: 'Telemetry heartbeat lost', detail: 'Security telemetry unavailable. Possible collector failure or tampering.' } },
+    ],
+  ];
+
+  const COLORS = { trust: '74,222,128', detect: '34,211,238', alert: '247,77,103', warn: '245,158,11' };
+  const SVG = 'http://www.w3.org/2000/svg';
+
+  document.querySelectorAll<HTMLElement>('[data-device-monitor]').forEach((root) => {
+    const stage = root.querySelector<HTMLElement>('.dtm-stage')!;
+    const svg = root.querySelector<SVGSVGElement>('.dtm-wires')!;
+    const core = root.querySelector<HTMLElement>('.core')!;
+    const coreText = root.querySelector<HTMLElement>('[data-core-text]')!;
+    const feed = root.querySelector<HTMLOListElement>('[data-feed]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('.dtm-toggle')!;
+    const sceneButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-scene]')];
+    const tiles = new Map([...root.querySelectorAll<HTMLElement>('[data-tile]')].map((t) => [t.dataset.tile!, t]));
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    type Wire = { tile: HTMLElement; lane: 'trust' | 'detect'; path: SVGPathElement; length: number; packets: { el: SVGCircleElement; offset: number }[] };
+    let wires: Wire[] = [];
+    let scene = 0;
+    let elapsed = 0;
+    let applied = 0;
+    let last = 0;
+    let raf = 0;
+    let paused = false;
+    let visible = true;
+    let lastJitter = 0;
+
+    // --- Wires: one bezier per tile into the core, with packets travelling along it.
+    function layout() {
+      const box = stage.getBoundingClientRect();
+      svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+      svg.replaceChildren();
+      const c = core.getBoundingClientRect();
+      wires = [...tiles.values()].map((tile) => {
+        const lane = tile.closest<HTMLElement>('[data-lane]')!.dataset.lane as 'trust' | 'detect';
+        const r = tile.getBoundingClientRect();
+        const sy = r.top + r.height / 2 - box.top;
+        const sx = (lane === 'trust' ? r.right : r.left) - box.left;
+        const ex = (lane === 'trust' ? c.left + 6 : c.right - 6) - box.left;
+        const ey = c.top - box.top + c.height / 2 + (sy - (c.top - box.top + c.height / 2)) * 0.32;
+        const dx = (ex - sx) * 0.55;
+        const path = document.createElementNS(SVG, 'path');
+        path.setAttribute('d', `M${sx} ${sy} C${sx + dx} ${sy} ${ex - dx} ${ey} ${ex} ${ey}`);
+        path.classList.add('wire');
+        svg.append(path);
+        const packets = [0, 0.5].map((offset) => {
+          const el = document.createElementNS(SVG, 'circle');
+          el.setAttribute('r', '2.6');
+          el.classList.add('packet');
+          svg.append(el);
+          return { el, offset: offset + Math.random() * 0.2 };
+        });
+        return { tile, lane, path, length: path.getTotalLength(), packets };
+      });
+      paintWires();
+      movePackets(0);
+    }
+
+    function paintWires() {
+      for (const wire of wires) {
+        const state = wire.tile.dataset.state as TileState;
+        const rgb = state === 'alert' || state === 'lost' ? COLORS.alert : state === 'warn' ? COLORS.warn : COLORS[wire.lane];
+        wire.path.style.stroke = `rgba(${rgb},${state === 'ok' ? 0.22 : 0.6})`;
+        wire.path.classList.toggle('is-lost', state === 'lost');
+        for (const p of wire.packets) {
+          p.el.style.fill = `rgb(${rgb})`;
+          p.el.style.filter = `drop-shadow(0 0 4px rgba(${rgb},0.9))`;
+          p.el.style.opacity = state === 'lost' ? '0' : '1';
+        }
+      }
+    }
+
+    function movePackets(dt: number) {
+      for (const wire of wires) {
+        const state = wire.tile.dataset.state as TileState;
+        if (state === 'lost') continue;
+        const speed = state === 'ok' ? 0.42 : 0.85;
+        for (const p of wire.packets) {
+          p.offset = (p.offset + dt * speed) % 1;
+          const point = wire.path.getPointAtLength(p.offset * wire.length);
+          p.el.setAttribute('cx', point.x.toFixed(1));
+          p.el.setAttribute('cy', point.y.toFixed(1));
+        }
+      }
+    }
+
+    // --- Scene state
+    function setTile(id: string, change: { state: TileState; value?: string; text?: string; scramble?: boolean }) {
+      const tile = tiles.get(id)!;
+      tile.dataset.state = change.state;
+      tile.toggleAttribute('data-scramble', Boolean(change.scramble));
+      if (change.value !== undefined) tile.querySelector('[data-value]')!.textContent = change.value;
+      if (change.text !== undefined) tile.querySelector('[data-text]')!.textContent = change.text;
+      tile.classList.remove('flash');
+      void tile.offsetWidth;
+      if (change.state !== 'ok') tile.classList.add('flash');
+    }
+
+    function setPill(name: 'trust' | 'intrusion', value: string) {
+      root.dataset[name] = value;
+      const labels: Record<string, string> = { verified: 'Verified', violated: 'Violated', clear: 'Clear', detected: 'Detected' };
+      root.querySelector(`[data-pill="${name}"] [data-pill-text]`)!.textContent = labels[value];
+    }
+
+    function setCore(state: 'scan' | 'correlate' | 'alert') {
+      core.dataset.core = state;
+      coreText.textContent = { scan: 'Monitoring', correlate: 'Correlating…', alert: 'Incident raised' }[state];
+      if (state === 'alert') {
+        core.classList.remove('shock');
+        void core.offsetWidth;
+        core.classList.add('shock');
+      }
+    }
+
+    function pushAlert(alert: NonNullable<SceneEvent['alert']>) {
+      const item = document.createElement('li');
+      item.dataset.severity = alert.severity;
+      const badge = alert.severity.toUpperCase();
+      item.innerHTML = `<span class="sev"></span><span class="alert-body"><strong></strong><span class="alert-detail"></span></span><span class="alert-time"></span>`;
+      item.querySelector('.sev')!.textContent = badge;
+      item.querySelector('strong')!.textContent = alert.title;
+      item.querySelector('.alert-detail')!.textContent = alert.detail;
+      item.querySelector('.alert-time')!.textContent = alert.time ?? '';
+      feed.prepend(item);
+      while (feed.children.length > 3) feed.lastElementChild!.remove();
+    }
+
+    function apply(event: SceneEvent) {
+      for (const [id, change] of Object.entries(event.tiles ?? {})) setTile(id, change);
+      if (event.trust) setPill('trust', event.trust);
+      if (event.intrusion) setPill('intrusion', event.intrusion);
+      if (event.core) setCore(event.core);
+      if (event.alert) pushAlert(event.alert);
+      paintWires();
+    }
+
+    function reset() {
+      for (const tile of tiles.values()) {
+        setTile(tile.dataset.tile!, { state: 'ok', value: tile.dataset.baseValue, text: tile.dataset.baseText });
+      }
+      setPill('trust', 'verified');
+      setPill('intrusion', 'clear');
+      core.dataset.core = 'scan';
+      coreText.textContent = 'Monitoring';
+      feed.replaceChildren();
+      paintWires();
+    }
+
+    function goTo(index: number) {
+      scene = (index + scenes.length) % scenes.length;
+      elapsed = 0;
+      applied = 0;
+      reset();
+      sceneButtons.forEach((button, i) => {
+        button.setAttribute('aria-pressed', String(i === scene));
+        button.style.setProperty('--progress', '0');
+      });
+      if (reduced) {
+        // Without motion, show each scenario's outcome directly.
+        scenes[scene].forEach(apply);
+        applied = scenes[scene].length;
+      }
+    }
+
+    // --- Clock
+    function frame(now: number) {
+      raf = 0;
+      if (paused || !visible) return;
+      const dt = Math.min((now - last) / 1000, 0.1);
+      last = now;
+      elapsed += dt;
+      const events = scenes[scene];
+      while (applied < events.length && events[applied].at <= elapsed) apply(events[applied++]);
+      sceneButtons[scene].style.setProperty('--progress', String(Math.min(elapsed / SCENE_SECONDS, 1)));
+      if (now - lastJitter > 650) {
+        lastJitter = now;
+        jitter();
+      }
+      scramble();
+      movePackets(dt);
+      if (elapsed >= SCENE_SECONDS) goTo(scene + 1);
+      raf = requestAnimationFrame(frame);
+    }
+
+    // Live readings drift slightly while a tile is healthy.
+    function jitter() {
+      const compute = tiles.get('compute')!;
+      if (compute.dataset.state === 'ok') {
+        const gpu = 38 + Math.round(Math.random() * 8);
+        const cpu = 20 + Math.round(Math.random() * 6);
+        compute.querySelector('[data-value]')!.textContent = `GPU ${gpu}% · CPU ${cpu}%`;
+      }
+      const inference = tiles.get('inference')!;
+      if (inference.dataset.state === 'ok') {
+        inference.querySelector('[data-value]')!.textContent = `${(29.6 + Math.random() * 0.6).toFixed(1)} FPS`;
+      }
+    }
+
+    function scramble() {
+      for (const tile of tiles.values()) {
+        if (!tile.hasAttribute('data-scramble')) continue;
+        const hex = () => Math.floor(Math.random() * 65536).toString(16).padStart(4, '0');
+        tile.querySelector('[data-value]')!.textContent = `sha256 ${hex()}…${hex()}`;
+      }
+    }
+
+    function start() {
+      if (raf || paused || !visible || reduced) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    sceneButtons.forEach((button, i) =>
+      button.addEventListener('click', () => {
+        goTo(i);
+        start();
+      }),
+    );
+    toggle.addEventListener('click', () => {
+      paused = !paused;
+      toggle.setAttribute('aria-pressed', String(paused));
+      toggle.textContent = paused ? 'Resume' : 'Pause';
+      paused ? stop() : start();
+    });
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting && !document.hidden;
+      visible ? start() : stop();
+    }).observe(root);
+    document.addEventListener('visibilitychange', () => {
+      visible = !document.hidden;
+      visible ? start() : stop();
+    });
+    new ResizeObserver(layout).observe(stage);
+
+    if (reduced) toggle.hidden = true;
+    goTo(0);
+    layout();
+    start();
+  });
+</script>
+
+<style>
+  .dtm {
+    --cyan: #22d3ee;
+    --green: #4ade80;
+    --amber: #f59e0b;
+    --alert: #f74d67;
+    --text: #e5e7eb;
+    --muted: #9aa3b4;
+    --line: rgba(229, 231, 235, 0.08);
+    position: relative;
+    margin: 0;
+    padding: 1rem;
+    color: var(--text);
+    background: linear-gradient(180deg, rgba(10, 12, 20, 0.94), rgba(5, 6, 10, 0.97));
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 0.875rem;
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9), 0 0 60px -30px rgba(34, 211, 238, 0.5);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .dtm[data-trust='violated'], .dtm[data-intrusion='detected'] {
+    border-color: rgba(247, 77, 103, 0.45);
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9), 0 0 70px -28px rgba(247, 77, 103, 0.5);
+  }
+  /* HUD corner brackets, the Linuscent navigation signature. */
+  .dtm::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    pointer-events: none;
+    --c: var(--cyan);
+    background:
+      linear-gradient(var(--c), var(--c)) left top / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) left top / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) right top / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) right top / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) left bottom / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) left bottom / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) right bottom / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) right bottom / 1.5px 14px;
+    background-repeat: no-repeat;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+  }
+  .dtm[data-trust='violated']::before, .dtm[data-intrusion='detected']::before { --c: var(--alert); }
+
+  /* --- Bar, scenarios, status ------------------------------------------- */
+  .dtm-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font: 500 0.72rem/1.4 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+  .dtm-device { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .dtm-device code { color: var(--text); background: none; padding: 0; font-size: inherit; }
+  .dtm-muted { color: var(--muted); }
+  .live-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--green);
+    animation: live 2s ease-out infinite;
+  }
+  @keyframes live {
+    from { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+    to { box-shadow: 0 0 0 0.6rem rgba(74, 222, 128, 0); }
+  }
+  .dtm-toggle {
+    flex: none;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    font: inherit;
+    color: var(--cyan);
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .dtm-toggle:hover { background: rgba(34, 211, 238, 0.16); }
+
+  .dtm-scenes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; margin-top: 0.85rem; }
+  .dtm-scenes button {
+    position: relative;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.35rem 0.55rem;
+    overflow: hidden;
+    font: 500 0.7rem/1.2 'JetBrains Mono', monospace;
+    color: var(--muted);
+    background: rgba(229, 231, 235, 0.03);
+    border: 1px solid var(--line);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .dtm-scenes button:hover { color: var(--text); }
+  .dtm-scenes button[aria-pressed='true'] { color: var(--text); border-color: rgba(34, 211, 238, 0.35); background: rgba(34, 211, 238, 0.06); }
+  .dtm-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--cyan);
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+    opacity: 0;
+  }
+  [aria-pressed='true'] > .dtm-progress { opacity: 1; }
+
+  .dtm-status { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem; }
+  .pill {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    font-size: 0.74rem;
+    color: var(--muted);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .pill strong {
+    font: 700 0.95rem/1 'Space Grotesk', sans-serif;
+    letter-spacing: -0.01em;
+    color: var(--green);
+    transition: color 0.3s ease;
+  }
+  [data-pill='intrusion'] strong { color: var(--cyan); }
+  .dtm[data-trust='violated'] [data-pill='trust'],
+  .dtm[data-intrusion='detected'] [data-pill='intrusion'] {
+    background: rgba(247, 77, 103, 0.1);
+    border-color: rgba(247, 77, 103, 0.4);
+  }
+  .dtm[data-trust='violated'] [data-pill='trust'] strong,
+  .dtm[data-intrusion='detected'] [data-pill='intrusion'] strong { color: #ff8a9c; }
+
+  /* --- Stage: trust lane | engine | detection lane ------------------------ */
+  .dtm-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 8.5rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: center;
+    margin-top: 0.85rem;
+    padding-block: 0.25rem;
+  }
+  .dtm-wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .dtm-wires :global(.wire) { fill: none; stroke-width: 1.25; transition: stroke 0.3s ease; }
+  .dtm-wires :global(.wire.is-lost) { stroke-dasharray: 3 5; }
+  .dtm-wires :global(.packet) { transition: fill 0.3s ease, opacity 0.3s ease; }
+
+  .lane { position: relative; z-index: 1; display: grid; gap: 0.45rem; }
+  .lane-label {
+    margin: 0 0 0.15rem;
+    font: 500 0.66rem/1.3 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .lane-trust .lane-label { color: var(--green); }
+  .lane-detect .lane-label { color: var(--cyan); text-align: right; }
+
+  .tile {
+    --tone: var(--cyan);
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 'dot label' 'dot value' 'dot text';
+    column-gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    background: rgba(10, 12, 20, 0.92);
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  .lane-trust .tile { --tone: var(--green); }
+  .tile[data-state='warn'] { --tone: var(--amber); border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.07); }
+  .tile[data-state='alert'], .tile[data-state='lost'] { --tone: var(--alert); border-color: rgba(247, 77, 103, 0.5); background: rgba(247, 77, 103, 0.09); }
+  .tile.flash { animation: flash 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes flash {
+    from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tone) 60%, transparent); }
+    to { box-shadow: 0 0 0 0.6rem transparent; }
+  }
+  .tile-dot {
+    grid-area: dot;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: 0.3rem;
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow: 0 0 8px var(--tone);
+    transition: background-color 0.3s ease;
+  }
+  .tile-label { grid-area: label; font-size: 0.74rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .tile-value {
+    grid-area: value;
+    overflow: hidden;
+    font: 400 0.66rem/1.45 'JetBrains Mono', monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tile-text { grid-area: text; font: 500 0.66rem/1.4 'JetBrains Mono', monospace; color: var(--tone); }
+
+  /* Engine */
+  .core { position: relative; z-index: 1; display: grid; place-items: center; aspect-ratio: 1; }
+  .core-ring {
+    position: absolute;
+    inset: -0.6rem;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0 70%, rgba(34, 211, 238, 0.65) 92%, transparent 100%);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+    animation: sweep 3.2s linear infinite;
+  }
+  .core[data-core='correlate'] .core-ring {
+    background: conic-gradient(from 0deg, transparent 0 55%, rgba(245, 158, 11, 0.85) 92%, transparent 100%);
+    animation-duration: 1.1s;
+  }
+  .core[data-core='alert'] .core-ring {
+    background: conic-gradient(from 0deg, rgba(247, 77, 103, 0.35), rgba(247, 77, 103, 0.9), rgba(247, 77, 103, 0.35));
+    animation-duration: 6s;
+  }
+  @keyframes sweep { to { transform: rotate(1turn); } }
+  .core-chip {
+    position: relative;
+    display: grid;
+    gap: 0.3rem;
+    justify-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem 0.5rem;
+    align-content: center;
+    text-align: center;
+    background: radial-gradient(circle at 50% 35%, rgba(34, 211, 238, 0.14), rgba(10, 12, 20, 0.95) 70%);
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    border-radius: 1rem;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  /* Package pins, like the EmbedIDS chip mark. */
+  .core-chip::before, .core-chip::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    --pin: rgba(34, 211, 238, 0.45);
+  }
+  .core-chip::before {
+    inset: -7px 22%;
+    background:
+      repeating-linear-gradient(to right, var(--pin) 0 2px, transparent 2px 12px) top / 100% 5px no-repeat,
+      repeating-linear-gradient(to right, var(--pin) 0 2px, transparent 2px 12px) bottom / 100% 5px no-repeat;
+  }
+  .core-chip::after {
+    inset: 22% -7px;
+    background:
+      repeating-linear-gradient(to bottom, var(--pin) 0 2px, transparent 2px 12px) left / 5px 100% no-repeat,
+      repeating-linear-gradient(to bottom, var(--pin) 0 2px, transparent 2px 12px) right / 5px 100% no-repeat;
+  }
+  .core[data-core='alert'] .core-chip {
+    border-color: rgba(247, 77, 103, 0.55);
+    background: radial-gradient(circle at 50% 35%, rgba(247, 77, 103, 0.18), rgba(10, 12, 20, 0.95) 70%);
+  }
+  .core-name { font: 700 1.05rem/1 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+  .core-name b { color: #ff2d2d; font-weight: 700; }
+  .core-state { font: 500 0.68rem/1.2 'JetBrains Mono', monospace; color: var(--cyan); }
+  .core[data-core='correlate'] .core-state { color: var(--amber); }
+  .core[data-core='alert'] .core-state { color: #ff8a9c; }
+  .core-meta { font: 400 0.6rem/1.2 'JetBrains Mono', monospace; color: var(--muted); white-space: nowrap; }
+  .core.shock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid var(--alert);
+    border-radius: 1rem;
+    pointer-events: none;
+    animation: shock 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes shock {
+    from { opacity: 0.9; transform: scale(1); }
+    to { opacity: 0; transform: scale(1.7); }
+  }
+
+  /* --- Alert feed ---------------------------------------------------------- */
+  .dtm-feed {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    min-height: 9.9rem;
+    margin: 0.85rem 0 0;
+    padding: 0.75rem 0 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .dtm-feed :global(li) {
+    display: grid;
+    grid-template-columns: 4.6rem 1fr auto;
+    gap: 0.6rem;
+    align-items: start;
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.375rem;
+    background: rgba(229, 231, 235, 0.03);
+    animation: alert-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .dtm-feed :global(li:first-child) { background: rgba(229, 231, 235, 0.06); }
+  @keyframes alert-in { from { opacity: 0; transform: translateY(-0.5rem); } }
+  .dtm-feed :global(.sev) {
+    padding: 0.15rem 0.3rem;
+    font: 600 0.6rem/1.3 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+    text-align: center;
+    border-radius: 0.25rem;
+  }
+  .dtm-feed :global([data-severity='critical'] .sev) { color: #fff; background: rgba(247, 77, 103, 0.85); }
+  .dtm-feed :global([data-severity='high'] .sev) { color: #ff8a9c; background: rgba(247, 77, 103, 0.16); }
+  .dtm-feed :global([data-severity='medium'] .sev) { color: var(--amber); background: rgba(245, 158, 11, 0.14); }
+  .dtm-feed :global([data-severity='signal'] .sev) { color: var(--cyan); background: rgba(34, 211, 238, 0.12); }
+  .dtm-feed :global(.alert-body) { display: grid; gap: 0.1rem; min-width: 0; }
+  .dtm-feed :global(strong) { font-size: 0.76rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .dtm-feed :global(.alert-detail) { font-size: 0.68rem; line-height: 1.35; color: var(--muted); }
+  .dtm-feed :global(.alert-time) { font: 400 0.62rem/1.6 'JetBrains Mono', monospace; color: var(--muted); white-space: nowrap; }
+
+  figcaption { margin-top: 0.75rem; font-size: 0.74rem; line-height: 1.5; color: var(--muted); }
+  figcaption a { color: var(--cyan); text-underline-offset: 0.2em; }
+
+  /* Small screens: engine on top, the two lanes side by side, no wires. */
+  @media (max-width: 40rem) {
+    .dtm-stage { grid-template-columns: 1fr 1fr; grid-template-areas: 'core core' 'trust detect'; gap: 1rem 0.5rem; }
+    .core { grid-area: core; width: 8rem; justify-self: center; }
+    .lane-trust { grid-area: trust; }
+    .lane-detect { grid-area: detect; }
+    .lane-detect .lane-label { text-align: left; }
+    .dtm-wires { display: none; }
+    .dtm-scenes { grid-template-columns: 1fr 1fr; }
+    .dtm-device .dtm-muted { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot, .core-ring, .tile.flash, .core.shock::before, .dtm-feed :global(li) { animation: none; }
+  }
+</style>

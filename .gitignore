@@ -43,6 +43,11 @@ ehthumbs.db
 Thumbs.db
 # Build output
 site/
+dist/
+node_modules/
+.astro/
+.impeccable/
+.playwright-mcp/
 
 # EdgeML local demo data
 edgeml-data/

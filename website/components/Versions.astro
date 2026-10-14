@@ -1,0 +1,31 @@
+---
+const version = import.meta.env.DOCS_VERSION;
+---
+{version && <docs-versions data-current={version}>
+  <a href="/main/">Latest documentation</a>
+</docs-versions>}
+<script>
+  class DocsVersions extends HTMLElement {
+    async connectedCallback() {
+      // Local previews only contain one build, not the root deployment manifest.
+      if (location.hostname !== 'embedids.linuscent.com') return;
+      try {
+        const response = await fetch('/versions.json');
+        if (!response.ok) return;
+        const versions: { version: string; title: string }[] = await response.json();
+        const valid = versions.filter(({ version }) => /^(main|v\d+\.\d+(?:\.\d+)?)$/.test(version));
+        if (valid.length < 2) return;
+        const label = document.createElement('label');
+        label.textContent = 'Version ';
+        const select = document.createElement('select');
+        for (const version of valid) {
+          select.add(new Option(version.title, version.version, false, version.version === this.dataset.current));
+        }
+        select.addEventListener('change', () => { window.location.assign(`/${select.value}/`); });
+        label.append(select);
+        this.replaceChildren(label);
+      } catch { /* The latest-docs link also works offline or without a manifest. */ }
+    }
+  }
+  customElements.define('docs-versions', DocsVersions);
+</script>

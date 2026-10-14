@@ -1,9 +1,8 @@
 ---
 title: Tutorial
 description: A complete guide to the EmbedIDS API - contexts, metrics, detection algorithms and custom extensions for embedded and IoT devices.
+legacyAnchors: [tutorial]
 ---
-
-# Tutorial
 
 ## Introduction
 
@@ -700,4 +699,3 @@ For more examples, see the `examples/` directory in the EmbedIDS repository.
 - Implement custom algorithms for your use case
 - Integrate with your existing monitoring infrastructure
 - Explore advanced configuration options
-

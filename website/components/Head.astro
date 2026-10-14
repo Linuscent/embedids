@@ -1,0 +1,123 @@
+---
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { getCollection } from 'astro:content';
+import Head from '@astrojs/starlight/components/Head.astro';
+import { gitDates } from '../utils/git-dates.mjs';
+
+const route = Astro.locals.starlightRoute;
+const { entry } = route;
+const base = new URL(import.meta.env.BASE_URL, Astro.site);
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const isHome = entry.id === '' || entry.id === 'index';
+const is404 = entry.id === '404' || entry.id.endsWith('/404');
+
+// Each page keeps the share card URL the previous site published:
+// docs/quickstart.md -> assets/images/social/quickstart.png.
+const card = path.relative('docs', entry.filePath ?? '').replace(/\.mdx?$/, '.png');
+const socialImage = new URL(
+  existsSync(path.join('docs/assets/images/social', card)) ? `assets/images/social/${card}` : 'assets/images/social/index.png',
+  base,
+).href;
+
+const description = entry.data.description;
+const organization = {
+  '@type': 'Organization',
+  '@id': 'https://linuscent.com/#organization',
+  name: 'Linuscent Ltd',
+  url: 'https://linuscent.com/',
+  logo: { '@type': 'ImageObject', url: new URL('assets/images/embedIDS_logo.png', base).href },
+  sameAs: ['https://github.com/Linuscent', 'https://www.linkedin.com/company/linuscent'],
+};
+const software = {
+  '@type': 'SoftwareApplication',
+  '@id': `${base.href}#software`,
+  name: 'EmbedIDS',
+  url: base.href,
+  applicationCategory: 'SecurityApplication',
+  operatingSystem: 'Embedded Linux, RTOS, bare-metal',
+  programmingLanguage: 'C',
+  license: 'https://www.apache.org/licenses/LICENSE-2.0',
+  codeRepository: 'https://github.com/Linuscent/EmbedIDS',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  author: { '@id': organization['@id'] },
+};
+
+let graph: object[] = [];
+let published: Date | undefined;
+let modified: Date | undefined;
+if (isHome) {
+  graph = [
+    { ...software, description },
+    organization,
+    {
+      '@type': 'WebSite',
+      '@id': `${base.href}#website`,
+      url: base.href,
+      name: 'EmbedIDS',
+      description,
+      inLanguage: 'en',
+      publisher: { '@id': organization['@id'] },
+    },
+  ];
+} else if (!is404) {
+  ({ published, modified } = gitDates(entry.filePath));
+  // Breadcrumbs follow the URL: Home > Case Studies > this page.
+  const titles = new Map((await getCollection('docs')).map((doc) => [doc.id, doc.data.title]));
+  const segments = entry.id.split('/');
+  const crumbs = [{ name: 'Home', item: base.href }];
+  segments.slice(0, -1).forEach((_, i) => {
+    const id = segments.slice(0, i + 1).join('/');
+    if (titles.has(id)) crumbs.push({ name: titles.get(id)!, item: new URL(`${id}/`, base).href });
+  });
+  crumbs.push({ name: entry.data.title, item: canonical });
+  graph = [
+    {
+      '@type': entry.data.schema_type ?? 'TechArticle',
+      '@id': `${canonical}#article`,
+      headline: entry.data.title,
+      description,
+      url: canonical,
+      mainEntityOfPage: canonical,
+      image: socialImage,
+      inLanguage: 'en',
+      ...(entry.data.keywords && { keywords: entry.data.keywords.join(', ') }),
+      ...(published && { datePublished: published.toISOString() }),
+      ...(modified && { dateModified: modified.toISOString() }),
+      author: { '@id': organization['@id'] },
+      publisher: { '@id': organization['@id'] },
+      about: { '@id': software['@id'] },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: crumbs.map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+    },
+    organization,
+    { '@type': 'SoftwareApplication', '@id': software['@id'], name: 'EmbedIDS', url: base.href, applicationCategory: software.applicationCategory, operatingSystem: software.operatingSystem },
+  ];
+}
+const schema = graph.length ? { '@context': 'https://schema.org', '@graph': graph } : undefined;
+---
+<Head />
+<meta name="theme-color" content="#05060a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<meta property="og:image" content={socialImage} />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={entry.data.title} />
+<meta name="twitter:image" content={socialImage} />
+{published && <meta property="article:published_time" content={published.toISOString()} />}
+{modified && <meta property="article:modified_time" content={modified.toISOString()} />}
+<script is:inline>
+  // Opt in to reveal effects only when motion is welcome; if the reveal script never runs,
+  // drop the class so nothing stays hidden.
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('motion-ok');
+    setTimeout(() => {
+      if (!window.__revealReady) document.documentElement.classList.remove('motion-ok');
+    }, 3000);
+  }
+</script>
+{schema && <script type="application/ld+json" set:html={JSON.stringify(schema).replace(/</g, '\\u003c')} />}

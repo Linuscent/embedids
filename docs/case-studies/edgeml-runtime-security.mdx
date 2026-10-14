@@ -10,55 +10,54 @@ keywords:
   - TensorRT
   - embedded IDS
 description: How EmbedIDS EdgeML detects rogue GPU workloads, AI model tampering and data exfiltration on a Jetson-class edge AI device, using about 9 MB of memory.
+legacyAnchors: [runtime-security-for-edge-ai-devices]
 ---
 
-# Runtime security for Edge AI devices
+import { Aside, Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
 
 **How EmbedIDS EdgeML catches rogue GPU workloads, model tampering and data
 exfiltration on a vision-inference device, in seconds, from about 9 MB of
 memory.**
 
-![EmbedIDS EdgeML: runtime security for Edge AI devices](../assets/case-studies/edgeml/hero.svg){ .off-glb fetchpriority=high width="1200" height="440" }
+![EmbedIDS EdgeML: runtime security for Edge AI devices](../assets/case-studies/edgeml/hero.svg)
 
-<div class="grid cards" markdown>
+<CardGrid>
+<Card title="The challenge">
 
--   :material-target:{ .lg .middle } __The challenge__
+Edge AI devices run valuable models on shared GPUs, in the field, often
+offline. Traditional endpoint agents are heavy, signature-driven and blind
+to what matters here: *is the AI workload still behaving like itself?*
 
-    ---
+</Card>
+<Card title="The approach">
 
-    Edge AI devices run valuable models on shared GPUs, in the field, often
-    offline. Traditional endpoint agents are heavy, signature-driven and blind
-    to what matters here: *is the AI workload still behaving like itself?*
+An on-device agent built on the EmbedIDS core watches the compute,
+the inference pipeline, the deployed model, processes and network.
+It correlates them into incidents an operator can act on.
 
--   :material-shield-search:{ .lg .middle } __The approach__
+</Card>
+<Card title="The result">
 
-    ---
+Nine attack scenarios detected end to end, with model tampering flagged
+within **1 s**. No false alarms over 250 simulated minutes. The agent
+uses **~0.5 % CPU and ~9 MB RAM**.
 
-    An on-device agent built on the EmbedIDS core watches the compute,
-    the inference pipeline, the deployed model, processes and network.
-    It correlates them into incidents an operator can act on.
+</Card>
+</CardGrid>
 
--   :material-chart-timeline-variant-shimmer:{ .lg .middle } __The result__
+<Aside type="note" title="Scope of this study">
 
-    ---
+This case study covers the **EmbedIDS EdgeML MVP**, an open-source
+reference implementation. It runs against a high-fidelity simulation of an
+NVIDIA Jetson-class device running a computer-vision inference workload.
 
-    Nine attack scenarios detected end to end, with model tampering flagged
-    within **1 s**. No false alarms over 250 simulated minutes. The agent
-    uses **~0.5 % CPU and ~9 MB RAM**.
+- All numbers are engineering measurements from that environment, not
+  hardware benchmarks.
+- The same detection engine ships with Linux and Jetson collectors.
+- On-device Jetson validation is the next milestone
+  ([see the roadmap](#path-to-nvidia-jetson)).
 
-</div>
-
-!!! info "Scope of this study"
-
-    This case study covers the **EmbedIDS EdgeML MVP**, an open-source
-    reference implementation. It runs against a high-fidelity simulation of an
-    NVIDIA Jetson-class device running a computer-vision inference workload.
-
-    - All numbers are engineering measurements from that environment, not
-      hardware benchmarks.
-    - The same detection engine ships with Linux and Jetson collectors.
-    - On-device Jetson validation is the next milestone
-      ([see the roadmap](#path-to-nvidia-jetson)).
+</Aside>
 
 ---
 
@@ -85,37 +84,32 @@ changes how an Edge AI device *behaves*. That is the signal EmbedIDS uses.
 Instead of installing a traditional endpoint agent on an edge AI device,
 EmbedIDS EdgeML models what *normal* looks like for the AI workload itself:
 
-<div class="grid cards" markdown>
+<CardGrid>
+<Card title="Compute behavior">
 
--   :material-expansion-card-variant:{ .lg .middle } __Compute behavior__
+GPU and CPU utilization, GPU memory, power and temperature against the
+workload's expected profile.
 
-    ---
+</Card>
+<Card title="AI workload health">
 
-    GPU and CPU utilization, GPU memory, power and temperature against the
-    workload's expected profile.
+Inference FPS, latency, errors and pipeline health against the 30 FPS
+baseline.
 
--   :material-camera-iris:{ .lg .middle } __AI workload health__
+</Card>
+<Card title="Model integrity">
 
-    ---
+SHA-256 of the deployed engine against its approved hash, and who reads
+the model file.
 
-    Inference FPS, latency, errors and pipeline health against the 30 FPS
-    baseline.
+</Card>
+<Card title="Process & network behavior">
 
--   :material-fingerprint:{ .lg .middle } __Model integrity__
+Allow-listed processes and destinations, privileged processes and
+outbound volume.
 
-    ---
-
-    SHA-256 of the deployed engine against its approved hash, and who reads
-    the model file.
-
--   :material-lan-connect:{ .lg .middle } __Process & network behavior__
-
-    ---
-
-    Allow-listed processes and destinations, privileged processes and
-    outbound volume.
-
-</div>
+</Card>
+</CardGrid>
 
 Every one of these becomes a numeric metric in a common schema. The
 **EmbedIDS core**, a C11 library with zero heap allocation, evaluates them
@@ -123,7 +117,7 @@ against thresholds and "sustained for N seconds" conditions every second.
 
 ## Architecture
 
-![EmbedIDS EdgeML architecture](../assets/case-studies/edgeml/architecture.svg){ loading=lazy width="1200" height="860" }
+![EmbedIDS EdgeML architecture](../assets/case-studies/edgeml/architecture.svg)
 
 - **Collectors are the only hardware-aware layer.** Simulation, generic
   Linux (`/proc`, `/sys`) and NVIDIA Jetson (`tegrastats`, GPU sysfs) all
@@ -145,7 +139,7 @@ A rogue process, `unknown_worker`, starts on the device and saturates the
 GPU. Inference throughput drops from 30 FPS to around 10 FPS. Later in the
 same run, the deployed model file is modified.
 
-![GPU utilization and inference throughput with EmbedIDS alerts during a cryptominer attack](../assets/case-studies/edgeml/gpu-workload-timeline.svg){ loading=lazy width="1200" height="836" }
+![GPU utilization and inference throughput with EmbedIDS alerts during a cryptominer attack](../assets/case-studies/edgeml/gpu-workload-timeline.svg)
 
 The chart above is **recorded telemetry, not an illustration**. Here is what
 EmbedIDS saw:
@@ -163,17 +157,23 @@ EmbedIDS saw:
 The 10 s sustain window is deliberate: a legitimate burst of GPU work never
 pages anyone.
 
-=== "Correlated incident"
+<Tabs>
+<TabItem label="Correlated incident">
 
-    ![Dashboard showing the correlated GPU incident with evidence](../assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.webp){ loading=lazy width="1600" height="1750" }
+![Dashboard showing the correlated GPU incident with evidence](../assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.webp)
 
-=== "Model integrity violation"
+</TabItem>
+<TabItem label="Model integrity violation">
 
-    ![Dashboard showing the CRITICAL model integrity violation with expected and current hashes](../assets/case-studies/edgeml/screenshots/03-model-integrity.webp){ loading=lazy width="1600" height="1750" }
+![Dashboard showing the CRITICAL model integrity violation with expected and current hashes](../assets/case-studies/edgeml/screenshots/03-model-integrity.webp)
 
-=== "Healthy baseline"
+</TabItem>
+<TabItem label="Healthy baseline">
 
-    ![Dashboard in the healthy state](../assets/case-studies/edgeml/screenshots/01-healthy.webp){ loading=lazy width="1600" height="1750" }
+![Dashboard in the healthy state](../assets/case-studies/edgeml/screenshots/01-healthy.webp)
+
+</TabItem>
+</Tabs>
 
 Every alert explains itself. This is the correlated incident exactly as the
 agent's REST API returned it:
@@ -227,7 +227,7 @@ This attacker is quieter. Nothing new is launched: the allow-listed
 `mqtt-client` reads the model and streams it to an unknown host. A
 process allow list alone would miss it entirely.
 
-![Outbound traffic and connections with EmbedIDS alerts during model exfiltration](../assets/case-studies/edgeml/exfiltration-timeline.svg){ loading=lazy width="1200" height="836" }
+![Outbound traffic and connections with EmbedIDS alerts during model exfiltration](../assets/case-studies/edgeml/exfiltration-timeline.svg)
 
 Within **half a second**, EmbedIDS flags two things:
 
@@ -239,7 +239,7 @@ By **+4.5 s** the sustained outbound anomaly confirms the pattern, and the
 three signals correlate into a `CRITICAL` **Possible model/data
 exfiltration** incident.
 
-![Dashboard showing the correlated model/data exfiltration incident with its evidence](../assets/case-studies/edgeml/screenshots/04-data-exfiltration.webp){ loading=lazy width="1600" height="1750" }
+![Dashboard showing the correlated model/data exfiltration incident with its evidence](../assets/case-studies/edgeml/screenshots/04-data-exfiltration.webp)
 
 ### More scenarios
 
@@ -253,7 +253,7 @@ exfiltration** incident.
 
 ## From signals to incidents
 
-![How individual alerts are correlated into incidents](../assets/case-studies/edgeml/correlation.svg){ loading=lazy width="1200" height="560" }
+![How individual alerts are correlated into incidents](../assets/case-studies/edgeml/correlation.svg)
 
 Correlation is rule-based and configured in YAML, so it stays predictable
 and auditable:
@@ -271,39 +271,12 @@ correlations:
 
 ## Results
 
-![Time to detect for each attack scenario](../assets/case-studies/edgeml/detection-latency.svg){ loading=lazy width="1200" height="644" }
+![Time to detect for each attack scenario](../assets/case-studies/edgeml/detection-latency.svg)
 
-<div class="grid cards" markdown>
-
--   :material-timer-outline:{ .lg .middle } __1 s__
-
-    ---
-
-    Model tampering to `CRITICAL` alert: the next 1 s sample. The target was
-    under 2 s.
-
--   :material-check-decagram:{ .lg .middle } __0 false alarms__
-
-    ---
-
-    Over 250 minutes of normal operation across 25 randomized workload
-    seeds.
-
--   :material-memory:{ .lg .middle } __~9 MB · ~0.5 % CPU__
-
-    ---
-
-    Agent footprint at 1 s sampling, including the REST API serving the live
-    dashboard.
-
--   :material-flash-outline:{ .lg .middle } __≤ 3 ms__
-
-    ---
-
-    Per-cycle detection, correlation and alerting time. The target was under
-    100 ms.
-
-</div>
+- **1 s** — Model tampering to `CRITICAL` alert: the next 1 s sample. The target was under 2 s.
+- **0 false alarms** — Over 250 minutes of normal operation across 25 randomized workload seeds.
+- **~9 MB · ~0.5 % CPU** — Agent footprint at 1 s sampling, including the REST API serving the live dashboard.
+- **≤ 3 ms** — Per-cycle detection, correlation and alerting time. The target was under 100 ms.
 
 | Measure | Target | Measured |
 |---------|--------|----------|
@@ -343,7 +316,7 @@ The release is backed by an automated test suite:
 
 ## Path to NVIDIA Jetson
 
-![One detection engine, swappable collectors, and the roadmap to Jetson hardware](../assets/case-studies/edgeml/portability.svg){ loading=lazy width="1200" height="520" }
+![One detection engine, swappable collectors, and the roadmap to Jetson hardware](../assets/case-studies/edgeml/portability.svg)
 
 Moving from simulation to hardware is a configuration change, not a rewrite:
 
@@ -354,11 +327,11 @@ device:
 
 | Phase | Status | Scope |
 |-------|--------|-------|
-| Simulation MVP | :material-check-circle:{ style="color: #3ccf7a" } Done | Rules, correlation, dashboard, tests |
-| 1 · Linux telemetry | :material-check-circle:{ style="color: #3ccf7a" } Done | `/proc` and `/sys` collectors, verified on a live Linux host |
-| 2 · Jetson metrics | :material-progress-clock:{ style="color: #f5b83d" } Built, validation next | `tegrastats` and GPU sysfs collectors, parser tested on JetPack 4 and 6 output |
-| 3 · TensorRT workload | :material-circle-outline: Planned | FPS, latency, errors and engine hash from the inference pipeline |
-| 4 · System service | :material-circle-outline: Planned | Hardened systemd unit (already included) on a fielded device |
+| Simulation MVP | Done | Rules, correlation, dashboard, tests |
+| 1 · Linux telemetry | Done | `/proc` and `/sys` collectors, verified on a live Linux host |
+| 2 · Jetson metrics | Built, validation next | `tegrastats` and GPU sysfs collectors, parser tested on JetPack 4 and 6 output |
+| 3 · TensorRT workload | Planned | FPS, latency, errors and engine hash from the inference pipeline |
+| 4 · System service | Planned | Hardened systemd unit (already included) on a fielded device |
 
 Beyond the MVP, the roadmap includes:
 
@@ -373,31 +346,37 @@ Beyond the MVP, the roadmap includes:
 The full demo runs on any laptop with Docker. No NVIDIA hardware is
 required.
 
-=== "Docker Compose"
+<Tabs>
+<TabItem label="Docker Compose">
 
-    ```bash
-    git clone https://github.com/Linuscent/EmbedIDS.git
-    cd EmbedIDS/edgeml/deployment
-    docker compose up --build -d
-    # open http://localhost:8080 and press "Simulate Cryptominer"
-    ```
+```bash
+git clone https://github.com/Linuscent/EmbedIDS.git
+cd EmbedIDS/edgeml/deployment
+docker compose up --build -d
+# open http://localhost:8080 and press "Simulate Cryptominer"
+```
 
-=== "Single binary"
+</TabItem>
+<TabItem label="Single binary">
 
-    ```bash
-    git clone https://github.com/Linuscent/EmbedIDS.git && cd EmbedIDS
-    cmake -S . -B build -DBUILD_EDGEML=ON && cmake --build build -j
-    ./build/edgeml/embedids-agent --config edgeml/configs/default.yaml
-    # open http://localhost:8080
-    ```
+```bash
+git clone https://github.com/Linuscent/EmbedIDS.git && cd EmbedIDS
+cmake -S . -B build -DBUILD_EDGEML=ON && cmake --build build -j
+./build/edgeml/embedids-agent --config edgeml/configs/default.yaml
+# open http://localhost:8080
+```
 
-=== "Scripted attacks"
+</TabItem>
+<TabItem label="Scripted attacks">
 
-    ```bash
-    edgeml/simulator/attacks/attack.sh cryptominer      # inject and watch alerts
-    edgeml/simulator/attacks/demo_walkthrough.sh        # paced 5-stage demo
-    python3 edgeml/tests/attack-scenarios/attack_scenarios.py   # acceptance run
-    ```
+```bash
+edgeml/simulator/attacks/attack.sh cryptominer      # inject and watch alerts
+edgeml/simulator/attacks/demo_walkthrough.sh        # paced 5-stage demo
+python3 edgeml/tests/attack-scenarios/attack_scenarios.py   # acceptance run
+```
+
+</TabItem>
+</Tabs>
 
 The engineering documentation covers the
 [architecture](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/docs/architecture.md),
@@ -407,11 +386,13 @@ and [hardware porting](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/do
 It is all in the [`edgeml/`](https://github.com/Linuscent/EmbedIDS/tree/main/edgeml)
 directory of the EmbedIDS repository.
 
-!!! tip "Building on Edge AI hardware?"
+<Aside type="tip" title="Building on Edge AI hardware?">
 
-    We're looking for early adopters to validate EmbedIDS EdgeML on fielded
-    Jetson devices. [Get in touch on LinkedIn](https://www.linkedin.com/company/linuscent)
-    or [open an issue](https://github.com/Linuscent/EmbedIDS/issues).
+We're looking for early adopters to validate EmbedIDS EdgeML on fielded
+Jetson devices. [Get in touch on LinkedIn](https://www.linkedin.com/company/linuscent)
+or [open an issue](https://github.com/Linuscent/EmbedIDS/issues).
+
+</Aside>
 
 ---
 

@@ -1,0 +1,7 @@
+---
+// Previous page-title anchors (e.g. /quickstart/#quick-start), kept so shared links still land.
+// Rendered inside the page title so they add no layout.
+const anchors = Astro.locals.starlightRoute.entry.data.legacyAnchors ?? [];
+---
+
+{anchors.map((id) => <span id={id} />)}

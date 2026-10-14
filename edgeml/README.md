@@ -9,7 +9,7 @@ detection engine is designed to move to NVIDIA Jetson by swapping collectors.
 ![Correlated GPU incident](../docs/assets/case-studies/edgeml/screenshots/02-cryptominer-correlated.webp)
 
 The public case study is on the EmbedIDS website: [Runtime security for Edge AI devices](https://embedids.linuscent.com/main/case-studies/edgeml-runtime-security/)
-(source: [`docs/case-studies/edgeml-runtime-security.md`](../docs/case-studies/edgeml-runtime-security.md)).
+(source: [`docs/case-studies/edgeml-runtime-security.mdx`](../docs/case-studies/edgeml-runtime-security.mdx)).
 
 ## Quick start
 

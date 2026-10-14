@@ -58,12 +58,19 @@ cd edgeml/deployment && docker compose up --build   # demo at http://localhost:8
 
 ## Docs
 
-Python/MkDocs tooling (docs only, not library code). Managed by Poetry:
+Astro 5 + Starlight (docs only, not library code). Node 24 and pnpm:
 ```bash
-poetry install
-poetry run mkdocs serve   # local preview
+pnpm install
+pnpm dev                # local preview
+pnpm check && pnpm test
+pnpm build && pnpm check:links
+DOCS_VERSION=main pnpm build   # production /main/ URLs
 ```
-CI deploys versioned docs via `mike` on push to `main` or `v*.*` branches.
+Content lives in `docs/` (Markdown and MDX); Astro components, styles and content config live in `website/`, separate from C sources in `src/`. Keep relative `.md`/`.mdx` links in content; the remark plugin makes them version-aware. Fonts are self-hosted. Branding follows `~/linuscent/linuscent-website` (dark/cyan, Space Grotesk + Inter; light/pink alternate).
+
+CI checks pull requests and publishes to `gh-pages` on push to `main` or `v*.*`. `scripts/publish-docs.mjs` preserves existing versions and the custom domain, with a root redirect to `/main/`. Keep `DOCS_VERSION` identical for build and link checking.
+
+Published URLs are an SEO contract: CI runs `pnpm check:urls <published-version> dist` against `gh-pages`, comparing pages, canonicals, heading anchors with their text, and asset URLs. Don't rename existing headings, give a new heading an ID already used on the page, or move `docs/assets/**` files. Former page-title anchors are kept via the `legacyAnchors` frontmatter field. Page titles stay `Page - EmbedIDS`. Design rules, tokens and motion live in `website/DESIGN.md`.
 
 - Case studies live in `docs/case-studies/`; their charts under `docs/assets/case-studies/` are rendered from recorded telemetry (`edgeml/tools/case-study-data/`, deliberately outside `docs/` so it is not published) by `edgeml/tools/case_study_charts.py` (see `edgeml/docs/demo-guide.md`). Don't hand-edit the `*-timeline.svg` / `detection-latency.svg` files.
 
