@@ -13,14 +13,14 @@
 
 <script>
   const key = 'embedids-analytics-consent';
-  const measurementId = 'G-5ZPJDQ0248';
+  const measurementId = 'G-VMNCGL6HHQ';
   const analyticsWindow = window as typeof window & {
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
-    'ga-disable-G-5ZPJDQ0248'?: boolean;
+    'ga-disable-G-VMNCGL6HHQ'?: boolean;
   };
   function enableAnalytics() {
-    analyticsWindow['ga-disable-G-5ZPJDQ0248'] = false;
+    analyticsWindow['ga-disable-G-VMNCGL6HHQ'] = false;
     if (analyticsWindow.gtag) {
       analyticsWindow.gtag('consent', 'update', { analytics_storage: 'granted' });
       return;
@@ -39,7 +39,7 @@
     document.head.append(script);
   }
   function disableAnalytics() {
-    analyticsWindow['ga-disable-G-5ZPJDQ0248'] = true;
+    analyticsWindow['ga-disable-G-VMNCGL6HHQ'] = true;
     analyticsWindow.gtag?.('consent', 'update', { analytics_storage: 'denied' });
     // Clear first-party GA cookies, including cookies set on the parent domain.
     const labels = location.hostname.split('.');
