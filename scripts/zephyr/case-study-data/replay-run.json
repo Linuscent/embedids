@@ -1,0 +1,812 @@
+[
+  {
+    "scenario": "normal",
+    "passed": true,
+    "detections": [],
+    "status": {
+      "type": "status",
+      "active": true,
+      "completed": 12,
+      "last_result": 1672736512,
+      "queued": 0,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 340,
+        "trigger_ms": 340
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 360,
+        "trigger_ms": 360
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 380,
+        "trigger_ms": 380
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 400,
+        "trigger_ms": 400
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 420,
+        "trigger_ms": 420
+      },
+      {
+        "type": "command",
+        "command": "invalid",
+        "ok": false,
+        "timestamp_ms": 440,
+        "trigger_ms": 440
+      },
+      {
+        "type": "command",
+        "command": "config",
+        "ok": true,
+        "timestamp_ms": 460,
+        "trigger_ms": 460
+      },
+      {
+        "type": "command",
+        "command": "mode",
+        "ok": true,
+        "timestamp_ms": 480,
+        "trigger_ms": 480
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 500,
+        "trigger_ms": 500
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 520,
+        "trigger_ms": 520
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 680,
+        "trigger_ms": 680
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 700,
+        "trigger_ms": 700
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 860,
+        "trigger_ms": 860
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 880,
+        "trigger_ms": 880
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1040,
+        "trigger_ms": 1040
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1060,
+        "trigger_ms": 1060
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1220,
+        "trigger_ms": 1220
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1240,
+        "trigger_ms": 1240
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1400,
+        "trigger_ms": 1400
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1420,
+        "trigger_ms": 1420
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1580,
+        "trigger_ms": 1580
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1600,
+        "trigger_ms": 1600
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1760,
+        "trigger_ms": 1760
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1780,
+        "trigger_ms": 1780
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 1940,
+        "trigger_ms": 1940
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 1960,
+        "trigger_ms": 1960
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 2120,
+        "trigger_ms": 2120
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 2140,
+        "trigger_ms": 2140
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 2300,
+        "trigger_ms": 2300
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 2320,
+        "trigger_ms": 2320
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": true,
+        "timestamp_ms": 2480,
+        "trigger_ms": 2480
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 2500,
+        "trigger_ms": 2500
+      },
+      {
+        "type": "status",
+        "active": true,
+        "completed": 12,
+        "last_result": 1672736512,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      },
+      {
+        "type": "status",
+        "active": true,
+        "completed": 12,
+        "last_result": 1672736512,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 3.083,
+      "cpu_seconds": 0.0456,
+      "cpu_percent_one_core": 1.48
+    }
+  },
+  {
+    "scenario": "command_state",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "state_abuse",
+        "latency_after_trigger_ms": 10,
+        "event": {
+          "type": "alert",
+          "rule": "state_abuse",
+          "value": 1,
+          "limit": 0,
+          "timestamp_ms": 330,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": false,
+      "completed": 0,
+      "last_result": 0,
+      "queued": 0,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": false,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "alert",
+        "rule": "state_abuse",
+        "value": 1,
+        "limit": 0,
+        "timestamp_ms": 330,
+        "sample_ms": 100
+      },
+      {
+        "type": "clear",
+        "rule": "state_abuse",
+        "value": 0,
+        "limit": 0,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 0.5428,
+      "cpu_seconds": 0.0091,
+      "cpu_percent_one_core": 1.68
+    }
+  },
+  {
+    "scenario": "resource_abuse",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "request_rate",
+        "latency_after_trigger_ms": 100,
+        "event": {
+          "type": "alert",
+          "rule": "request_rate",
+          "value": 256,
+          "limit": 32,
+          "timestamp_ms": 440,
+          "sample_ms": 100
+        }
+      },
+      {
+        "rule": "queue_rejects",
+        "latency_after_trigger_ms": 100,
+        "event": {
+          "type": "alert",
+          "rule": "queue_rejects",
+          "value": 247,
+          "limit": 0,
+          "timestamp_ms": 440,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": true,
+      "completed": 7,
+      "last_result": 1950652550,
+      "queued": 1,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "mode",
+        "ok": true,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "command",
+        "command": "infer",
+        "ok": false,
+        "timestamp_ms": 340,
+        "trigger_ms": 340
+      },
+      {
+        "type": "alert",
+        "rule": "request_rate",
+        "value": 256,
+        "limit": 32,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "alert",
+        "rule": "queue_rejects",
+        "value": 247,
+        "limit": 0,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "clear",
+        "rule": "request_rate",
+        "value": 0,
+        "limit": 32,
+        "timestamp_ms": 550,
+        "sample_ms": 100
+      },
+      {
+        "type": "clear",
+        "rule": "queue_rejects",
+        "value": 0,
+        "limit": 0,
+        "timestamp_ms": 550,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": true,
+        "completed": 7,
+        "last_result": 1950652550,
+        "queued": 1,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 0.6626,
+      "cpu_seconds": 0.0111,
+      "cpu_percent_one_core": 1.67
+    }
+  },
+  {
+    "scenario": "configuration",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "config_integrity",
+        "latency_after_trigger_ms": 10,
+        "event": {
+          "type": "alert",
+          "rule": "config_integrity",
+          "value": 1,
+          "limit": 0,
+          "timestamp_ms": 330,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": false,
+      "completed": 0,
+      "last_result": 0,
+      "queued": 0,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "fault",
+        "ok": true,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "alert",
+        "rule": "config_integrity",
+        "value": 1,
+        "limit": 0,
+        "timestamp_ms": 330,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 0.5432,
+      "cpu_seconds": 0.0104,
+      "cpu_percent_one_core": 1.92
+    }
+  },
+  {
+    "scenario": "outbound",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "unknown_destination",
+        "latency_after_trigger_ms": 10,
+        "event": {
+          "type": "alert",
+          "rule": "unknown_destination",
+          "value": 1,
+          "limit": 0,
+          "timestamp_ms": 330,
+          "sample_ms": 100
+        }
+      },
+      {
+        "rule": "tx_volume",
+        "latency_after_trigger_ms": 100,
+        "event": {
+          "type": "alert",
+          "rule": "tx_volume",
+          "value": 8192,
+          "limit": 4096,
+          "timestamp_ms": 440,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": false,
+      "completed": 0,
+      "last_result": 0,
+      "queued": 0,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": false,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "alert",
+        "rule": "unknown_destination",
+        "value": 1,
+        "limit": 0,
+        "timestamp_ms": 330,
+        "sample_ms": 100
+      },
+      {
+        "type": "command",
+        "command": "send",
+        "ok": true,
+        "timestamp_ms": 340,
+        "trigger_ms": 340
+      },
+      {
+        "type": "clear",
+        "rule": "unknown_destination",
+        "value": 0,
+        "limit": 0,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "alert",
+        "rule": "tx_volume",
+        "value": 8192,
+        "limit": 4096,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "clear",
+        "rule": "tx_volume",
+        "value": 0,
+        "limit": 4096,
+        "timestamp_ms": 550,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 0.6632,
+      "cpu_seconds": 0.0139,
+      "cpu_percent_one_core": 2.1
+    }
+  },
+  {
+    "scenario": "monitor",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "heartbeat_age",
+        "latency_after_trigger_ms": 79,
+        "event": {
+          "type": "alert",
+          "rule": "heartbeat_age",
+          "value": 580,
+          "limit": 500,
+          "timestamp_ms": 880,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": false,
+      "completed": 0,
+      "last_result": 0,
+      "queued": 0,
+      "dropped": 0,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "fault",
+        "ok": true,
+        "timestamp_ms": 320,
+        "trigger_ms": 801
+      },
+      {
+        "type": "alert",
+        "rule": "heartbeat_age",
+        "value": 580,
+        "limit": 500,
+        "timestamp_ms": 880,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 0,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 1.1029,
+      "cpu_seconds": 0.0212,
+      "cpu_percent_one_core": 1.93
+    }
+  },
+  {
+    "scenario": "queue_overflow",
+    "passed": true,
+    "detections": [
+      {
+        "rule": "telemetry_drops",
+        "latency_after_trigger_ms": 120,
+        "event": {
+          "type": "alert",
+          "rule": "telemetry_drops",
+          "value": 8,
+          "limit": 0,
+          "timestamp_ms": 440,
+          "sample_ms": 100
+        }
+      }
+    ],
+    "status": {
+      "type": "status",
+      "active": false,
+      "completed": 0,
+      "last_result": 0,
+      "queued": 0,
+      "dropped": 104,
+      "max_detection_sim_us": 0,
+      "history_bytes": 640,
+      "adapter_bytes": 872
+    },
+    "events": [
+      {
+        "type": "ready",
+        "version": "0.1.0",
+        "sample_ms": 100,
+        "heartbeat_timeout_ms": 500,
+        "fault_injection": true
+      },
+      {
+        "type": "command",
+        "command": "fault",
+        "ok": true,
+        "timestamp_ms": 320,
+        "trigger_ms": 320
+      },
+      {
+        "type": "alert",
+        "rule": "telemetry_drops",
+        "value": 8,
+        "limit": 0,
+        "timestamp_ms": 440,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 104,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      },
+      {
+        "type": "clear",
+        "rule": "telemetry_drops",
+        "value": 0,
+        "limit": 0,
+        "timestamp_ms": 550,
+        "sample_ms": 100
+      },
+      {
+        "type": "status",
+        "active": false,
+        "completed": 0,
+        "last_result": 0,
+        "queued": 0,
+        "dropped": 104,
+        "max_detection_sim_us": 0,
+        "history_bytes": 640,
+        "adapter_bytes": 872
+      }
+    ],
+    "host_process": {
+      "wall_seconds": 0.683,
+      "cpu_seconds": 0.0123,
+      "cpu_percent_one_core": 1.8
+    }
+  }
+]

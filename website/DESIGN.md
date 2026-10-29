@@ -68,6 +68,14 @@ Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536p
   checks are shown (no secure boot or TPM until they ship). Scenario buttons jump
   directly; pauses off-screen, in hidden tabs and via its button. Reduced motion shows
   each scenario's final state with no movement.
+- **Zephyr case study:** `components/case-studies/ZephyrReplay.astro` replays one
+  recorded `scripts/zephyr/run_scenarios.py` run: commands type into a UART line,
+  application threads feed a 32-cell `k_msgq`, each slowed-down 100 ms cycle drains
+  into eight rule meters, and alert JSON lines wipe in. Values, lines and latencies
+  come from `scripts/zephyr/case-study-data/`; seven scenario buttons, pause,
+  off-screen/hidden-tab pausing, and reduced motion showing each final state.
+  `DetectionBudget.astro` draws latency bars against the 200 ms budget once on
+  scroll (only under `motion-ok`).
 - **Entrances:** hero copy rises and the monitor "powers on" (clip + brightness);
   homepage sections reveal on scroll; key-feature rules and the getting-started rail
   draw in; page titles draw a short signal line. Documentation images are not
@@ -100,6 +108,9 @@ migration (the cards were rendered by the MkDocs social plugin) and remain in
 `docs/assets/`. No generated artwork was introduced; the device monitor is drawn
 live from a synthetic signal and labelled as simulated. Recorded telemetry charts
 are owned by `edgeml/tools/case_study_charts.py` and must not be hand-edited.
+`docs/assets/case-studies/zephyr/hero.svg` is authored for the case-study index; its
+figures come from `scripts/zephyr/case-study-data/` and its loop stops under reduced
+motion.
 Fontsource packages self-host the same font families as the Linuscent website.
 
 ## Maintenance

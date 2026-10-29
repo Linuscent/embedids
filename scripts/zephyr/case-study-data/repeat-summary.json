@@ -1,0 +1,167 @@
+{
+  "source": "scripts/zephyr/run_scenarios.py on native_sim/native/64, Zephyr v4.2.0, recorded 2026-10-29",
+  "runs": 10,
+  "all_passed": true,
+  "latency_after_trigger_ms": [
+    {
+      "scenario": "command_state",
+      "rule": "state_abuse",
+      "min": 10,
+      "max": 10,
+      "median": 10.0,
+      "samples": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "scenario": "resource_abuse",
+      "rule": "request_rate",
+      "min": 100,
+      "max": 100,
+      "median": 100.0,
+      "samples": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "scenario": "resource_abuse",
+      "rule": "queue_rejects",
+      "min": 100,
+      "max": 100,
+      "median": 100.0,
+      "samples": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "scenario": "configuration",
+      "rule": "config_integrity",
+      "min": 10,
+      "max": 10,
+      "median": 10.0,
+      "samples": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "scenario": "outbound",
+      "rule": "unknown_destination",
+      "min": 10,
+      "max": 10,
+      "median": 10.0,
+      "samples": [
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10,
+        10
+      ]
+    },
+    {
+      "scenario": "outbound",
+      "rule": "tx_volume",
+      "min": 100,
+      "max": 100,
+      "median": 100.0,
+      "samples": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    {
+      "scenario": "monitor",
+      "rule": "heartbeat_age",
+      "min": 29,
+      "max": 79,
+      "median": 79.0,
+      "samples": [
+        29,
+        79,
+        79,
+        79,
+        79,
+        79,
+        79,
+        79,
+        79,
+        79
+      ]
+    },
+    {
+      "scenario": "queue_overflow",
+      "rule": "telemetry_drops",
+      "min": 120,
+      "max": 120,
+      "median": 120.0,
+      "samples": [
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120,
+        120
+      ]
+    }
+  ],
+  "host_process_cpu_percent_one_core": {
+    "min": 1.38,
+    "max": 1.94
+  },
+  "status": {
+    "history_bytes": 640,
+    "adapter_bytes": 872
+  }
+}

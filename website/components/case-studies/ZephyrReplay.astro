@@ -1,0 +1,914 @@
+---
+/**
+ * Zephyr case study: replays the recorded native_sim scenario run. Commands, alert lines,
+ * values and latencies come from scripts/zephyr/case-study-data/; on-screen timing is
+ * slowed down so each 100 ms detector cycle can be followed.
+ */
+const producers = [
+  { id: 'mode', label: 'Device mode', value: 'idle', text: 'State policy' },
+  { id: 'inference', label: 'Inference queue', value: '0 / 8 queued', text: 'Idle' },
+  { id: 'config', label: 'Configuration', value: '10 work units', text: 'Approved' },
+  { id: 'dispatcher', label: 'Outbound dispatcher', value: 'no traffic', text: 'Allow-list' },
+  { id: 'heartbeat', label: 'Telemetry producer', value: 'beat every 50 ms', text: 'Alive' },
+];
+const rules = [
+  { id: 'state_abuse', limit: 0 },
+  { id: 'request_rate', limit: 32 },
+  { id: 'queue_rejects', limit: 0 },
+  { id: 'config_integrity', limit: 0 },
+  { id: 'unknown_destination', limit: 0 },
+  { id: 'tx_volume', limit: 4096 },
+  { id: 'heartbeat_age', limit: 500 },
+  { id: 'telemetry_drops', limit: 0 },
+];
+const scenes = ['Normal', 'State abuse', 'Flood', 'Config tamper', 'Outbound', 'Heartbeat', 'Overflow'];
+const cells = Array.from({ length: 32 }, (_, i) => i);
+---
+
+<figure class="zr not-content" data-zephyr-replay data-verdict="clear" aria-labelledby="zr-caption">
+  <div class="zr-bar">
+    <span class="zr-device">
+      <span class="live-dot" aria-hidden="true"></span>
+      <code>native_sim/native/64</code>
+      <span class="zr-muted">Zephyr v4.2.0 · simulated</span>
+    </span>
+    <button class="zr-toggle" type="button" aria-pressed="false">Pause</button>
+  </div>
+
+  <div class="zr-scenes" role="group" aria-label="Recorded scenarios">
+    {
+      scenes.map((scene, i) => (
+        <button type="button" data-scene={i} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <span>{scene}</span>
+          <i class="zr-progress" aria-hidden="true" />
+        </button>
+      ))
+    }
+  </div>
+
+  <div class="zr-uart">
+    <ol class="zr-console" data-console aria-label="Commands sent over the UART console"></ol>
+    <p class="zr-verdict" data-verdict-pill><span>Detector</span><strong data-verdict-text>Monitoring</strong></p>
+  </div>
+
+  <div class="zr-stage">
+    <svg class="zr-wires" aria-hidden="true"></svg>
+
+    <div class="lane lane-app">
+      <p class="lane-label">Application threads</p>
+      {
+        producers.map((tile) => (
+          <div class="tile" data-tile={tile.id} data-state="ok" data-base-value={tile.value} data-base-text={tile.text}>
+            <span class="tile-dot" aria-hidden="true" />
+            <span class="tile-label">{tile.label}</span>
+            <span class="tile-value" data-value>{tile.value}</span>
+            <span class="tile-text" data-text>{tile.text}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="queue" data-queue data-tone="ok">
+      <p class="lane-label">k_msgq</p>
+      <div class="cells" aria-hidden="true">
+        {cells.map((i) => <i style={`--i:${i}`} />)}
+      </div>
+      <p class="queue-meta"><span data-queued>0</span>/32 queued</p>
+      <p class="queue-meta queue-drops">dropped <strong data-dropped>0</strong></p>
+      <p class="queue-lost" data-lost hidden>drop report lost in the full queue</p>
+    </div>
+
+    <div class="lane lane-rules">
+      <p class="lane-label">Detector · every 100 ms</p>
+      <ol class="rules">
+        {
+          rules.map((rule) => (
+            <li class="rule" data-rule={rule.id} data-limit={rule.limit} data-state="ok">
+              <code class="rule-name">{rule.id}</code>
+              <span class="meter" aria-hidden="true"><i class="meter-fill" /><i class="meter-limit" /></span>
+              <span class="rule-value"><span data-rule-value>0</span> / {rule.limit}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+
+  <ol class="zr-out" data-out aria-label="Detector output"></ol>
+
+  <figcaption id="zr-caption">
+    Replay of a recorded run of <code>scripts/zephyr/run_scenarios.py</code>. Commands, alert lines, values and
+    latencies are recorded; the replay slows each 100 ms detector cycle down. Fault commands are test-only.
+  </figcaption>
+</figure>
+
+<script>
+  type TileState = 'ok' | 'warn' | 'alert' | 'lost';
+  interface Command { text: string; ack: string; ok: boolean; testOnly?: boolean }
+  interface ReplayEvent {
+    at: number;
+    cmd?: Command;
+    tiles?: Record<string, { state?: TileState; value?: string; text?: string }>;
+    rules?: Record<string, number>;
+    out?: { kind: 'alert' | 'status'; line: string; note: string };
+    heartbeat?: 'stop';
+    queue?: { fill?: number; tone?: 'ok' | 'over'; manual: boolean; drain?: boolean };
+    dropped?: number;
+    lostReport?: boolean;
+  }
+
+  const SCENE_SECONDS = 8;
+  const CYCLE = 1.4;
+  const TYPE_SECONDS = 0.035;
+  const alert = (rule: string, value: number, limit: number, ts: number) =>
+    `{"type":"alert","rule":"${rule}","value":${value},"limit":${limit},"timestamp_ms":${ts},"sample_ms":100}`;
+
+  const scenes: ReplayEvent[][] = [
+    // Normal workload: configure while idle, then paced inference and approved sends.
+    [
+      { at: 0.3, cmd: { text: 'config 12', ack: 'ok', ok: true }, tiles: { config: { value: '12 work units' } } },
+      { at: 1.3, cmd: { text: 'mode active', ack: 'ok', ok: true }, tiles: { mode: { value: 'active' } } },
+      { at: 2.3, cmd: { text: 'infer 1', ack: 'ok', ok: true }, rules: { request_rate: 1 },
+        tiles: { inference: { value: '1 / 8 queued', text: 'Running' } } },
+      { at: 3.2, cmd: { text: 'send approved 256', ack: 'ok', ok: true }, rules: { tx_volume: 256 },
+        tiles: { dispatcher: { value: 'approved · 256 B' } } },
+      { at: 4.3, cmd: { text: 'infer 257', ack: 'invalid', ok: false },
+        tiles: { inference: { value: '0 / 8 queued', text: 'Running' } } },
+      { at: 5.6, tiles: { inference: { value: '12 completed', text: 'Healthy' } },
+        out: { kind: 'status', note: '12 × infer + send, paced every 150 ms · no alerts',
+          line: '{"type":"status","active":true,"completed":12,"queued":0,"dropped":0,"history_bytes":640,"adapter_bytes":872}' } },
+    ],
+    // State abuse: inference requested while the device is idle.
+    [
+      { at: 0.4, cmd: { text: 'infer 1', ack: 'rejected', ok: false },
+        tiles: { mode: { state: 'warn', value: 'idle', text: 'Rejected infer' } } },
+      { at: 1.7, rules: { state_abuse: 1 }, tiles: { mode: { state: 'alert' } },
+        out: { kind: 'alert', note: '+10 ms after trigger', line: alert('state_abuse', 1, 0, 330) } },
+    ],
+    // Flood: 256 requests against an eight-slot inference queue.
+    [
+      { at: 0.3, cmd: { text: 'mode active', ack: 'ok', ok: true }, tiles: { mode: { value: 'active' } } },
+      { at: 1.3, cmd: { text: 'infer 256', ack: '247 rejected', ok: false },
+        tiles: { inference: { state: 'alert', value: '8 / 8 queued', text: '247 rejected' } } },
+      { at: 2.6, rules: { request_rate: 256, queue_rejects: 247 },
+        out: { kind: 'alert', note: '+100 ms after trigger', line: alert('request_rate', 256, 32, 440) } },
+      { at: 2.75, out: { kind: 'alert', note: '+100 ms after trigger', line: alert('queue_rejects', 247, 0, 440) } },
+    ],
+    // Configuration tampering through the test-only fault path.
+    [
+      { at: 0.4, cmd: { text: 'fault config', ack: 'ok', ok: true, testOnly: true },
+        tiles: { config: { state: 'alert', value: '100 work units', text: 'Approved: 10' } } },
+      { at: 1.6, rules: { config_integrity: 1 },
+        out: { kind: 'alert', note: '+10 ms after trigger', line: alert('config_integrity', 1, 0, 330) } },
+    ],
+    // Outbound: an unapproved destination, then too much approved traffic.
+    [
+      { at: 0.3, cmd: { text: 'send unknown 128', ack: 'rejected', ok: false },
+        tiles: { dispatcher: { state: 'alert', value: 'unknown destination', text: 'Blocked' } } },
+      { at: 1.4, rules: { unknown_destination: 1 },
+        out: { kind: 'alert', note: '+10 ms after trigger', line: alert('unknown_destination', 1, 0, 330) } },
+      { at: 2.6, cmd: { text: 'send approved 8192', ack: 'ok', ok: true },
+        tiles: { dispatcher: { state: 'warn', value: 'approved · 8192 B', text: 'Over budget' } } },
+      { at: 4.0, rules: { tx_volume: 8192 },
+        out: { kind: 'alert', note: '+100 ms after trigger', line: alert('tx_volume', 8192, 4096, 440) } },
+    ],
+    // Heartbeat loss: the telemetry producer stops; its age climbs past 500 ms.
+    [
+      { at: 0.4, cmd: { text: 'fault heartbeat', ack: 'ok', ok: true, testOnly: true }, heartbeat: 'stop',
+        tiles: { heartbeat: { state: 'lost', value: 'no beat', text: 'Silent' } } },
+      { at: 3.2, rules: { heartbeat_age: 580 },
+        out: { kind: 'alert', note: '+79 ms after the 500 ms timeout', line: alert('heartbeat_age', 580, 500, 880) } },
+    ],
+    // Overflow: 128 samples into a 32-slot queue. The first drop report is lost with them.
+    [
+      { at: 0.4, cmd: { text: 'fault overflow', ack: 'ok', ok: true, testOnly: true },
+        queue: { fill: 32, tone: 'over', manual: true }, dropped: 96 },
+      { at: 1.7, dropped: 104, lostReport: true },
+      { at: 2.6, queue: { fill: 0, tone: 'ok', manual: true, drain: true } },
+      { at: 3.2, queue: { manual: false } },
+      { at: 4.0, rules: { telemetry_drops: 8 },
+        out: { kind: 'alert', note: '+120 ms after trigger · 104 dropped in total', line: alert('telemetry_drops', 8, 0, 440) } },
+    ],
+  ];
+
+  const COLORS = { ok: '34,211,238', warn: '245,158,11', alert: '247,77,103' };
+  const SVG = 'http://www.w3.org/2000/svg';
+
+  document.querySelectorAll<HTMLElement>('[data-zephyr-replay]').forEach((root) => {
+    const stage = root.querySelector<HTMLElement>('.zr-stage')!;
+    const svg = root.querySelector<SVGSVGElement>('.zr-wires')!;
+    const queue = root.querySelector<HTMLElement>('[data-queue]')!;
+    const cells = [...queue.querySelectorAll<HTMLElement>('.cells i')];
+    const queued = root.querySelector<HTMLElement>('[data-queued]')!;
+    const dropped = root.querySelector<HTMLElement>('[data-dropped]')!;
+    const lost = root.querySelector<HTMLElement>('[data-lost]')!;
+    const consoleList = root.querySelector<HTMLOListElement>('[data-console]')!;
+    const out = root.querySelector<HTMLOListElement>('[data-out]')!;
+    const verdict = root.querySelector<HTMLElement>('[data-verdict-text]')!;
+    const toggle = root.querySelector<HTMLButtonElement>('.zr-toggle')!;
+    const sceneButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-scene]')];
+    const tiles = new Map([...root.querySelectorAll<HTMLElement>('[data-tile]')].map((t) => [t.dataset.tile!, t]));
+    const rules = new Map([...root.querySelectorAll<HTMLElement>('[data-rule]')].map((r) => [r.dataset.rule!, r]));
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    type Packet = { el: SVGCircleElement; offset: number };
+    type Wire = { path: SVGPathElement; length: number; packets: Packet[]; source: HTMLElement };
+    let feeds: Wire[] = [];
+    let drains: (Wire & { burst: number | null })[] = [];
+    let scene = 0;
+    let elapsed = 0;
+    let applied = 0;
+    let last = 0;
+    let raf = 0;
+    let paused = false;
+    let visible = true;
+    let manualQueue = false;
+    let heartbeatStop: number | null = null;
+    let cycleStep = -1;
+    let lastBeat = 0;
+    let typing: { el: HTMLElement; text: string; start: number; ack: HTMLElement } | null = null;
+
+    // --- Wires: producers feed the queue; the queue drains into every rule.
+    function wire(d: string, packets: number) {
+      const path = document.createElementNS(SVG, 'path');
+      path.setAttribute('d', d);
+      path.classList.add('wire');
+      svg.append(path);
+      return {
+        path,
+        length: path.getTotalLength(),
+        packets: Array.from({ length: packets }, (_, i) => {
+          const el = document.createElementNS(SVG, 'circle');
+          el.setAttribute('r', '2.4');
+          el.classList.add('packet');
+          svg.append(el);
+          return { el, offset: i / packets + Math.random() * 0.2 };
+        }),
+      };
+    }
+
+    function layout() {
+      const box = stage.getBoundingClientRect();
+      if (!box.width || getComputedStyle(svg).display === 'none') return;
+      svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+      svg.replaceChildren();
+      const q = queue.querySelector('.cells')!.getBoundingClientRect();
+      const qTop = q.top - box.top;
+      const curve = (sx: number, sy: number, ex: number, ey: number) => {
+        const dx = (ex - sx) * 0.5;
+        return `M${sx} ${sy} C${sx + dx} ${sy} ${ex - dx} ${ey} ${ex} ${ey}`;
+      };
+      const tileList = [...tiles.values()];
+      feeds = tileList.map((tile, i) => {
+        const r = tile.getBoundingClientRect();
+        const ey = qTop + (q.height * (i + 0.5)) / tileList.length;
+        return { ...wire(curve(r.right - box.left, r.top + r.height / 2 - box.top, q.left - box.left - 4, ey), 1), source: tile };
+      });
+      const ruleList = [...rules.values()];
+      drains = ruleList.map((rule, i) => {
+        const r = rule.getBoundingClientRect();
+        const sy = qTop + (q.height * (i + 0.5)) / ruleList.length;
+        return { ...wire(curve(q.right - box.left + 4, sy, r.left - box.left - 2, r.top + r.height / 2 - box.top), 1), source: rule, burst: null };
+      });
+      paint();
+      move(0);
+    }
+
+    function tone(state: string | undefined) {
+      return state === 'alert' || state === 'lost' ? COLORS.alert : state === 'warn' ? COLORS.warn : COLORS.ok;
+    }
+
+    function paint() {
+      for (const w of feeds) {
+        const state = w.source.dataset.state;
+        const rgb = tone(state);
+        w.path.style.stroke = `rgba(${rgb},${state === 'ok' ? 0.2 : 0.55})`;
+        w.path.classList.toggle('is-lost', state === 'lost');
+        for (const p of w.packets) {
+          p.el.style.fill = `rgb(${rgb})`;
+          p.el.style.opacity = state === 'lost' ? '0' : '1';
+        }
+      }
+      for (const w of drains) {
+        const rgb = tone(w.source.dataset.state);
+        w.path.style.stroke = `rgba(${rgb},${w.source.dataset.state === 'ok' ? 0.14 : 0.5})`;
+        for (const p of w.packets) {
+          p.el.style.fill = `rgb(${rgb})`;
+          p.el.style.opacity = w.burst === null ? '0' : '1';
+        }
+      }
+    }
+
+    function place(w: Wire, p: Packet) {
+      const point = w.path.getPointAtLength(p.offset * w.length);
+      p.el.setAttribute('cx', point.x.toFixed(1));
+      p.el.setAttribute('cy', point.y.toFixed(1));
+    }
+
+    function move(dt: number) {
+      for (const w of feeds) {
+        if (w.source.dataset.state === 'lost') continue;
+        const speed = w.source.dataset.state === 'ok' ? 0.45 : 0.9;
+        for (const p of w.packets) {
+          p.offset = (p.offset + dt * speed) % 1;
+          place(w, p);
+        }
+      }
+      for (const w of drains) {
+        if (w.burst === null) continue;
+        w.burst += dt / 0.55;
+        if (w.burst >= 1) {
+          w.burst = null;
+          w.packets[0].el.style.opacity = '0';
+          continue;
+        }
+        w.packets[0].offset = w.burst;
+        place(w, w.packets[0]);
+      }
+    }
+
+    // --- State
+    function setTile(id: string, change: { state?: TileState; value?: string; text?: string }) {
+      const tile = tiles.get(id)!;
+      if (change.state) {
+        tile.dataset.state = change.state;
+        tile.classList.remove('flash');
+        void tile.offsetWidth;
+        if (change.state !== 'ok') tile.classList.add('flash');
+      }
+      if (change.value !== undefined) tile.querySelector('[data-value]')!.textContent = change.value;
+      if (change.text !== undefined) tile.querySelector('[data-text]')!.textContent = change.text;
+    }
+
+    function setRule(id: string, value: number) {
+      const rule = rules.get(id)!;
+      const limit = Number(rule.dataset.limit);
+      const over = value > limit;
+      const fill = limit === 0 ? (value > 0 ? 1 : 0) : Math.min((value / limit) * 0.62, 1);
+      if (over && rule.dataset.state !== 'alert') {
+        rule.classList.remove('flash');
+        void rule.offsetWidth;
+        rule.classList.add('flash');
+      }
+      rule.dataset.state = over ? 'alert' : 'ok';
+      rule.style.setProperty('--fill', fill.toFixed(3));
+      rule.querySelector('[data-rule-value]')!.textContent = String(value);
+    }
+
+    function setQueue(fill: number, toneName: 'ok' | 'over' = 'ok') {
+      queue.dataset.tone = toneName;
+      cells.forEach((cell, i) => cell.toggleAttribute('data-on', i < fill));
+      queued.textContent = String(fill);
+    }
+
+    function burst() {
+      for (const w of drains) w.burst = 0;
+      paint();
+    }
+
+    function setVerdict(alerting: boolean) {
+      root.dataset.verdict = alerting ? 'alert' : 'clear';
+      verdict.textContent = alerting ? 'Alert raised' : 'Monitoring';
+    }
+
+    function command(cmd: Command) {
+      const item = document.createElement('li');
+      item.innerHTML = '<span class="prompt">uart0 ›</span><span class="cmd"></span><span class="ack"></span>';
+      const text = item.querySelector<HTMLElement>('.cmd')!;
+      const ack = item.querySelector<HTMLElement>('.ack')!;
+      ack.textContent = cmd.testOnly ? `${cmd.ack} · test-only` : cmd.ack;
+      ack.dataset.ok = String(cmd.ok);
+      consoleList.append(item);
+      while (consoleList.children.length > 3) consoleList.firstElementChild!.remove();
+      if (reduced) {
+        text.textContent = cmd.text;
+        ack.classList.add('is-shown');
+      } else {
+        typing = { el: text, text: cmd.text, start: elapsed, ack };
+      }
+    }
+
+    function output(entry: NonNullable<ReplayEvent['out']>) {
+      const item = document.createElement('li');
+      item.dataset.kind = entry.kind;
+      item.innerHTML = '<code class="line"></code><span class="note"></span>';
+      item.querySelector('.line')!.textContent = entry.line;
+      item.querySelector('.note')!.textContent = entry.note;
+      out.prepend(item);
+      while (out.children.length > 3) out.lastElementChild!.remove();
+    }
+
+    function apply(event: ReplayEvent) {
+      if (event.cmd) command(event.cmd);
+      for (const [id, change] of Object.entries(event.tiles ?? {})) setTile(id, change);
+      for (const [id, value] of Object.entries(event.rules ?? {})) setRule(id, value);
+      if (event.heartbeat === 'stop') heartbeatStop = elapsed;
+      if (event.queue) {
+        manualQueue = event.queue.manual;
+        if (event.queue.fill !== undefined) setQueue(event.queue.fill, event.queue.tone);
+        if (event.queue.drain) burst();
+      }
+      if (event.dropped !== undefined) {
+        dropped.textContent = String(event.dropped);
+        dropped.classList.remove('bump');
+        void dropped.offsetWidth;
+        dropped.classList.add('bump');
+      }
+      if (event.lostReport) lost.hidden = false;
+      if (event.out) {
+        output(event.out);
+        if (event.out.kind === 'alert') setVerdict(true);
+      }
+      paint();
+    }
+
+    function reset() {
+      for (const tile of tiles.values()) {
+        tile.dataset.state = 'ok';
+        setTile(tile.dataset.tile!, { value: tile.dataset.baseValue, text: tile.dataset.baseText });
+      }
+      for (const id of rules.keys()) setRule(id, id === 'heartbeat_age' ? 20 : 0);
+      consoleList.replaceChildren();
+      out.replaceChildren();
+      setQueue(0);
+      dropped.textContent = '0';
+      lost.hidden = true;
+      manualQueue = false;
+      heartbeatStop = null;
+      cycleStep = -1;
+      typing = null;
+      for (const w of drains) w.burst = null;
+      setVerdict(false);
+      paint();
+    }
+
+    function goTo(index: number) {
+      scene = (index + scenes.length) % scenes.length;
+      elapsed = 0;
+      applied = 0;
+      reset();
+      sceneButtons.forEach((button, i) => {
+        button.setAttribute('aria-pressed', String(i === scene));
+        button.style.setProperty('--progress', '0');
+      });
+      if (reduced) {
+        // Without motion, show the scenario's recorded outcome directly.
+        scenes[scene].forEach(apply);
+        applied = scenes[scene].length;
+        if (!manualQueue) setQueue(0);
+      }
+    }
+
+    // --- Clock: one replay cycle stands for one 100 ms detector cycle.
+    function cycle() {
+      const step = Math.floor(elapsed / (CYCLE / 2));
+      if (step === cycleStep) return;
+      cycleStep = step;
+      if (manualQueue) return;
+      if (step % 2 === 0) {
+        setQueue(8);
+      } else {
+        setQueue(0);
+        burst();
+      }
+    }
+
+    function heartbeat() {
+      const rule = 'heartbeat_age';
+      if (heartbeatStop !== null) {
+        // Age grows from the last beat; the recorded alert sample read 580 ms.
+        const age = Math.min(580, Math.round(40 + ((elapsed - heartbeatStop) / 2.6) * 540));
+        if (applied < scenes[scene].length || age < 580) setRule(rule, age);
+      } else if (elapsed - lastBeat > 0.3) {
+        lastBeat = elapsed;
+        setRule(rule, 10 + Math.round(Math.random() * 40));
+      }
+    }
+
+    function type() {
+      if (!typing) return;
+      const count = Math.floor((elapsed - typing.start) / TYPE_SECONDS);
+      typing.el.textContent = typing.text.slice(0, count);
+      if (count >= typing.text.length) {
+        typing.ack.classList.add('is-shown');
+        typing = null;
+      }
+    }
+
+    function frame(now: number) {
+      raf = 0;
+      if (paused || !visible) return;
+      const dt = Math.min((now - last) / 1000, 0.1);
+      last = now;
+      elapsed += dt;
+      const events = scenes[scene];
+      while (applied < events.length && events[applied].at <= elapsed) apply(events[applied++]);
+      sceneButtons[scene].style.setProperty('--progress', String(Math.min(elapsed / SCENE_SECONDS, 1)));
+      type();
+      cycle();
+      heartbeat();
+      move(dt);
+      if (elapsed >= SCENE_SECONDS) goTo(scene + 1);
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (raf || paused || !visible || reduced) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    sceneButtons.forEach((button, i) =>
+      button.addEventListener('click', () => {
+        goTo(i);
+        start();
+      }),
+    );
+    toggle.addEventListener('click', () => {
+      paused = !paused;
+      toggle.setAttribute('aria-pressed', String(paused));
+      toggle.textContent = paused ? 'Resume' : 'Pause';
+      paused ? stop() : start();
+    });
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting && !document.hidden;
+      visible ? start() : stop();
+    }).observe(root);
+    document.addEventListener('visibilitychange', () => {
+      visible = !document.hidden;
+      visible ? start() : stop();
+    });
+    new ResizeObserver(layout).observe(stage);
+
+    if (reduced) toggle.hidden = true;
+    goTo(0);
+    layout();
+    start();
+  });
+</script>
+
+<style>
+  .zr {
+    --cyan: #22d3ee;
+    --green: #4ade80;
+    --amber: #f59e0b;
+    --alert: #f74d67;
+    --text: #e5e7eb;
+    --muted: #9aa3b4;
+    --line: rgba(229, 231, 235, 0.08);
+    position: relative;
+    margin: 2rem 0 2.5rem;
+    padding: 1rem;
+    color: var(--text);
+    background: linear-gradient(180deg, rgba(10, 12, 20, 0.96), rgba(5, 6, 10, 0.98));
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 0.875rem;
+    box-shadow: 0 30px 80px -34px rgba(0, 0, 0, 0.9), 0 0 60px -32px rgba(34, 211, 238, 0.5);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .zr[data-verdict='alert'] {
+    border-color: rgba(247, 77, 103, 0.45);
+    box-shadow: 0 30px 80px -34px rgba(0, 0, 0, 0.9), 0 0 70px -30px rgba(247, 77, 103, 0.5);
+  }
+  /* HUD corner brackets, the site's structural motif. */
+  .zr::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    pointer-events: none;
+    --c: var(--cyan);
+    background:
+      linear-gradient(var(--c), var(--c)) left top / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) left top / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) right top / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) right top / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) left bottom / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) left bottom / 1.5px 14px,
+      linear-gradient(var(--c), var(--c)) right bottom / 14px 1.5px,
+      linear-gradient(var(--c), var(--c)) right bottom / 1.5px 14px;
+    background-repeat: no-repeat;
+    opacity: 0.8;
+  }
+  .zr[data-verdict='alert']::before { --c: var(--alert); }
+  :where(.zr) :is(p, ol) { margin: 0; }
+  :where(.zr) code { padding: 0; font-size: inherit; color: inherit; background: none; border: 0; }
+
+  /* --- Bar and scenario controls ------------------------------------------ */
+  .zr-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font: 500 0.72rem/1.4 var(--sl-font-mono);
+    color: var(--muted);
+  }
+  .zr-device { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .zr-device code { color: var(--text); }
+  .live-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--green);
+    animation: live 2s ease-out infinite;
+  }
+  @keyframes live {
+    from { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+    to { box-shadow: 0 0 0 0.6rem rgba(74, 222, 128, 0); }
+  }
+  .zr-toggle, .zr-scenes button {
+    font: 500 0.7rem/1.2 var(--sl-font-mono);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .zr-toggle {
+    flex: none;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    color: var(--cyan);
+    background: rgba(34, 211, 238, 0.08);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+  }
+  .zr-toggle:hover { background: rgba(34, 211, 238, 0.16); }
+  .zr-scenes {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-top: 0.85rem;
+  }
+  .zr-scenes button {
+    position: relative;
+    min-height: 2.25rem;
+    padding: 0.4rem 0.3rem 0.55rem;
+    overflow: hidden;
+    color: var(--muted);
+    background: rgba(229, 231, 235, 0.03);
+    border: 1px solid var(--line);
+  }
+  .zr-scenes button:hover { color: var(--text); }
+  .zr-scenes button[aria-pressed='true'] { color: var(--text); border-color: rgba(34, 211, 238, 0.4); background: rgba(34, 211, 238, 0.07); }
+  .zr-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--cyan);
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+    opacity: 0;
+  }
+  [aria-pressed='true'] > .zr-progress { opacity: 1; }
+
+  /* --- UART console --------------------------------------------------------- */
+  .zr-uart {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    align-items: start;
+    margin-top: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+  }
+  .zr-console {
+    display: grid;
+    align-content: start;
+    gap: 0.2rem;
+    min-height: 3.9rem;
+    padding: 0;
+    list-style: none;
+    font: 400 0.74rem/1.25rem var(--sl-font-mono);
+  }
+  .zr-console :global(li) { display: flex; flex-wrap: wrap; gap: 0 0.55rem; margin: 0; }
+  .zr-console :global(li:not(:last-child)) { opacity: 0.55; }
+  .zr-console :global(.prompt) { color: var(--muted); }
+  .zr-console :global(.cmd) { color: var(--text); }
+  .zr-console :global(li:last-child .cmd::after) {
+    content: '';
+    display: inline-block;
+    width: 0.45em;
+    height: 1em;
+    margin-left: 0.15em;
+    vertical-align: -0.15em;
+    background: var(--cyan);
+    animation: caret 1s steps(1) infinite;
+  }
+  @keyframes caret { 50% { opacity: 0; } }
+  .zr-console :global(.ack) {
+    opacity: 0;
+    color: var(--green);
+    transition: opacity 0.2s ease;
+  }
+  .zr-console :global(.ack[data-ok='false']) { color: var(--amber); }
+  .zr-console :global(.ack.is-shown) { opacity: 1; }
+  .zr-console :global(.ack)::before { content: '→ '; color: var(--muted); }
+  .zr-verdict {
+    display: grid;
+    gap: 0.15rem;
+    justify-items: end;
+    font: 500 0.66rem/1.3 var(--sl-font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .zr-verdict strong {
+    font: 700 0.95rem/1 var(--brand-display);
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--cyan);
+    transition: color 0.3s ease;
+  }
+  .zr[data-verdict='alert'] .zr-verdict strong { color: #ff8a9c; }
+
+  /* --- Stage: application threads | bounded queue | detector rules ----------- */
+  .zr-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1.15fr);
+    gap: 2.25rem;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  .zr-wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .zr-wires :global(.wire) { fill: none; stroke-width: 1.2; transition: stroke 0.3s ease; }
+  .zr-wires :global(.wire.is-lost) { stroke-dasharray: 3 5; }
+  .zr-wires :global(.packet) { filter: drop-shadow(0 0 3px currentColor); transition: fill 0.3s ease; }
+
+  .lane { position: relative; z-index: 1; display: grid; gap: 0.4rem; }
+  .lane-label {
+    margin-bottom: 0.15rem !important;
+    font: 500 0.64rem/1.3 var(--sl-font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  .tile {
+    --tone: var(--cyan);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'dot label text' 'dot value value';
+    column-gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    background: rgba(10, 12, 20, 0.92);
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  .tile[data-state='warn'] { --tone: var(--amber); border-color: rgba(245, 158, 11, 0.45); background: rgba(245, 158, 11, 0.07); }
+  .tile:is([data-state='alert'], [data-state='lost']) { --tone: var(--alert); border-color: rgba(247, 77, 103, 0.5); background: rgba(247, 77, 103, 0.09); }
+  .tile.flash, .rule.flash { animation: flash 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes flash {
+    from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tone) 60%, transparent); }
+    to { box-shadow: 0 0 0 0.6rem transparent; }
+  }
+  .tile-dot {
+    grid-area: dot;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-top: 0.3rem;
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow: 0 0 8px var(--tone);
+  }
+  [data-tile='heartbeat'][data-state='ok'] .tile-dot { animation: beat 0.9s ease-out infinite; }
+  @keyframes beat { 0%, 60% { transform: scale(1); } 15% { transform: scale(1.45); } }
+  .tile-label { grid-area: label; font-size: 0.74rem; font-weight: 600; line-height: 1.3; }
+  .tile-value {
+    grid-area: value;
+    overflow: hidden;
+    font: 400 0.66rem/1.45 var(--sl-font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tile-text { grid-area: text; font: 500 0.62rem/1.6 var(--sl-font-mono); color: var(--tone); white-space: nowrap; }
+
+  /* Bounded queue */
+  .queue { position: relative; z-index: 1; display: grid; gap: 0.35rem; justify-items: center; text-align: center; }
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3px;
+    width: 100%;
+    padding: 0.4rem;
+    background: rgba(10, 12, 20, 0.92);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+    border-radius: 0.5rem;
+    transition: border-color 0.3s ease;
+  }
+  .cells i {
+    height: 0.62rem;
+    border-radius: 2px;
+    background: rgba(229, 231, 235, 0.06);
+    transition: background-color 0.25s ease calc(var(--i) * 14ms), box-shadow 0.25s ease calc(var(--i) * 14ms);
+  }
+  .cells i[data-on] { background: var(--cyan); box-shadow: 0 0 6px rgba(34, 211, 238, 0.6); }
+  .queue[data-tone='over'] .cells { border-color: rgba(247, 77, 103, 0.6); }
+  .queue[data-tone='over'] .cells i[data-on] { background: var(--alert); box-shadow: 0 0 6px rgba(247, 77, 103, 0.7); }
+  .queue-meta { font: 400 0.62rem/1.35 var(--sl-font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+  .queue-drops strong { font-weight: 600; color: var(--text); }
+  .queue[data-tone='over'] .queue-drops strong, .queue-drops strong:not(:empty):is(.bump) { color: #ff8a9c; }
+  .bump { display: inline-block; animation: bump 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes bump { from { transform: scale(1.5); } }
+  .queue-lost {
+    font: 500 0.6rem/1.3 var(--sl-font-mono);
+    color: #ff8a9c;
+    animation: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(0.35rem); } }
+
+  /* Detector rules */
+  .rules { display: grid; gap: 0.3rem; padding: 0; list-style: none; }
+  .rule {
+    --tone: var(--cyan);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: 'name value' 'meter meter';
+    column-gap: 0.5rem;
+    row-gap: 0.2rem;
+    margin: 0 !important;
+    padding: 0.32rem 0.55rem 0.4rem;
+    background: rgba(10, 12, 20, 0.92);
+    border: 1px solid var(--line);
+    border-radius: 0.45rem;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+  }
+  .rule[data-state='alert'] { --tone: var(--alert); border-color: rgba(247, 77, 103, 0.5); background: rgba(247, 77, 103, 0.09); }
+  .rule-name { grid-area: name; overflow: hidden; font: 500 0.66rem/1.35 var(--sl-font-mono); text-overflow: ellipsis; white-space: nowrap; }
+  .rule-value { grid-area: value; font: 400 0.64rem/1.35 var(--sl-font-mono); font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+  .rule[data-state='alert'] .rule-value { color: #ff8a9c; }
+  .meter { grid-area: meter; position: relative; height: 0.25rem; overflow: visible; border-radius: 1rem; background: rgba(229, 231, 235, 0.07); }
+  .meter-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--tone);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--tone) 70%, transparent);
+    transform-origin: left;
+    transform: scaleX(var(--fill, 0));
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease;
+  }
+  .meter-limit { position: absolute; top: -0.2rem; bottom: -0.2rem; left: 62%; width: 1px; background: rgba(229, 231, 235, 0.45); }
+
+  /* --- Detector output ------------------------------------------------------ */
+  .zr-out {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    min-height: 7.5rem;
+    margin-top: 1rem !important;
+    padding: 0.75rem 0 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .zr-out :global(li) {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    background: rgba(229, 231, 235, 0.03);
+    animation: line-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .zr-out :global(li[data-kind='alert']:first-child) { border-color: rgba(247, 77, 103, 0.35); background: rgba(247, 77, 103, 0.08); }
+  .zr-out :global(li[data-kind='status']) { border-color: rgba(74, 222, 128, 0.25); }
+  @keyframes line-in {
+    from { opacity: 0; clip-path: inset(0 100% 0 0); }
+    to { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+  .zr-out :global(.line) { font: 400 0.68rem/1.5 var(--sl-font-mono); color: var(--text); overflow-wrap: anywhere; }
+  .zr-out :global(.note) { font: 500 0.64rem/1.4 var(--sl-font-mono); color: var(--muted); }
+  .zr-out :global(li[data-kind='alert'] .note) { color: #ff8a9c; }
+  .zr-out :global(li[data-kind='status'] .note) { color: var(--green); }
+
+  figcaption { margin-top: 0.75rem; font-size: 0.74rem; line-height: 1.5; color: var(--muted); }
+  figcaption code { font-family: var(--sl-font-mono); color: var(--text); }
+
+  /* Narrow screens: stack the pipeline and drop the wires. */
+  @media (max-width: 44rem) {
+    .zr-scenes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .zr-scenes button, .zr-toggle { min-height: 2.75rem; }
+    .zr-stage { grid-template-columns: 1fr; gap: 1rem; }
+    .zr-wires { display: none; }
+    .queue { grid-template-columns: auto 1fr auto; align-items: center; justify-items: start; text-align: left; column-gap: 0.75rem; }
+    .queue .lane-label { grid-column: 1 / -1; }
+    .cells { grid-column: 1 / -1; grid-template-columns: repeat(16, 1fr); }
+    .queue-lost { grid-column: 1 / -1; }
+    .zr-device .zr-muted { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot, .tile.flash, .rule.flash, .bump, .queue-lost, .zr-out :global(li),
+    [data-tile='heartbeat'] .tile-dot, .zr-console :global(.cmd::after) { animation: none !important; }
+    .cells i, .meter-fill { transition: none; }
+  }
+</style>
