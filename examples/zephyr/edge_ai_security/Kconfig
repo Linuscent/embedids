@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+mainmenu "EmbedIDS simulated Edge AI device"
+
+source "Kconfig.zephyr"
+
+config EMBEDIDS_DEMO_FAULT_INJECTION
+	bool "Enable test-only fault injection commands"
+	default n
+	help
+	  Allows deliberately bypassing configuration writes and stopping the
+	  telemetry heartbeat. Never enable in production firmware.
