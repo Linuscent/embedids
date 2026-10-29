@@ -199,5 +199,5 @@ executable sizes include host-specific components and are not MCU flash budgets.
 Future stages can add a physical board, real inference, network transport,
 statistical baselines, protected monitor state and an independent heartbeat observer.
 
-The [Zephyr runtime security case study](../case-studies/zephyr-runtime-security.mdx)
+The [Zephyr RTOS intrusion detection case study](../case-studies/zephyr-runtime-security.mdx)
 walks through these scenarios with recorded results and an animated replay.

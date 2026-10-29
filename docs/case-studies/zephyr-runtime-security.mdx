@@ -1,23 +1,26 @@
 ---
-title: "Case Study: Runtime Security on Zephyr RTOS"
+title: "Case Study: Runtime Intrusion Detection on Zephyr RTOS"
 schema_type: TechArticle
 keywords:
+  - Zephyr RTOS intrusion detection
   - Zephyr RTOS security
-  - embedded intrusion detection
-  - microcontroller runtime security
+  - embedded intrusion detection system
+  - microcontroller security monitoring
+  - IoT firmware security
   - Zephyr module
-  - edge AI firmware
   - embedded IDS
-description: EmbedIDS inside Zephyr firmware, a bounded, allocation-free detector that caught command abuse, floods, tampering and telemetry loss within 120 ms in simulation.
+  - edge AI firmware security
+description: How the open-source EmbedIDS intrusion detection library runs inside Zephyr RTOS firmware without heap allocation and flags attacks within 120 ms in simulation.
 ---
 
 import { Aside, Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
 import ZephyrReplay from '../../website/components/case-studies/ZephyrReplay.astro';
 import DetectionBudget from '../../website/components/case-studies/DetectionBudget.astro';
 
-**How EmbedIDS runs inside Zephyr firmware as an optional module, with a
-bounded sample queue and a single detector thread, and flags command abuse,
-request floods, tampering and telemetry loss within two sample periods.**
+**How the open-source EmbedIDS intrusion detection library runs inside
+Zephyr RTOS firmware as an optional module, with a bounded sample queue and a
+single detector thread, and flags command abuse, request floods, tampering and
+telemetry loss within two sample periods.**
 
 <ZephyrReplay />
 
@@ -62,7 +65,7 @@ running on Zephyr v4.2.0's `native_sim` board, a simulation hosted on Linux.
 
 ---
 
-## The challenge
+## The challenge: attacks on a Zephyr device
 
 Picture a battery-powered sensor or a small vision module: a Zephyr
 application accepts commands, runs inference, ships results upstream and
@@ -80,10 +83,11 @@ The constraints matter as much as the threats. Detection cannot allocate
 memory at run time, interrupt handlers cannot wait for it, and it must never
 delay the inference path it protects.
 
-## The approach: detection compiled into the firmware
+## The approach: intrusion detection compiled into the firmware
 
-EmbedIDS joins the build as an ordinary Zephyr module. The C core stays free
-of operating-system calls; a thin adapter connects it to Zephyr's kernel:
+EmbedIDS joins the build as an ordinary Zephyr module, so no separate agent,
+operating system or cloud service is needed. The C core stays free of
+operating-system calls; a thin adapter connects it to Zephyr's kernel:
 
 - **Configured with Kconfig.** Limits such as the number of metrics and the
   queue size reach both the library and its callers, so every structure
@@ -100,7 +104,7 @@ of operating-system calls; a thin adapter connects it to Zephyr's kernel:
   names, out-of-range indices, the unfinished built-in trend algorithm and
   Boolean thresholds, rather than running them silently.
 
-## Architecture
+## Architecture of the Zephyr integration
 
 The replay above shows the pipeline: application threads on the left, the
 32-slot queue in the middle and the detector's rules on the right. Enabling it
@@ -144,7 +148,7 @@ The demo firmware watches eight rules, all numeric thresholds:
 Each alert is printed once, when the rule starts failing, with the value, the
 limit and the sample time. A `clear` line follows when it recovers.
 
-## Seeing it work
+## Seeing it work: attacks through the UART console
 
 Every scenario boots fresh firmware and types commands into its UART console,
 exactly as an operator or an attacker on that interface would.
@@ -195,7 +199,7 @@ The normal run also sends seven malformed commands, such as `infer 257`. The
 parser rejects them without raising alerts: bad syntax is not, by itself,
 evidence of an attack.
 
-## Results
+## Results: detection latency and footprint
 
 <DetectionBudget />
 
@@ -275,7 +279,7 @@ The integration is backed by automated checks that run in CI:
 | Network inputs | Proposed | Zephyr network statistics feeding the outbound rules |
 | Protected monitor | Proposed | Monitor state isolated with userspace, plus an independent watchdog |
 
-## Try it yourself
+## Try it yourself on native_sim
 
 The demo needs a Linux host with a Zephyr v4.2.0 development environment;
 no hardware is required.
@@ -317,7 +321,10 @@ python "$ZEPHYR_BASE/scripts/twister" -T tests/zephyr/adapter \
 </Tabs>
 
 The [Zephyr integration guide](../integrations/zephyr.md) covers setup, the
-adapter API, resource accounting and every command in detail.
+adapter API, resource accounting and every command in detail. For a Linux
+device with a GPU, the
+[Edge AI runtime security case study](edgeml-runtime-security.mdx) runs the
+same detection engine as an on-device agent.
 
 <Aside type="tip" title="Building on Zephyr hardware?">
 

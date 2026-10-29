@@ -35,8 +35,8 @@ export const mainNav: NavItem[] = [
         icon: 'star',
       },
       {
-        label: 'Runtime Security on Zephyr',
-        description: 'EmbedIDS inside Zephyr RTOS firmware',
+        label: 'Intrusion Detection on Zephyr',
+        description: 'EmbedIDS compiled into Zephyr RTOS firmware',
         href: 'case-studies/zephyr-runtime-security/',
         icon: 'puzzle',
       },

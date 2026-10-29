@@ -57,7 +57,7 @@ export default defineConfig({
         { label: 'Case studies', items: [
           { label: 'All case studies', slug: 'case-studies' },
           { label: 'Runtime Security for Edge AI', slug: 'case-studies/edgeml-runtime-security' },
-          { label: 'Runtime Security on Zephyr', slug: 'case-studies/zephyr-runtime-security' },
+          { label: 'Intrusion Detection on Zephyr', slug: 'case-studies/zephyr-runtime-security' },
         ] },
         { label: 'Resources', items: [
           { label: 'Code examples', link: 'https://github.com/Linuscent/EmbedIDS/tree/main/examples' },
