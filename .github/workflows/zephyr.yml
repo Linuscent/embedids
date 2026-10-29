@@ -34,7 +34,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      ZEPHYR_BASE: ${{ runner.temp }}/zephyr
       ZEPHYR_TOOLCHAIN_VARIANT: host
     steps:
       - uses: actions/checkout@v7
@@ -47,12 +46,14 @@ jobs:
           sudo apt-get install -y gcc g++ make ninja-build device-tree-compiler gperf
       - name: Fetch pinned Zephyr baseline
         run: |
-          git clone --depth 1 --branch v4.2.0 https://github.com/zephyrproject-rtos/zephyr.git "$ZEPHYR_BASE"
-          test "$(git -C "$ZEPHYR_BASE" rev-parse HEAD)" = 413b789deb391d3a37d06b463288a5fe765ee57e
+          # The runner context is only available inside steps, so export ZEPHYR_BASE here.
+          echo "ZEPHYR_BASE=$RUNNER_TEMP/zephyr" >> "$GITHUB_ENV"
+          git clone --depth 1 --branch v4.2.0 https://github.com/zephyrproject-rtos/zephyr.git "$RUNNER_TEMP/zephyr"
+          test "$(git -C "$RUNNER_TEMP/zephyr" rev-parse HEAD)" = 413b789deb391d3a37d06b463288a5fe765ee57e
           python -m pip install cmake==3.31.10 \
-            -r "$ZEPHYR_BASE/scripts/requirements-base.txt" \
-            -r "$ZEPHYR_BASE/scripts/requirements-build-test.txt" \
-            -r "$ZEPHYR_BASE/scripts/requirements-run-test.txt"
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-base.txt" \
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-build-test.txt" \
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-run-test.txt"
       - name: Core regression tests
         run: |
           cmake -G Ninja -S . -B build/core -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
