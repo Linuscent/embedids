@@ -22,8 +22,13 @@ appearance, retaining a light-mode option. Two surfaces:
   grids and corner brackets as the one structural motif.
 - **Story:** watch a device's trust checks and intrusion detectors catch the
   case-study attacks → see the platforms it runs on → pick a path (Quick Start,
-  tutorial, examples, case study) → the Zephyr RTOS module highlight → features,
-  rationale, steps, use cases → get the SDK.
+  tutorial, examples, case studies) → the Zephyr RTOS module highlight → Overview: one
+  lede beside the Linuscent stack (EmbedIDS as the device layer of Linuscent OS, with
+  Aura its shared workspace; positioning only, no connector is claimed) → product
+  features beside real C code → three short key-feature columns → why, as constraint
+  and answer rows plus case-study evidence → three steps → use cases and community side
+  by side → get the SDK. Copy states only shipped capabilities; ML is not claimed.
+  Published headings keep their IDs and text (checked by `compare-urls`).
 - **First viewport:** left, the headline ("Device trust and intrusion detection for embedded systems.", the last two words in cyan), tagline,
   Quick Start and GitHub actions, a fact strip (including "Zephyr RTOS module"); right
   (from 80rem; below, under the copy), the device monitor, labelled simulated, with
@@ -79,12 +84,17 @@ Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536p
   `DetectionBudget.astro` draws latency bars against the 200 ms budget once on
   scroll (only under `motion-ok`).
 - **Platform belt:** `components/home/PlatformMarquee.astro` scrolls a duplicated list
-  (the copy is `aria-hidden` and `inert`) at 46 s per loop. It pauses on hover, focus
-  and its Pause button; reduced motion shows one static wrapped list. Each platform
+  (the copy is `aria-hidden` and `inert`) at 46 s per loop. It pauses on hover and
+  keyboard focus (no pause button, by request); reduced motion shows one static wrapped
+  list. Each platform
   states its validation level (for example "Collectors built · hardware next").
 - **Zephyr highlight:** `components/home/ZephyrHighlight.astro`, a void panel after the
   start paths; its 16-cell queue fills and drains with the detector pulse and an alert
   line wipes in, on a 3.2 s CSS loop that stops under reduced motion.
+- **Linuscent stack:** `components/home/LinuscentStack.astro` assembles on reveal:
+  the EmbedIDS device layer rises, three rails grow up, then the Linuscent OS frame with
+  Aura inside settles; device dots pulse. It avoids arrows into Aura, which would imply
+  a data flow that does not exist.
 - **Entrances:** hero copy rises and the monitor "powers on" (clip + brightness);
   homepage sections reveal on scroll; key-feature rules and the getting-started rail
   draw in; page titles draw a short signal line. Documentation images are not

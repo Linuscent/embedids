@@ -4,9 +4,11 @@
  * case study (scripts/zephyr/case-study-data/); the queue animation is illustrative.
  */
 import zephyr from '../../assets/platforms/zephyr.svg';
+import { sourceUrl } from '../../data/repo';
 
 const base = import.meta.env.BASE_URL;
 const cells = Array.from({ length: 16 }, (_, i) => i);
+const config = 'examples/zephyr/edge_ai_security/prj.conf';
 ---
 
 <section class="home-band zh" aria-labelledby="zephyr-rtos-integration" data-reveal>
@@ -15,8 +17,8 @@ const cells = Array.from({ length: 16 }, (_, i) => i);
       <img class="zh-logo" src={zephyr.src} width="160" height="82" alt="Zephyr" />
       <h2 id="zephyr-rtos-integration">Now a Zephyr RTOS module</h2>
       <p>
-        Add intrusion detection to Zephyr firmware with a few Kconfig lines. Threads and interrupt handlers submit
-        samples to a bounded queue without blocking, and one detector thread checks every sample against your rules.
+        Add intrusion detection to Zephyr firmware with a few Kconfig lines. Threads and interrupts submit samples
+        without blocking; one detector thread checks each one.
       </p>
       <ul class="zh-facts">
         <li><strong>≤ 120 ms</strong> from trigger to alert in every simulated attack scenario</li>
@@ -29,18 +31,18 @@ const cells = Array.from({ length: 16 }, (_, i) => i);
       </div>
     </div>
 
-    <figure class="zh-visual" aria-hidden="true">
-      <pre class="zh-config"><span class="c"># prj.conf</span>
-CONFIG_EMBEDIDS=y
-CONFIG_EMBEDIDS_ZEPHYR_ADAPTER=y
+    <figure class="zh-visual">
+      <figcaption class="zh-file"><a href={sourceUrl(config)}>{config}</a><span>excerpt</span></figcaption>
+      <pre class="zh-config">CONFIG_EMBEDIDS=y
+CONFIG_EMBEDIDS_MAX_METRICS=8
 CONFIG_EMBEDIDS_SAMPLE_QUEUE_SIZE=32</pre>
-      <div class="zh-flow">
+      <div class="zh-flow" aria-hidden="true">
         <span class="zh-label">k_msgq</span>
         <span class="zh-cells">{cells.map((i) => <i style={`--i:${i}`} />)}</span>
         <span class="zh-label">detector · 100 ms</span>
         <span class="zh-core"><b>Embed</b>IDS</span>
       </div>
-      <code class="zh-alert">{'{"type":"alert","rule":"request_rate","value":256,"limit":32}'}</code>
+      <code class="zh-alert" aria-hidden="true">{'{"type":"alert","rule":"request_rate","value":256,"limit":32}'}</code>
     </figure>
   </div>
 </section>
@@ -112,6 +114,16 @@ CONFIG_EMBEDIDS_SAMPLE_QUEUE_SIZE=32</pre>
     border: 0;
   }
   .zh-config .c { color: rgba(229, 231, 235, 0.5); }
+  .zh-file {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    font: 500 0.72rem/1.4 var(--sl-font-mono);
+    color: rgba(229, 231, 235, 0.55);
+  }
+  .zh-file a { color: #22d3ee; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+  .zh-file a:hover { color: #e5e7eb; }
   .zh-flow {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);

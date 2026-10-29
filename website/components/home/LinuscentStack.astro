@@ -1,0 +1,127 @@
+---
+/**
+ * Where EmbedIDS sits in Linuscent's products. Wording follows linuscent.com
+ * (linuscent-os and EmbedIDS sections); it shows positioning only, not a data
+ * connector between EmbedIDS and Aura.
+ */
+const devices = ['Linux and Jetson agent', 'Zephyr RTOS firmware', 'Your C11 firmware'];
+---
+
+<figure class="stack" aria-labelledby="stack-caption">
+  <div class="layer layer-os">
+    <p class="layer-head">
+      <span class="layer-name">Linuscent OS</span>
+      <span class="layer-role">Product compliance platform</span>
+    </p>
+    <div class="aura">
+      <span class="layer-name">Linuscent Aura™</span>
+      <span class="layer-role">Shared workspace · SBOMs · vulnerability evidence</span>
+    </div>
+  </div>
+
+  <div class="joint" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <div class="layer layer-device">
+    <p class="layer-head">
+      <span class="layer-name">Embed<b>IDS</b></span>
+      <span class="layer-role">Device layer · trust checks · intrusion detection</span>
+    </p>
+    <ul class="devices">
+      {devices.map((device, i) => <li style={`--i:${i}`}><span class="dot" aria-hidden="true"></span>{device}</li>)}
+    </ul>
+  </div>
+
+  <figcaption id="stack-caption">
+    EmbedIDS runs on the product itself. It is the device layer of
+    <a href="https://linuscent.com/linuscent-os">Linuscent OS</a>, where its field signals complement the evidence in
+    <a href="https://linuscent.com/linuscent-aura">Aura</a>.
+  </figcaption>
+</figure>
+
+<style>
+  .stack {
+    --os: var(--sl-color-text-accent);
+    --device: #4ade80;
+    display: grid;
+    margin: 0;
+  }
+  :global(:root[data-theme='light']) .stack { --device: #15803d; }
+
+  .layer {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--home-line);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--sl-color-bg) 85%, transparent);
+  }
+  .layer-head { display: grid; gap: 0.2rem; }
+  .layer-name {
+    font: 700 1.15rem/1.2 var(--brand-display);
+    letter-spacing: -0.015em;
+    color: var(--sl-color-white);
+  }
+  .layer-name b { font-weight: 700; color: #ef2b2d; }
+  .layer-role { font: 500 0.75rem/1.4 var(--sl-font-mono); color: var(--sl-color-gray-3); }
+  .layer-os { border-color: color-mix(in srgb, var(--os) 40%, transparent); }
+  .layer-os .layer-head .layer-name { color: var(--os); }
+  .aura {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.9rem 1rem;
+    border: 1px dashed color-mix(in srgb, var(--os) 45%, transparent);
+    border-radius: 0.6rem;
+    background: color-mix(in srgb, var(--sl-color-accent-low) 60%, transparent);
+  }
+  .layer-device { border-color: color-mix(in srgb, var(--device) 45%, transparent); }
+
+  .devices { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .devices li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    font: 500 0.78rem/1.3 var(--sl-font-mono);
+    color: var(--sl-color-gray-2);
+    border: 1px solid var(--home-line);
+    border-radius: 999px;
+  }
+  .dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--device);
+    animation: device-live 2.4s ease-out infinite;
+    animation-delay: calc(var(--i) * 0.6s);
+  }
+  @keyframes device-live {
+    from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--device) 60%, transparent); }
+    to { box-shadow: 0 0 0 0.5rem transparent; }
+  }
+
+  /* The device layer sits under the platform; three rails join them. */
+  .joint { display: flex; justify-content: space-around; height: 2.25rem; padding-inline: 18%; }
+  .joint i {
+    width: 1px;
+    background: linear-gradient(var(--os), var(--device));
+    opacity: 0.6;
+    transform-origin: bottom;
+  }
+
+  figcaption { margin-top: 1rem; font-size: 0.85rem; line-height: 1.6; color: var(--sl-color-gray-2); }
+  figcaption a { color: var(--sl-color-text-accent); text-underline-offset: 0.2em; }
+
+  /* Assembly on reveal: device first, rails grow up, then the platform settles. */
+  :global(:root.motion-ok [data-reveal]:not(.is-visible)) .layer-device { opacity: 0; transform: translateY(1.25rem); }
+  :global(:root.motion-ok [data-reveal]:not(.is-visible)) .joint i { transform: scaleY(0); }
+  :global(:root.motion-ok [data-reveal]:not(.is-visible)) .layer-os { opacity: 0; clip-path: inset(0 0 100% 0); }
+  .layer-device { transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s; }
+  .joint i { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.65s; }
+  .layer-os { transition: opacity 0.7s ease 0.95s, clip-path 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.95s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+    .layer-device, .joint i, .layer-os { transition: none; }
+  }
+</style>
