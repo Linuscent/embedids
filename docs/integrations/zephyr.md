@@ -7,6 +7,17 @@ EmbedIDS can be built as an external Zephyr module without porting the larger
 EdgeML agent. The integration keeps the core C library OS-independent and adds
 a bounded, allocation-free sample queue. It does not automatically start threads.
 
+## Source files
+
+| Path | Contents |
+|---|---|
+| [`zephyr/`](https://github.com/Linuscent/EmbedIDS/tree/main/zephyr) | Module metadata ([`module.yml`](https://github.com/Linuscent/EmbedIDS/blob/main/zephyr/module.yml)), build and [`Kconfig`](https://github.com/Linuscent/EmbedIDS/blob/main/zephyr/Kconfig) options |
+| [`ports/zephyr/`](https://github.com/Linuscent/EmbedIDS/tree/main/ports/zephyr) | Queue adapter: [`embedids_zephyr.c`](https://github.com/Linuscent/EmbedIDS/blob/main/ports/zephyr/embedids_zephyr.c) and its [header](https://github.com/Linuscent/EmbedIDS/blob/main/ports/zephyr/include/embedids/zephyr.h) |
+| [`examples/zephyr/edge_ai_security/`](https://github.com/Linuscent/EmbedIDS/tree/main/examples/zephyr/edge_ai_security) | Simulated Edge AI demo: [`src/main.c`](https://github.com/Linuscent/EmbedIDS/blob/main/examples/zephyr/edge_ai_security/src/main.c), [`prj.conf`](https://github.com/Linuscent/EmbedIDS/blob/main/examples/zephyr/edge_ai_security/prj.conf) |
+| [`scripts/zephyr/run_scenarios.py`](https://github.com/Linuscent/EmbedIDS/blob/main/scripts/zephyr/run_scenarios.py) | Scenario runner |
+| [`tests/zephyr/adapter/`](https://github.com/Linuscent/EmbedIDS/tree/main/tests/zephyr/adapter) | Ztest suite for the adapter |
+| [`.github/workflows/zephyr.yml`](https://github.com/Linuscent/EmbedIDS/blob/main/.github/workflows/zephyr.yml) | CI on `native_sim` |
+
 ## Supported baseline
 
 The initial target is **Zephyr v4.2.0**, board `native_sim/native/64`, on Linux.
@@ -63,7 +74,7 @@ python3 scripts/zephyr/run_scenarios.py \
   --report build/zephyr-demo/scenarios.json
 ```
 
-The runner uses only Python's standard library. It boots a fresh device for
+The [runner](https://github.com/Linuscent/EmbedIDS/blob/main/scripts/zephyr/run_scenarios.py) uses only Python's standard library. It boots a fresh device for
 each scenario, exercises the real command parser and queues, verifies expected
 alerts and evidence, and exits nonzero on failure. Use `--scenario normal` or
 another scenario name to run just one.
@@ -159,7 +170,7 @@ Do not treat that option as a guarantee that every core helper is integer-only.
 
 Kconfig limits propagate to both the library and callers, preserving structure
 layout. The generated public header uses EmbedIDS's version, not the enclosing
-application version. Keep edits in `include/embedids.h.in`.
+application version. Keep edits in [`include/embedids.h.in`](https://github.com/Linuscent/EmbedIDS/blob/main/include/embedids.h.in).
 
 ## Tests and footprint
 
@@ -169,7 +180,7 @@ python "$ZEPHYR_BASE/scripts/twister" -T tests/zephyr/adapter \
   --extra-args="ZEPHYR_MODULES=$PWD"
 ```
 
-Tests cover per-sample evaluation, all-algorithm reporting, ISR submission,
+The [tests](https://github.com/Linuscent/EmbedIDS/blob/main/tests/zephyr/adapter/src/main.c) cover per-sample evaluation, all-algorithm reporting, ISR submission,
 concurrent producers, bounded overflow, circular histories, invalid inputs/configuration, custom
 callbacks and integer/float build configurations.
 

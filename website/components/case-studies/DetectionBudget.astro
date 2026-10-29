@@ -4,6 +4,7 @@
  * scripts/zephyr/case-study-data/repeat-summary.json (10 runs on native_sim).
  */
 import summary from '../../../scripts/zephyr/case-study-data/repeat-summary.json';
+import { sourceUrl } from '../../data/repo';
 
 const BUDGET = 200;
 const labels: Record<string, string> = {
@@ -57,7 +58,8 @@ const worst = Math.max(...rows.map((row) => row.max));
   <figcaption id="budget-caption">
     Time from each trigger to the detector sample that raised the alert, in simulated milliseconds over {summary.runs}
     repeated runs. All runs passed; only heartbeat loss varied. The worst case, {worst} ms, is inside the two-sample
-    budget.
+    budget. Data:
+    <a href={sourceUrl('scripts/zephyr/case-study-data/repeat-summary.json')}><code>repeat-summary.json</code></a>.
   </figcaption>
 </figure>
 
@@ -137,6 +139,8 @@ const worst = Math.max(...rows.map((row) => row.max));
     transform: translateY(-50%);
   }
   figcaption { margin-top: 0.85rem; font-size: 0.82rem; line-height: 1.55; color: var(--sl-color-gray-2); }
+  figcaption a { color: var(--sl-color-text-accent); text-underline-offset: 0.2em; }
+  figcaption code { font-size: 0.78rem; color: inherit; background: none; padding: 0; }
   .sr-only {
     position: absolute;
     width: 1px;

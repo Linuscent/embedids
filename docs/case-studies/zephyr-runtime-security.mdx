@@ -92,7 +92,8 @@ operating-system calls; a thin adapter connects it to Zephyr's kernel:
 - **Configured with Kconfig.** Limits such as the number of metrics and the
   queue size reach both the library and its callers, so every structure
   layout matches.
-- **Non-blocking ingestion.** `embedids_zephyr_submit()` copies a sample into
+- **Non-blocking ingestion.** `embedids_zephyr_submit()`, declared in
+  [`ports/zephyr/include/embedids/zephyr.h`](https://github.com/Linuscent/EmbedIDS/blob/main/ports/zephyr/include/embedids/zephyr.h), copies a sample into
   a statically allocated `k_msgq` without waiting. It is safe from threads and
   interrupt handlers. A full queue counts a drop instead of blocking.
 - **A single owner.** Only the detector thread touches the EmbedIDS context.
@@ -107,15 +108,18 @@ operating-system calls; a thin adapter connects it to Zephyr's kernel:
 ## Architecture of the Zephyr integration
 
 The replay above shows the pipeline: application threads on the left, the
-32-slot queue in the middle and the detector's rules on the right. Enabling it
-takes a few Kconfig lines:
+32-slot queue in the middle and the detector's rules on the right. The module
+itself is described by [`zephyr/module.yml`](https://github.com/Linuscent/EmbedIDS/blob/main/zephyr/module.yml) and
+configured through [`zephyr/Kconfig`](https://github.com/Linuscent/EmbedIDS/blob/main/zephyr/Kconfig). The demo enables it
+with these lines from its
+[`prj.conf`](https://github.com/Linuscent/EmbedIDS/blob/main/examples/zephyr/edge_ai_security/prj.conf):
 
-```ini title="prj.conf"
+```ini title="examples/zephyr/edge_ai_security/prj.conf (excerpt)"
 CONFIG_EMBEDIDS=y
-CONFIG_EMBEDIDS_ZEPHYR_ADAPTER=y
-CONFIG_EMBEDIDS_MAX_METRICS=8
-CONFIG_EMBEDIDS_SAMPLE_QUEUE_SIZE=32
 CONFIG_EMBEDIDS_FLOATING_POINT=n
+CONFIG_EMBEDIDS_MAX_METRICS=8
+CONFIG_EMBEDIDS_MAX_ALGORITHMS_PER_METRIC=1
+CONFIG_EMBEDIDS_SAMPLE_QUEUE_SIZE=32
 ```
 
 Producers submit; the detector thread drains and evaluates. In the demo, the
@@ -131,6 +135,10 @@ while (true) {
     embedids_zephyr_poll(&detector, detection_result, NULL);
 }
 ```
+
+The full loop, rules and command parser are in
+[`src/main.c`](https://github.com/Linuscent/EmbedIDS/blob/main/examples/zephyr/edge_ai_security/src/main.c); the adapter
+is [`ports/zephyr/embedids_zephyr.c`](https://github.com/Linuscent/EmbedIDS/blob/main/ports/zephyr/embedids_zephyr.c).
 
 The demo firmware watches eight rules, all numeric thresholds:
 
@@ -320,6 +328,11 @@ python "$ZEPHYR_BASE/scripts/twister" -T tests/zephyr/adapter \
 </TabItem>
 </Tabs>
 
+The source is on GitHub: the demo firmware in
+[`examples/zephyr/edge_ai_security/`](https://github.com/Linuscent/EmbedIDS/tree/main/examples/zephyr/edge_ai_security),
+the scenario runner [`scripts/zephyr/run_scenarios.py`](https://github.com/Linuscent/EmbedIDS/blob/main/scripts/zephyr/run_scenarios.py)
+and the adapter tests in [`tests/zephyr/adapter/`](https://github.com/Linuscent/EmbedIDS/tree/main/tests/zephyr/adapter).
+
 The [Zephyr integration guide](../integrations/zephyr.md) covers setup, the
 adapter API, resource accounting and every command in detail. For a Linux
 device with a GPU, the
@@ -339,8 +352,8 @@ or [open an issue](https://github.com/Linuscent/EmbedIDS/issues).
 <small>
 Measurements were taken on 29 October 2026 with Zephyr v4.2.0 on
 `native_sim/native/64` (x86-64 host, 100 ms sampling), over 10 repeated runs of
-`scripts/zephyr/run_scenarios.py`. The recorded data is in
-`scripts/zephyr/case-study-data/`; the replay at the top of this page plays one
+[`scripts/zephyr/run_scenarios.py`](https://github.com/Linuscent/EmbedIDS/blob/main/scripts/zephyr/run_scenarios.py). The recorded data is in
+[`scripts/zephyr/case-study-data/`](https://github.com/Linuscent/EmbedIDS/tree/main/scripts/zephyr/case-study-data); the replay at the top of this page plays one
 of those runs.
 
 Zephyr is a project of the Linux Foundation. This case study describes a

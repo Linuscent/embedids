@@ -4,6 +4,8 @@
  * values and latencies come from scripts/zephyr/case-study-data/; on-screen timing is
  * slowed down so each 100 ms detector cycle can be followed.
  */
+import { sourceUrl } from '../../data/repo';
+
 const producers = [
   { id: 'mode', label: 'Device mode', value: 'idle', text: 'State policy' },
   { id: 'inference', label: 'Inference queue', value: '0 / 8 queued', text: 'Idle' },
@@ -97,7 +99,8 @@ const cells = Array.from({ length: 32 }, (_, i) => i);
   <ol class="zr-out" data-out aria-label="Detector output"></ol>
 
   <figcaption id="zr-caption">
-    Replay of a recorded run of <code>scripts/zephyr/run_scenarios.py</code>. Commands, alert lines, values and
+    Replay of a recorded run of <a href={sourceUrl('scripts/zephyr/run_scenarios.py')}><code>scripts/zephyr/run_scenarios.py</code></a>
+    (<a href={sourceUrl('scripts/zephyr/case-study-data/replay-run.json')}>recorded data</a>). Commands, alert lines, values and
     latencies are recorded; the replay slows each 100 ms detector cycle down. Fault commands are test-only.
   </figcaption>
 </figure>
@@ -892,6 +895,8 @@ const cells = Array.from({ length: 32 }, (_, i) => i);
 
   figcaption { margin-top: 0.75rem; font-size: 0.74rem; line-height: 1.5; color: var(--muted); }
   figcaption code { font-family: var(--sl-font-mono); color: var(--text); }
+  figcaption a { color: var(--cyan); text-underline-offset: 0.2em; }
+  figcaption a:hover { color: var(--text); }
 
   /* Narrow screens: stack the pipeline and drop the wires. */
   @media (max-width: 44rem) {
