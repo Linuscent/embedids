@@ -1,0 +1,176 @@
+---
+/**
+ * Overview band highlighting the Zephyr RTOS integration. Figures come from the Zephyr
+ * case study (scripts/zephyr/case-study-data/); the queue animation is illustrative.
+ */
+import zephyr from '../../assets/platforms/zephyr.svg';
+
+const base = import.meta.env.BASE_URL;
+const cells = Array.from({ length: 16 }, (_, i) => i);
+---
+
+<section class="home-band zh" aria-labelledby="zephyr-rtos-integration" data-reveal>
+  <div class="zh-panel">
+    <div class="zh-copy">
+      <img class="zh-logo" src={zephyr.src} width="160" height="82" alt="Zephyr" />
+      <h2 id="zephyr-rtos-integration">Now a Zephyr RTOS module</h2>
+      <p>
+        Add intrusion detection to Zephyr firmware with a few Kconfig lines. Threads and interrupt handlers submit
+        samples to a bounded queue without blocking, and one detector thread checks every sample against your rules.
+      </p>
+      <ul class="zh-facts">
+        <li><strong>≤ 120 ms</strong> from trigger to alert in every simulated attack scenario</li>
+        <li><strong>No heap allocation</strong> in the detector or the queue adapter</li>
+        <li><strong>19 / 19 tests</strong> passing on <code>native_sim</code> with Zephyr v4.2.0</li>
+      </ul>
+      <div class="zh-actions">
+        <a class="hero-like is-primary" href={`${base}integrations/zephyr/`}>Integration guide</a>
+        <a class="hero-like is-ghost" href={`${base}case-studies/zephyr-runtime-security/`}>Read the case study</a>
+      </div>
+    </div>
+
+    <figure class="zh-visual" aria-hidden="true">
+      <pre class="zh-config"><span class="c"># prj.conf</span>
+CONFIG_EMBEDIDS=y
+CONFIG_EMBEDIDS_ZEPHYR_ADAPTER=y
+CONFIG_EMBEDIDS_SAMPLE_QUEUE_SIZE=32</pre>
+      <div class="zh-flow">
+        <span class="zh-label">k_msgq</span>
+        <span class="zh-cells">{cells.map((i) => <i style={`--i:${i}`} />)}</span>
+        <span class="zh-label">detector · 100 ms</span>
+        <span class="zh-core"><b>Embed</b>IDS</span>
+      </div>
+      <code class="zh-alert">{'{"type":"alert","rule":"request_rate","value":256,"limit":32}'}</code>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .zh { border-top: 0 !important; }
+  .zh-panel {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: clamp(2rem, 4vw, 4rem);
+    align-items: center;
+    padding: clamp(2rem, 5vw, 4rem);
+    overflow: hidden;
+    color: #e5e7eb;
+    background: #05060a;
+    border: 1px solid rgba(34, 211, 238, 0.25);
+    border-radius: 1rem;
+  }
+  .zh-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(to right, rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask-image: radial-gradient(ellipse 60% 90% at 80% 50%, #000 20%, transparent 75%);
+  }
+  .zh-copy { display: grid; gap: 1.25rem; justify-items: start; }
+  .zh-logo { display: block; width: 9rem; height: auto; margin-left: -0.35rem; }
+  .zh h2 { color: #e5e7eb; }
+  .zh-copy > p { max-width: 52ch; font-size: 1.1rem; color: rgba(229, 231, 235, 0.78); }
+  .zh-facts { display: grid; gap: 0.6rem; }
+  .zh-facts li { position: relative; padding-left: 1.4rem; color: rgba(229, 231, 235, 0.78); line-height: 1.55; }
+  .zh-facts li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: calc(0.775em - 0.2rem);
+    width: 0.4rem;
+    height: 0.4rem;
+    background: #22d3ee;
+    transform: rotate(45deg);
+  }
+  .zh-facts strong { color: #e5e7eb; }
+  .zh-facts code { font-size: 0.85em; color: #e5e7eb; background: rgba(229, 231, 235, 0.08); }
+  .zh-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; }
+
+  /* Illustration: configuration in, samples queued, alerts out. */
+  .zh-visual {
+    display: grid;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 1.5rem;
+    background: rgba(10, 12, 20, 0.9);
+    border: 1px solid rgba(229, 231, 235, 0.1);
+    border-radius: 0.75rem;
+    box-shadow: 0 30px 70px -40px rgba(34, 211, 238, 0.45);
+  }
+  .zh-config {
+    margin: 0;
+    padding: 0;
+    overflow-x: auto;
+    font: 400 0.82rem/1.7 var(--sl-font-mono);
+    color: #e5e7eb;
+    background: none;
+    border: 0;
+  }
+  .zh-config .c { color: rgba(229, 231, 235, 0.5); }
+  .zh-flow {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.6rem 1rem;
+    align-items: center;
+  }
+  .zh-label { font: 500 0.68rem/1.3 var(--sl-font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: #22d3ee; }
+  .zh-cells { display: grid; grid-template-columns: repeat(16, 1fr); gap: 3px; }
+  .zh-cells i {
+    height: 0.75rem;
+    border-radius: 2px;
+    background: rgba(229, 231, 235, 0.07);
+    animation: zh-cell 3.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+    animation-delay: calc(var(--i) * 60ms);
+  }
+  @keyframes zh-cell {
+    0%, 8% { background: rgba(229, 231, 235, 0.07); box-shadow: none; }
+    20%, 52% { background: #22d3ee; box-shadow: 0 0 6px rgba(34, 211, 238, 0.6); }
+    68%, 100% { background: rgba(229, 231, 235, 0.07); box-shadow: none; }
+  }
+  .zh-core {
+    justify-self: start;
+    padding: 0.35rem 0.75rem;
+    font: 700 0.95rem/1.2 var(--brand-display);
+    color: #ff2d2d;
+    border: 1px solid rgba(34, 211, 238, 0.4);
+    border-radius: 0.5rem;
+    animation: zh-pulse 3.2s ease-out infinite;
+  }
+  .zh-core b { font-weight: 700; color: #e5e7eb; }
+  @keyframes zh-pulse {
+    0%, 55% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0); }
+    62% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.6); }
+    85%, 100% { box-shadow: 0 0 0 0.6rem rgba(34, 211, 238, 0); }
+  }
+  .zh-alert {
+    display: block;
+    padding: 0.6rem 0.75rem;
+    overflow-wrap: anywhere;
+    font: 400 0.72rem/1.5 var(--sl-font-mono);
+    color: #ff8a9c;
+    background: rgba(247, 77, 103, 0.08);
+    border: 1px solid rgba(247, 77, 103, 0.35);
+    border-radius: 0.5rem;
+    animation: zh-alert 3.2s ease-out infinite;
+  }
+  @keyframes zh-alert {
+    0%, 58% { opacity: 0.25; clip-path: inset(0 100% 0 0); }
+    72%, 100% { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+
+  @media (max-width: 40rem) {
+    .zh-config { font-size: 0.74rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+  }
+  @media (min-width: 64rem) {
+    .zh-panel { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .zh-cells i, .zh-core, .zh-alert { animation: none; }
+    .zh-cells i:nth-child(-n + 6) { background: #22d3ee; }
+  }
+</style>

@@ -21,11 +21,13 @@ appearance, retaining a light-mode option. Two surfaces:
   display, Inter text, JetBrains Mono for code, values and API names; hairline
   grids and corner brackets as the one structural motif.
 - **Story:** watch a device's trust checks and intrusion detectors catch the
-  case-study attacks → pick a path (Quick Start, tutorial, examples, case study) →
-  features, rationale, steps, use cases → get the SDK.
+  case-study attacks → see the platforms it runs on → pick a path (Quick Start,
+  tutorial, examples, case study) → the Zephyr RTOS module highlight → features,
+  rationale, steps, use cases → get the SDK.
 - **First viewport:** left, the headline ("Device trust and intrusion detection for embedded systems.", the last two words in cyan), tagline,
-  Quick Start and GitHub actions, a fact strip; right (from 80rem; below, under the
-  copy), the device monitor, labelled simulated, with scenario and pause controls.
+  Quick Start and GitHub actions, a fact strip (including "Zephyr RTOS module"); right
+  (from 80rem; below, under the copy), the device monitor, labelled simulated, with
+  scenario and pause controls. A "Runs on" platform belt spans the bottom of the hero.
 - **Form:** user-pinned Linuscent identity; user chose a scenario carousel of shipped
   trust checks plus intrusion detection, and subtle motion for reading pages.
 - **Finish:** verify desktop (1440/1920/2560), mobile, both themes, reduced motion,
@@ -47,7 +49,7 @@ appearance, retaining a light-mode option. Two surfaces:
 | Grid line | cyan at 6% | pink at 5% |
 
 Light-mode pink is darkened from Linuscent's `#f74d67` for readable text on white.
-The hero band, monitor and closing band stay "void" in both themes, as on
+The hero band, monitor, Zephyr panel and closing band stay "void" in both themes, as on
 linuscent.com. Tokens live in `styles/brand.css`; landing layout in `styles/home.css`.
 
 Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536px),
@@ -76,6 +78,13 @@ Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536p
   off-screen/hidden-tab pausing, and reduced motion showing each final state.
   `DetectionBudget.astro` draws latency bars against the 200 ms budget once on
   scroll (only under `motion-ok`).
+- **Platform belt:** `components/home/PlatformMarquee.astro` scrolls a duplicated list
+  (the copy is `aria-hidden` and `inert`) at 46 s per loop. It pauses on hover, focus
+  and its Pause button; reduced motion shows one static wrapped list. Each platform
+  states its validation level (for example "Collectors built · hardware next").
+- **Zephyr highlight:** `components/home/ZephyrHighlight.astro`, a void panel after the
+  start paths; its 16-cell queue fills and drains with the detector pulse and an alert
+  line wipes in, on a 3.2 s CSS loop that stops under reduced motion.
 - **Entrances:** hero copy rises and the monitor "powers on" (clip + brightness);
   homepage sections reveal on scroll; key-feature rules and the getting-started rail
   draw in; page titles draw a short signal line. Documentation images are not
@@ -110,7 +119,13 @@ live from a synthetic signal and labelled as simulated. Recorded telemetry chart
 are owned by `edgeml/tools/case_study_charts.py` and must not be hand-edited.
 `docs/assets/case-studies/zephyr/hero.svg` is authored for the case-study index; its
 figures come from `scripts/zephyr/case-study-data/` and its loop stops under reduced
-motion.
+motion. `docs/assets/images/social/case-studies/zephyr-runtime-security.png` was
+rendered with Playwright to match the MkDocs-era cards (Inter, white ground, chip logo).
+Platform marks in `website/assets/platforms/` are Simple Icons 16.36.0 (CC0) for Linux,
+NVIDIA, Docker, CMake and C, and the official dark-background Zephyr logo from the
+Zephyr v4.2.0 repository (`doc/_static/images/logo-readme-dark.svg`). They are
+trademarks of their owners, shown to state compatibility; keep them unaltered apart
+from the monochrome Simple Icons fill.
 Fontsource packages self-host the same font families as the Linuscent website.
 
 ## Maintenance

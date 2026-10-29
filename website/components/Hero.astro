@@ -1,11 +1,12 @@
 ---
 import { Icon } from '@astrojs/starlight/components';
 import DeviceTrustMonitor from './home/DeviceTrustMonitor.astro';
+import PlatformMarquee from './home/PlatformMarquee.astro';
 import LegacyAnchors from './LegacyAnchors.astro';
 
 const { data } = Astro.locals.starlightRoute.entry;
 const { title = data.title, tagline, actions = [] } = data.hero || {};
-const facts = ['Apache 2.0', 'C11 static library', 'No heap allocation', 'Works offline'];
+const facts = ['Apache 2.0', 'C11 static library', 'No heap allocation', 'Works offline', 'Zephyr RTOS module'];
 ---
 
 <section class="home-hero" aria-labelledby="_top">
@@ -39,6 +40,10 @@ const facts = ['Apache 2.0', 'C11 static library', 'No heap allocation', 'Works 
 
   <div class="hero-visual">
     <DeviceTrustMonitor />
+  </div>
+
+  <div class="hero-platforms">
+    <PlatformMarquee />
   </div>
 </section>
 
@@ -173,6 +178,7 @@ const facts = ['Apache 2.0', 'C11 static library', 'No heap allocation', 'Works 
   .hero-copy > :nth-child(3) { animation-delay: 0.16s; }
   .hero-copy > :nth-child(4) { animation-delay: 0.24s; }
   .hero-visual { animation: power-on 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+  .hero-platforms { grid-column: 1 / -1; min-width: 0; animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both; }
   @keyframes rise { from { opacity: 0; transform: translateY(18px); } }
   @keyframes power-on {
     from { opacity: 0; clip-path: inset(48% 0 48% 0); filter: brightness(2.2); }
@@ -187,6 +193,6 @@ const facts = ['Apache 2.0', 'C11 static library', 'No heap allocation', 'Works 
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-grid, .hero-copy > *, .hero-visual { animation: none; }
+    .hero-grid, .hero-copy > *, .hero-visual, .hero-platforms { animation: none; }
   }
 </style>

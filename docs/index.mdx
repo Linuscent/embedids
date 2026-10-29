@@ -19,6 +19,7 @@ hero:
 ---
 
 import { Icon } from '@astrojs/starlight/components';
+import ZephyrHighlight from '../website/components/home/ZephyrHighlight.astro';
 
 <div class="not-content home">
 
@@ -31,6 +32,8 @@ import { Icon } from '@astrojs/starlight/components';
 <a class="path" href="case-studies/edgeml-runtime-security/"><span class="path-title">Case Study: Runtime Security for Edge AI</span><span class="path-text">EmbedIDS protecting a Jetson-class AI device</span><Icon name="right-arrow" class="path-arrow" /></a>
 </div>
 </section>
+
+<ZephyrHighlight />
 
 <section class="home-band home-statement" aria-labelledby="overview" data-reveal>
 <p class="statement">EmbedIDS is a lightweight Runtime Intrusion Detection SDK specifically designed for low-power embedded Internet of Things (IoT) devices. <span>Our open-source SDK provides AI-driven protection to address the critical security gap in constrained IoT environments.</span></p>
