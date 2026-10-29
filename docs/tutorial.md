@@ -690,7 +690,7 @@ EmbedIDS provides a flexible, efficient intrusion detection framework for embedd
 4. **Implement custom algorithms** for specialized requirements
 5. **Follow embedded best practices** for reliable operation
 
-For more examples, see the `examples/` directory in the EmbedIDS repository.
+For more examples, see the [`examples/`](https://github.com/Linuscent/EmbedIDS/tree/main/examples) directory in the EmbedIDS repository.
 
 ---
 

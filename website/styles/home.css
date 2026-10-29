@@ -33,7 +33,7 @@
 .home ul, .home ol { margin: 0; padding: 0; list-style: none; }
 
 .home-band {
-  padding-block: clamp(4rem, 9vw, 8rem);
+  padding-block: clamp(3.5rem, 6.5vw, 6rem);
   border-top: 1px solid var(--home-line);
 }
 .home-band:first-child { border-top: 0; }
@@ -52,8 +52,7 @@
   display: grid;
   gap: 0.6rem;
   align-content: start;
-  min-height: 11rem;
-  padding: 1.75rem 1.5rem 3.5rem;
+  padding: 1.25rem 3.5rem 1.25rem 1.5rem;
   text-decoration: none;
   background: var(--sl-color-bg);
   transition: background-color 0.25s ease;
@@ -70,8 +69,9 @@
 .path-text { font-size: 0.95rem; color: var(--home-soft); }
 .path-arrow {
   position: absolute;
-  left: 1.5rem;
-  bottom: 1.4rem;
+  right: 1.5rem;
+  top: 50%;
+  margin-top: -0.5rem;
   color: var(--sl-color-text-accent);
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -100,6 +100,8 @@
 .path:hover::after, .path:focus-visible::after { opacity: 1; }
 .path:focus-visible { outline-offset: -3px; }
 @media (min-width: 40rem) {
+  .path { min-height: 11rem; padding: 1.75rem 1.5rem 3.5rem; }
+  .path-arrow { right: auto; left: 1.5rem; top: auto; bottom: 1.4rem; margin-top: 0; }
   .home-paths { grid-template-columns: repeat(2, 1fr); }
   .path + .path { border-top: 0; }
   .path:nth-child(even) { border-left: 1px solid var(--home-line); }
@@ -111,45 +113,33 @@
   .path:nth-child(n + 3) { border-top: 0; }
 }
 
-/* --- Statement + overview --------------------------------------------- */
-.statement {
-  max-width: 30ch;
+/* --- Overview: a one-line lede beside the product stack ---------------- */
+.home .lede {
   font-family: var(--brand-display);
-  font-size: clamp(1.75rem, 3.6vw, 3.4rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
   font-weight: 600;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  color: var(--sl-color-white) !important;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--sl-color-white);
   text-wrap: balance;
 }
-.statement span { color: var(--sl-color-gray-3); }
-.home-statement .split { margin-top: clamp(3rem, 6vw, 5rem); }
-.home-statement .split p { font-size: 1.15rem; max-width: 60ch; }
+.home-overview .split, .home-features .split { align-items: center; }
 
-/* --- Spec lists (features, community) ---------------------------------- */
-.spec-list { display: grid; border-top: 1px solid var(--home-line); }
-.spec-list li {
-  position: relative;
-  padding: 1.1rem 0 1.1rem 1.4rem;
-  border-bottom: 1px solid var(--home-line);
-  color: var(--home-soft);
-  line-height: 1.55;
+/* --- Chips: short facts and use cases ---------------------------------- */
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.chips li {
+  padding: 0.4rem 0.8rem;
+  font: 500 0.8rem/1.3 var(--sl-font-mono);
+  color: var(--sl-color-gray-2);
+  border: 1px solid var(--home-line);
+  border-radius: 999px;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
-.spec-list li::before,
-.key-group li::before,
-.use-list li::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: calc(0.775em - 0.2rem);
-  width: 0.4rem;
-  height: 0.4rem;
-  background: var(--sl-color-text-accent);
-  transform: rotate(45deg);
-}
-.spec-list li::before { top: calc(1.1rem + 0.575em); }
-.home-features .section-head p { font-size: 1.1rem; }
+.chips li:hover { color: var(--sl-color-text-accent); border-color: color-mix(in srgb, var(--sl-color-text-accent) 45%, transparent); }
+
+/* --- Product features: the claim beside real code ---------------------- */
 .home-features h3 { color: var(--sl-color-text-accent); }
+.home-features .section-head p { font-size: 1.1rem; }
 
 /* --- Key features: three columns on a shared rule ----------------------- */
 .home-key h2 { margin-bottom: 3rem; }
@@ -167,64 +157,96 @@
   transform-origin: left;
   transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
 }
-.key-group ul { display: grid; gap: 0.9rem; margin-top: 1.25rem; }
-.key-group li, .use-list li { position: relative; padding-left: 1.4rem; color: var(--home-soft); line-height: 1.55; }
-@media (min-width: 56rem) { .key-grid { grid-template-columns: repeat(3, 1fr); } }
-
-/* --- Why: the problem set against the answer -------------------------- */
-.home-why h2 { margin-bottom: 3rem; }
-.why-grid { display: grid; gap: 1.5rem; }
-.why-col {
-  display: grid;
-  gap: 1.5rem;
-  align-content: start;
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  border: 1px solid var(--home-line);
-  border-radius: 0.75rem;
-}
-.why-col > p { font-size: 1.05rem; color: var(--sl-color-white); font-weight: 500; }
-.why-col li {
-  position: relative;
-  padding: 0.85rem 0 0.85rem 2.25rem;
-  border-top: 1px solid var(--home-line);
-  color: var(--home-soft);
-  line-height: 1.55;
-}
-.is-problem li::before {
+.key-group ul { display: grid; gap: 0.75rem; margin-top: 1.1rem; }
+.key-group li { position: relative; padding-left: 1.4rem; color: var(--home-soft); line-height: 1.55; }
+.key-group li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: calc(0.85rem + 0.75em);
-  width: 0.75rem;
-  height: 2px;
-  background: #f59e0b;
+  top: calc(0.775em - 0.2rem);
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--sl-color-text-accent);
+  transform: rotate(45deg);
 }
-.is-answer { background: color-mix(in srgb, var(--sl-color-accent-low) 55%, transparent); border-color: color-mix(in srgb, var(--sl-color-text-accent) 30%, transparent); }
-.is-answer ol { counter-reset: answer; }
-.is-answer li { counter-increment: answer; }
-.is-answer li::before {
-  content: counter(answer, decimal-leading-zero);
+@media (min-width: 56rem) { .key-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* --- Why: each constraint answered on one line, then the evidence ------- */
+.home-why h2 { margin-bottom: 2.5rem; }
+.answers { display: grid; border-top: 1px solid var(--home-line); }
+.answers li {
+  display: grid;
+  gap: 0.25rem 2rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--home-line);
+}
+.answers .problem { color: var(--sl-color-gray-3); }
+.answers .answer {
+  position: relative;
+  padding-left: 1.75rem;
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+.answers .answer::before {
+  content: '';
   position: absolute;
   left: 0;
-  top: 0.85rem;
-  font: 500 0.75rem/1.55rem var(--sl-font-mono);
-  color: var(--sl-color-text-accent);
+  top: 0.75em;
+  width: 1rem;
+  height: 1px;
+  background: var(--sl-color-text-accent);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) calc(0.25s + var(--n, 0) * 90ms);
 }
-@media (min-width: 56rem) { .why-grid { grid-template-columns: 1fr 1fr; } }
+.answers li:nth-child(2) { --n: 1; }
+.answers li:nth-child(3) { --n: 2; }
+.answers li:nth-child(4) { --n: 3; }
+@media (min-width: 48rem) {
+  .answers li { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: baseline; }
+}
+:root.motion-ok [data-reveal]:not(.is-visible) .answers .answer::before { transform: scaleX(0); }
 
-/* --- Getting started: a sequence on a signal rail ----------------------- */
-.home-steps .split p { font-size: 1.15rem; }
+.proof { display: grid; gap: 1rem; margin-top: 2rem; }
+.proof-card {
+  position: relative;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.25rem 3.25rem 1.25rem 1.25rem;
+  text-decoration: none;
+  border: 1px solid var(--home-line);
+  border-radius: 0.75rem;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.proof-title { font: 600 1.1rem/1.25 var(--brand-display); color: var(--sl-color-white); }
+.proof-text { font-size: 0.95rem; line-height: 1.5; color: var(--home-soft); }
+.proof-arrow {
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  color: var(--sl-color-text-accent);
+  transform: translateY(-50%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.proof-card:hover, .proof-card:focus-visible {
+  background: var(--sl-color-accent-low);
+  border-color: color-mix(in srgb, var(--sl-color-text-accent) 45%, transparent);
+}
+.proof-card:hover .proof-arrow, .proof-card:focus-visible .proof-arrow { transform: translate(0.35rem, -50%); }
+@media (min-width: 48rem) { .proof { grid-template-columns: 1fr 1fr; } }
+
+/* --- Getting started: three steps on a signal rail ---------------------- */
+.home-steps .split { align-items: baseline; }
+.home-steps .split p { font-size: 1.1rem; }
+.home-steps .split a { color: var(--sl-color-text-accent); text-underline-offset: 0.2em; }
 .steps {
   position: relative;
   display: grid;
   gap: 1.75rem;
-  margin-top: clamp(2.5rem, 5vw, 4rem) !important;
+  margin-top: clamp(2.5rem, 5vw, 3.5rem) !important;
   counter-reset: step;
 }
 .steps li {
   position: relative;
-  display: grid;
-  gap: 1rem;
   padding-left: 3.5rem;
   counter-increment: step;
   color: var(--sl-color-white);
@@ -259,7 +281,7 @@
   transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
 }
 @media (min-width: 64rem) {
-  .steps { grid-template-columns: repeat(5, 1fr); gap: 2rem; }
+  .steps { grid-template-columns: repeat(3, 1fr); gap: 2.5rem; }
   .steps li { padding: 3.5rem 0 0; }
   .steps li::before { top: 0; }
   .steps::before {
@@ -274,9 +296,20 @@
   }
 }
 
-/* --- Use cases ---------------------------------------------------------- */
-.use-list { display: grid; gap: 1.1rem; font-size: 1.05rem; }
-@media (min-width: 40rem) { .use-list { grid-template-columns: 1fr 1fr; gap: 1.25rem 2.5rem; } }
+/* --- Use cases and community, side by side ------------------------------ */
+.home-more { display: grid; gap: 3rem 4rem; }
+.more-col { display: grid; gap: 1.25rem; align-content: start; }
+.more-col h2 { font-size: clamp(1.6rem, 2.4vw, 2.2rem); }
+.home-more .links { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.home-more .links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+  text-underline-offset: 0.2em;
+}
+@media (min-width: 56rem) { .home-more { grid-template-columns: 1fr 1fr; } }
 
 /* --- Closing band ------------------------------------------------------- */
 .home-close {
@@ -304,7 +337,7 @@
   mask-image: radial-gradient(ellipse 70% 90% at 85% 50%, #000 20%, transparent 75%);
 }
 .home-close p {
-  max-width: 24ch;
+  max-width: 22ch;
   font-family: var(--brand-display);
   font-size: clamp(1.75rem, 3.4vw, 3rem);
   font-weight: 700;

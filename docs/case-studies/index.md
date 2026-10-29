@@ -17,3 +17,14 @@ model exfiltration on a Jetson-class vision-inference device. It flags
 model tampering in 1 s and runs in about 9 MB of memory.
 
 [Read the Edge AI runtime security case study](edgeml-runtime-security.mdx)
+
+## Runtime intrusion detection on Zephyr RTOS
+
+![Zephyr RTOS intrusion detection case study: application threads feed a bounded queue into the EmbedIDS detector](../assets/case-studies/zephyr/hero.svg)
+
+EmbedIDS runs inside Zephyr RTOS firmware as an optional module, with a
+bounded sample queue and one detector thread. In simulation it flags command
+abuse, request floods, tampering and telemetry loss within 120 ms, using 640
+bytes of metric history.
+
+[Read the Zephyr RTOS intrusion detection case study](zephyr-runtime-security.mdx)

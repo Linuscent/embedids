@@ -1,0 +1,8 @@
+name: embedids
+build:
+  cmake: zephyr
+  kconfig: zephyr/Kconfig
+samples:
+  - examples/zephyr
+tests:
+  - tests/zephyr

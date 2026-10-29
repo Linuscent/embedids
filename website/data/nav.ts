@@ -34,6 +34,12 @@ export const mainNav: NavItem[] = [
         href: 'case-studies/edgeml-runtime-security/',
         icon: 'star',
       },
+      {
+        label: 'Intrusion Detection on Zephyr',
+        description: 'EmbedIDS compiled into Zephyr RTOS firmware',
+        href: 'case-studies/zephyr-runtime-security/',
+        icon: 'puzzle',
+      },
     ],
   },
   {

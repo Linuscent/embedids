@@ -18,7 +18,8 @@ make
 
 ## Hello World Example
 
-Create `my_monitor.c`:
+Create `my_monitor.c` (a runnable version ships as
+[`examples/tutorial_example.c`](https://github.com/Linuscent/EmbedIDS/blob/main/examples/tutorial_example.c)):
 
 ```c
 #include <stdio.h>

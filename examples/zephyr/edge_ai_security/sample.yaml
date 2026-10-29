@@ -1,0 +1,27 @@
+sample:
+  name: EmbedIDS simulated Edge AI runtime security
+tests:
+  sample.embedids.edge_ai_security:
+    platform_allow:
+      - native_sim/native/64
+    integration_platforms:
+      - native_sim/native/64
+    tags:
+      - embedids
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - '"type":"ready"'
+  sample.embedids.edge_ai_security.no_faults:
+    platform_allow:
+      - native_sim/native/64
+    extra_configs:
+      - CONFIG_EMBEDIDS_DEMO_FAULT_INJECTION=n
+    tags:
+      - embedids
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - '"type":"ready"'

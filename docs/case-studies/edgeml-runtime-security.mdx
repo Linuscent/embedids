@@ -269,6 +269,9 @@ correlations:
       - ai.inference.rate
 ```
 
+The demo's complete configuration, including every correlation, is
+[`edgeml/configs/demo.yaml`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/configs/demo.yaml).
+
 ## Results
 
 ![Time to detect for each attack scenario](../assets/case-studies/edgeml/detection-latency.svg)
@@ -378,6 +381,12 @@ python3 edgeml/tests/attack-scenarios/attack_scenarios.py   # acceptance run
 </TabItem>
 </Tabs>
 
+These commands use [`docker-compose.yml`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/deployment/docker-compose.yml),
+[`default.yaml`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/configs/default.yaml),
+[`attack.sh`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/simulator/attacks/attack.sh),
+[`demo_walkthrough.sh`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/simulator/attacks/demo_walkthrough.sh) and
+[`attack_scenarios.py`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/tests/attack-scenarios/attack_scenarios.py).
+
 The engineering documentation covers the
 [architecture](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/docs/architecture.md),
 the [demo guide](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/docs/demo-guide.md),
@@ -385,6 +394,10 @@ the [REST API](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/docs/api.m
 and [hardware porting](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/docs/hardware-port.md).
 It is all in the [`edgeml/`](https://github.com/Linuscent/EmbedIDS/tree/main/edgeml)
 directory of the EmbedIDS repository.
+
+For microcontrollers without Linux, the
+[Zephyr RTOS intrusion detection case study](zephyr-runtime-security.mdx)
+shows the same engine compiled into the firmware.
 
 <Aside type="tip" title="Building on Edge AI hardware?">
 
@@ -400,7 +413,7 @@ or [open an issue](https://github.com/Linuscent/EmbedIDS/issues).
 Measurements were taken on the EmbedIDS EdgeML Docker Compose demo
 (x86-64 host, 1 s sampling) in October 2026. The charts are rendered from
 telemetry recorded from the running agent with
-`edgeml/tools/case_study_charts.py`.
+[`edgeml/tools/case_study_charts.py`](https://github.com/Linuscent/EmbedIDS/blob/main/edgeml/tools/case_study_charts.py).
 
 NVIDIA, Jetson and TensorRT are trademarks of NVIDIA Corporation. This case
 study describes a simulation of a Jetson-class device and does not imply

@@ -1,0 +1,16 @@
+tests:
+  embedids.adapter.integer:
+    platform_allow:
+      - native_sim/native/64
+    integration_platforms:
+      - native_sim/native/64
+    tags:
+      - embedids
+  embedids.adapter.float:
+    platform_allow:
+      - native_sim/native/64
+    extra_configs:
+      - CONFIG_EMBEDIDS_FLOATING_POINT=y
+      - CONFIG_EMBEDIDS_DOUBLE_PRECISION=y
+    tags:
+      - embedids

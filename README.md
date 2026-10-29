@@ -161,6 +161,13 @@ make -j$(nproc)
 make coverage
 ```
 
+## Zephyr integration
+
+The optional [Zephyr module and simulated Edge AI security demo](docs/integrations/zephyr.md)
+provide bounded telemetry ingestion, deterministic detection and automated
+CLI/JSON scenarios. The initial target is Zephyr v4.2.0 on `native_sim/native/64`;
+no physical-board validation is claimed.
+
 ## EdgeML Runtime Security (MVP)
 
 [`edgeml/`](edgeml/README.md) builds a runtime security agent for Edge AI

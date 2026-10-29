@@ -73,8 +73,13 @@ CI checks pull requests and publishes to `gh-pages` on push to `main` or `v*.*`.
 Published URLs are an SEO contract: CI runs `pnpm check:urls <published-version> dist` against `gh-pages`, comparing pages, canonicals, heading anchors with their text, and asset URLs. Don't rename existing headings, give a new heading an ID already used on the page, or move `docs/assets/**` files. Former page-title anchors are kept via the `legacyAnchors` frontmatter field. Page titles stay `Page - EmbedIDS`. Design rules, tokens and motion live in `website/DESIGN.md`.
 
 - Case studies live in `docs/case-studies/`; their charts under `docs/assets/case-studies/` are rendered from recorded telemetry (`edgeml/tools/case-study-data/`, deliberately outside `docs/` so it is not published) by `edgeml/tools/case_study_charts.py` (see `edgeml/docs/demo-guide.md`). Don't hand-edit the `*-timeline.svg` / `detection-latency.svg` files.
+- The Zephyr case study's latency chart imports `scripts/zephyr/case-study-data/repeat-summary.json`; the replay (`website/components/case-studies/ZephyrReplay.astro`) copies its commands, alert lines and latencies from `replay-run.json`. When re-recording with `scripts/zephyr/run_scenarios.py`, update both and the numbers in the page text.
 
 ## CI
 
-- No CI workflow builds or tests the C library — only docs are CI-tested.
+- `zephyr.yml` builds the C library regression suites and tests the Zephyr adapter
+  and simulated Edge AI demo on pinned Zephyr v4.2.0 (`native_sim/native/64`).
+- Zephyr module metadata/build lives in `zephyr/`, the bounded queue adapter in
+  `ports/zephyr/`, and the demo in `examples/zephyr/edge_ai_security/`. The core
+  stays OS-independent. The demo's fault injection is test-only, not a security API.
 - PR titles must follow conventional commits, types `fix` and `feat` only (enforced on PRs to `main`, `feat/*`, `fix/*`).

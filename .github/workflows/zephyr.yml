@@ -1,0 +1,92 @@
+name: Zephyr integration
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/zephyr.yml'
+      - 'CMakeLists.txt'
+      - 'include/**'
+      - 'src/**'
+      - 'zephyr/**'
+      - 'ports/zephyr/**'
+      - 'examples/zephyr/**'
+      - 'tests/**'
+      - 'scripts/zephyr/**'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/zephyr.yml'
+      - 'CMakeLists.txt'
+      - 'include/**'
+      - 'src/**'
+      - 'zephyr/**'
+      - 'ports/zephyr/**'
+      - 'examples/zephyr/**'
+      - 'tests/**'
+      - 'scripts/zephyr/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native-sim:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      ZEPHYR_TOOLCHAIN_VARIANT: host
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install native build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc g++ make ninja-build device-tree-compiler gperf
+      - name: Fetch pinned Zephyr baseline
+        run: |
+          # The runner context is only available inside steps, so export ZEPHYR_BASE here.
+          echo "ZEPHYR_BASE=$RUNNER_TEMP/zephyr" >> "$GITHUB_ENV"
+          git clone --depth 1 --branch v4.2.0 https://github.com/zephyrproject-rtos/zephyr.git "$RUNNER_TEMP/zephyr"
+          test "$(git -C "$RUNNER_TEMP/zephyr" rev-parse HEAD)" = 413b789deb391d3a37d06b463288a5fe765ee57e
+          python -m pip install cmake==3.31.10 \
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-base.txt" \
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-build-test.txt" \
+            -r "$RUNNER_TEMP/zephyr/scripts/requirements-run-test.txt"
+      - name: Core regression tests
+        run: |
+          cmake -G Ninja -S . -B build/core -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON
+          cmake --build build/core
+          ctest --test-dir build/core --output-on-failure
+      - name: Zephyr adapter tests
+        run: |
+          python "$ZEPHYR_BASE/scripts/twister" -T tests/zephyr/adapter \
+            -p native_sim/native/64 -O build/zephyr-tests --inline-logs \
+            --extra-args="ZEPHYR_MODULES=$GITHUB_WORKSPACE"
+      - name: Build and exercise demo
+        run: |
+          cmake -G Ninja -S examples/zephyr/edge_ai_security -B build/zephyr-demo \
+            -DBOARD=native_sim/native/64 -DZEPHYR_MODULES="$GITHUB_WORKSPACE"
+          cmake --build build/zephyr-demo
+          python scripts/zephyr/run_scenarios.py \
+            --binary build/zephyr-demo/zephyr/zephyr.exe \
+            --report build/zephyr-demo/scenarios.json
+      - name: Verify fault commands can be disabled
+        run: |
+          cmake -G Ninja -S examples/zephyr/edge_ai_security -B build/zephyr-no-faults \
+            -DBOARD=native_sim/native/64 -DZEPHYR_MODULES="$GITHUB_WORKSPACE" \
+            -DCONFIG_EMBEDIDS_DEMO_FAULT_INJECTION=n
+          cmake --build build/zephyr-no-faults
+          python scripts/zephyr/run_scenarios.py --scenario normal \
+            --binary build/zephyr-no-faults/zephyr/zephyr.exe
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: zephyr-test-results
+          path: |
+            build/zephyr-tests/twister*.xml
+            build/zephyr-tests/twister.json
+            build/zephyr-demo/scenarios.json
+            build/zephyr-demo/zephyr/zephyr.map
+            build/zephyr-demo/zephyr/.config

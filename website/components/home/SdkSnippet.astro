@@ -1,0 +1,77 @@
+---
+/** An excerpt of examples/tutorial_example.c, linked to the file on main. */
+import { sourceUrl } from '../../data/repo';
+
+const file = 'examples/tutorial_example.c';
+const code = `static embedids_metric_datapoint_t cpu_history[50];
+// …
+cpu_metric.type = EMBEDIDS_METRIC_TYPE_PERCENTAGE;
+cpu_metric.history = cpu_history;
+cpu_metric.max_history_size = 50;
+// …
+threshold_algo.type = EMBEDIDS_ALGORITHM_THRESHOLD;
+threshold_algo.config.threshold.max_threshold.f32 = 80.0f;
+threshold_algo.config.threshold.check_max = true;
+// …
+embedids_metric_value_t value = {.f32 = cpu};
+embedids_add_datapoint(&context, "cpu_usage", value, (uint64_t)time(NULL) * 1000);
+
+if (embedids_analyze_metric(&context, "cpu_usage") == EMBEDIDS_OK) {
+    printf("OK  CPU: %.1f%% - Normal\\n", cpu);
+} else {
+    printf("ALERT CPU: %.1f%% - THRESHOLD EXCEEDED!\\n", cpu);
+}`;
+const escape = (text: string) => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const html = escape(code)
+  .replace(/("[^"]*")/g, '<span class="s">$1</span>')
+  .replace(/\b(static|true|if|else)\b/g, '<span class="k">$1</span>')
+  .replace(/\b(\d+(?:\.\d+f)?)\b/g, '<span class="n">$1</span>')
+  .replace(/\b(embedids_[a-z_]+)\(/g, '<span class="f">$1</span>(')
+  .replace(/^(\/\/ …)$/gm, '<span class="c">$1</span>');
+---
+
+<figure class="code-card">
+  <figcaption class="code-file">
+    <a href={sourceUrl(file)}>{file}</a>
+    <span>excerpt</span>
+  </figcaption>
+  <pre><code set:html={html} /></pre>
+</figure>
+
+<style>
+  .code-card {
+    margin: 0;
+    overflow: hidden;
+    color: #e5e7eb;
+    background: #05060a;
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 0.75rem;
+    box-shadow: 0 24px 60px -36px rgba(34, 211, 238, 0.5);
+  }
+  .code-file {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 1rem;
+    font: 500 0.72rem/1.4 var(--sl-font-mono);
+    color: rgba(229, 231, 235, 0.6);
+    border-bottom: 1px solid rgba(229, 231, 235, 0.08);
+  }
+  .code-file a { color: #22d3ee; text-underline-offset: 0.2em; }
+  .code-file a:hover { color: #e5e7eb; }
+  pre {
+    margin: 0;
+    padding: 1rem 1.1rem 1.2rem;
+    overflow-x: auto;
+    font: 400 0.78rem/1.65 var(--sl-font-mono);
+    font-variant-ligatures: none;
+    background: none;
+    border: 0;
+  }
+  code { font: inherit; color: inherit; background: none; padding: 0; }
+  pre :global(.k) { color: #f74d67; }
+  pre :global(.s) { color: #4ade80; }
+  pre :global(.n) { color: #f59e0b; }
+  pre :global(.f) { color: #22d3ee; }
+  pre :global(.c) { color: rgba(229, 231, 235, 0.45); }
+</style>

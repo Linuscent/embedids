@@ -19,24 +19,31 @@ hero:
 ---
 
 import { Icon } from '@astrojs/starlight/components';
+import ZephyrHighlight from '../website/components/home/ZephyrHighlight.astro';
+import LinuscentStack from '../website/components/home/LinuscentStack.astro';
+import SdkSnippet from '../website/components/home/SdkSnippet.astro';
 
 <div class="not-content home">
 
 <section class="home-band home-start" aria-labelledby="new-to-embedids" data-reveal>
 <h2 id="new-to-embedids">New to EmbedIDS?</h2>
 <div class="home-paths">
-<a class="path" href="quickstart/"><span class="path-title">Quick Start Guide</span><span class="path-text">Get running in 5 minutes</span><Icon name="right-arrow" class="path-arrow" /></a>
-<a class="path" href="tutorial/"><span class="path-title">Complete Tutorial</span><span class="path-text">Comprehensive learning guide</span><Icon name="right-arrow" class="path-arrow" /></a>
-<a class="path" href="https://github.com/Linuscent/EmbedIDS/tree/main/examples"><span class="path-title">Examples</span><span class="path-text">Ready-to-run code samples</span><Icon name="external" class="path-arrow" /></a>
-<a class="path" href="case-studies/edgeml-runtime-security/"><span class="path-title">Case Study: Runtime Security for Edge AI</span><span class="path-text">EmbedIDS protecting a Jetson-class AI device</span><Icon name="right-arrow" class="path-arrow" /></a>
+<a class="path" href="quickstart/"><span class="path-title">Quick Start Guide</span><span class="path-text">Running in 5 minutes</span><Icon name="right-arrow" class="path-arrow" /></a>
+<a class="path" href="tutorial/"><span class="path-title">Complete Tutorial</span><span class="path-text">Metrics, rules and custom algorithms</span><Icon name="right-arrow" class="path-arrow" /></a>
+<a class="path" href="https://github.com/Linuscent/EmbedIDS/tree/main/examples"><span class="path-title">Examples</span><span class="path-text">Ready-to-run C samples</span><Icon name="external" class="path-arrow" /></a>
+<a class="path" href="case-studies/"><span class="path-title">Case Studies</span><span class="path-text">Edge AI and Zephyr RTOS, measured</span><Icon name="right-arrow" class="path-arrow" /></a>
 </div>
 </section>
 
-<section class="home-band home-statement" aria-labelledby="overview" data-reveal>
-<p class="statement">EmbedIDS is a lightweight Runtime Intrusion Detection SDK specifically designed for low-power embedded Internet of Things (IoT) devices. <span>Our open-source SDK provides AI-driven protection to address the critical security gap in constrained IoT environments.</span></p>
+<ZephyrHighlight />
+
+<section class="home-band home-overview" aria-labelledby="overview" data-reveal>
 <div class="split">
+<div class="section-head">
 <h2 id="overview">Overview</h2>
-<p>EmbedIDS provides on-device, AI-driven protection tailored to resource-constrained embedded systems. By deploying compact anomaly-detection agents directly on devices, we enable real-time protection without relying on external connectivity or cloud dependencies.</p>
+<p class="lede">An open-source intrusion detection library that runs on the device, offline, in memory you allocate.</p>
+</div>
+<LinuscentStack />
 </div>
 </section>
 
@@ -45,16 +52,16 @@ import { Icon } from '@astrojs/starlight/components';
 <div class="section-head">
 <h2 id="product-features">Product Features</h2>
 <h3 id="open-source-sdk-apache-20-licensed">Open-Source SDK (Apache 2.0 Licensed)</h3>
-<p>Our free SDK empowers developers to secure embedded devices at no cost, featuring:</p>
-</div>
-<ul class="spec-list">
-<li><strong>Lightweight on-device intrusion detection system</strong></li>
-<li><strong>Fixed-logic detection models</strong> optimized for low-power environments</li>
-<li><strong>Zero licensing fees</strong> for developers and deployments</li>
-<li><strong>Apache 2.0 license</strong> ensuring maximum flexibility and adoption</li>
-<li><strong>Customizable metric collection</strong> for device-specific monitoring</li>
-<li><strong>AI-model training tools</strong> for tailored threat detection</li>
+<p>One C11 library. You provide the buffers; it checks every sample against your rules.</p>
+<ul class="chips">
+<li>No heap allocation</li>
+<li>Threshold rules</li>
+<li>Custom algorithms</li>
+<li>CMake package</li>
+<li>Zephyr module</li>
 </ul>
+</div>
+<SdkSnippet />
 </div>
 </section>
 
@@ -64,28 +71,22 @@ import { Icon } from '@astrojs/starlight/components';
 <div class="key-group">
 <h3 id="on-device-intelligence">On-Device Intelligence</h3>
 <ul>
-<li><strong>Real-time anomaly detection</strong> without cloud dependency</li>
-<li><strong>Compact ML models</strong> optimized for embedded constraints</li>
-<li><strong>Behavioral analysis</strong> tailored to device-specific operations</li>
-<li><strong>Low resource footprint</strong> suitable for IoT devices</li>
+<li>Detection runs on the device, with no cloud dependency</li>
+<li>Fixed history buffers that you allocate</li>
 </ul>
 </div>
 <div class="key-group">
 <h3 id="customizable-security">Customizable Security</h3>
 <ul>
-<li><strong>Define custom behavioral metrics</strong> based on device functionality</li>
-<li><strong>Train specialized ML models</strong> using our development tools</li>
-<li><strong>Deploy targeted protection</strong> for specific threat vectors</li>
-<li><strong>Adaptive monitoring</strong> that evolves with device behavior</li>
+<li>Your own metrics and thresholds</li>
+<li>Custom detection functions beside the built-in rules</li>
 </ul>
 </div>
 <div class="key-group">
 <h3 id="developer-friendly-design">Developer-Friendly Design</h3>
 <ul>
-<li><strong>Easy integration</strong> with existing embedded systems</li>
-<li><strong>Minimal configuration</strong> required for basic protection</li>
-<li><strong>Comprehensive documentation</strong> and examples</li>
-<li><strong>Active community support</strong> for open-source users</li>
+<li>CMake package, FetchContent or Zephyr module</li>
+<li>Examples, a tutorial and automated tests</li>
 </ul>
 </div>
 </div>
@@ -93,73 +94,55 @@ import { Icon } from '@astrojs/starlight/components';
 
 <section class="home-band home-why" aria-labelledby="why-embedids" data-reveal>
 <h2 id="why-embedids">Why EmbedIDS?</h2>
-<div class="why-grid">
-<div class="why-col is-problem">
-<p>The IoT security landscape faces unique challenges:</p>
-<ul>
-<li><strong>Resource constraints</strong> limit traditional security solutions</li>
-<li><strong>Connectivity issues</strong> make cloud-dependent protection unreliable</li>
-<li><strong>Scale requirements</strong> demand cost-effective deployment models</li>
-<li><strong>Diverse hardware</strong> needs flexible, adaptable solutions</li>
-</ul>
-</div>
-<div class="why-col is-answer">
-<p>EmbedIDS addresses these challenges by providing:</p>
-<ol>
-<li><strong>On-device protection</strong> that works offline</li>
-<li><strong>Lightweight implementation</strong> suitable for constrained devices</li>
-<li><strong>Open-source model</strong> enabling rapid adoption and community collaboration</li>
-<li><strong>AI-driven detection</strong> for sophisticated threat identification</li>
+<ol class="answers">
+<li><span class="problem">Tight memory and power budgets</span><span class="answer">Fixed memory, no heap allocation</span></li>
+<li><span class="problem">Unreliable connectivity</span><span class="answer">Detection runs offline, on the device</span></li>
+<li><span class="problem">Fleet-scale costs</span><span class="answer">Open source, with no licence fees</span></li>
+<li><span class="problem">Diverse hardware</span><span class="answer">Portable C11 core, Linux agent and Zephyr module</span></li>
 </ol>
-</div>
+<div class="proof">
+<a class="proof-card" href="case-studies/edgeml-runtime-security/"><span class="proof-title">Edge AI devices</span><span class="proof-text">Model tampering flagged in 1 s by a ~9 MB agent, in simulation</span><Icon name="right-arrow" class="proof-arrow" /></a>
+<a class="proof-card" href="case-studies/zephyr-runtime-security/"><span class="proof-title">Zephyr RTOS</span><span class="proof-text">Every scripted attack flagged within 120 ms, in simulation</span><Icon name="right-arrow" class="proof-arrow" /></a>
 </div>
 </section>
 
 <section class="home-band home-steps" aria-labelledby="getting-started" data-reveal>
 <div class="split">
 <h2 id="getting-started">Getting Started</h2>
-<p>Start securing your embedded devices immediately with our open-source SDK:</p>
+<p>Three steps from clone to your first alert. <a href="quickstart/">Follow the Quick Start</a>.</p>
 </div>
 <ol class="steps">
-<li>Download the SDK from our repository</li>
-<li>Integrate the lightweight SDK into your device</li>
-<li>Configure intrusion detection rules for your use case</li>
-<li>Train custom ML models using our development tools</li>
-<li>Deploy with confidence knowing your devices are protected</li>
+<li>Add EmbedIDS with CMake, or as a Zephyr module</li>
+<li>Describe each metric and the rule that guards it</li>
+<li>Feed samples and act on the alerts</li>
 </ol>
 </section>
 
-<section class="home-band home-uses" aria-labelledby="use-cases" data-reveal>
-<div class="split">
+<section class="home-band home-more" data-reveal>
+<section class="more-col" aria-labelledby="use-cases">
 <h2 id="use-cases">Use Cases</h2>
-<ul class="use-list">
-<li><strong>Industrial IoT sensors</strong> monitoring critical infrastructure</li>
-<li><strong>Smart home devices</strong> protecting personal networks</li>
-<li><strong>Medical IoT devices</strong> ensuring patient safety and privacy</li>
-<li><strong>Automotive embedded systems</strong> securing connected vehicles</li>
-<li><strong>Edge computing nodes</strong> protecting distributed networks</li>
+<ul class="chips">
+<li>Industrial IoT sensors</li>
+<li>Edge AI devices</li>
+<li>Smart home devices</li>
+<li>Automotive systems</li>
+<li>Medical IoT devices</li>
+<li>Gateways and edge nodes</li>
 </ul>
+</section>
+<section class="more-col" aria-labelledby="community-and-support">
+<h2 id="community-and-support">Community and Support</h2>
+<p>Questions, ideas and contributions happen in the open.</p>
+<div class="links">
+<a href="https://github.com/Linuscent/EmbedIDS/issues">Open an issue <Icon name="external" size="0.9rem" /></a>
+<a href="https://github.com/Linuscent/EmbedIDS">Browse the source <Icon name="external" size="0.9rem" /></a>
+<a href="https://www.linkedin.com/company/linuscent">Follow Linuscent <Icon name="external" size="0.9rem" /></a>
 </div>
 </section>
-
-<section class="home-band home-community" aria-labelledby="community-and-support" data-reveal>
-<div class="split">
-<div class="section-head">
-<h2 id="community-and-support">Community and Support</h2>
-<p>EmbedIDS thrives on open-source collaboration and community contribution:</p>
-</div>
-<ul class="spec-list">
-<li><strong>Active open-source community</strong> for developers and researchers</li>
-<li><strong>Community support</strong> through forums and documentation</li>
-<li><strong>Regular updates</strong> and security patches</li>
-<li><strong>Comprehensive documentation</strong> and tutorials for all skill levels</li>
-<li><strong>Contribution guidelines</strong> for community developers</li>
-</ul>
-</div>
 </section>
 
 <section class="home-close" aria-label="Get the SDK" data-reveal>
-<p>Ready to secure your embedded devices? <span>Download our open-source SDK and join the community!</span></p>
+<p>Ready to secure your devices? <span>Get the open-source SDK.</span></p>
 <div class="close-actions">
 <a class="hero-like is-primary" href="https://github.com/Linuscent/EmbedIDS">Get the SDK on GitHub <Icon name="github" size="1.1rem" /></a>
 <a class="hero-like is-ghost" href="quickstart/">Read the Quick Start <Icon name="right-arrow" size="1.1rem" /></a>

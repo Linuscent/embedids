@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: Apache-2.0
+menuconfig EMBEDIDS
+	bool "EmbedIDS anomaly detection"
+	help
+	  Build the allocation-free EmbedIDS C library. All users of its public
+	  types receive the same compile-time configuration.
+
+if EMBEDIDS
+
+config EMBEDIDS_MAX_METRICS
+	int "Maximum metrics"
+	range 1 256
+	default 32
+
+config EMBEDIDS_MAX_METRIC_NAME_LEN
+	int "Metric name capacity (including terminator)"
+	range 8 128
+	default 32
+
+config EMBEDIDS_MAX_ALGORITHMS_PER_METRIC
+	int "Maximum algorithms per metric"
+	range 1 8
+	default 4
+
+config EMBEDIDS_FLOATING_POINT
+	bool "Floating-point metric types"
+	default y
+	help
+	  Disabling this removes floating-point metric types, not the arithmetic
+	  in the core's optional embedids_get_trend() helper.
+
+config EMBEDIDS_DOUBLE_PRECISION
+	bool "Double-precision metric types"
+	depends on EMBEDIDS_FLOATING_POINT
+
+config EMBEDIDS_ZEPHYR_ADAPTER
+	bool "Bounded sample queue adapter"
+	default y
+	depends on MULTITHREADING
+	help
+	  Producers enqueue samples without waiting. One consumer owns the core
+	  context and performs analysis. No thread is created automatically.
+
+config EMBEDIDS_SAMPLE_QUEUE_SIZE
+	int "Queued samples per adapter"
+	depends on EMBEDIDS_ZEPHYR_ADAPTER
+	range 1 1024
+	default 32
+
+endif

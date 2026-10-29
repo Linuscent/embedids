@@ -21,11 +21,18 @@ appearance, retaining a light-mode option. Two surfaces:
   display, Inter text, JetBrains Mono for code, values and API names; hairline
   grids and corner brackets as the one structural motif.
 - **Story:** watch a device's trust checks and intrusion detectors catch the
-  case-study attacks → pick a path (Quick Start, tutorial, examples, case study) →
-  features, rationale, steps, use cases → get the SDK.
+  case-study attacks → see the platforms it runs on → pick a path (Quick Start,
+  tutorial, examples, case studies) → the Zephyr RTOS module highlight → Overview: one
+  lede beside the Linuscent stack (EmbedIDS as the device layer of Linuscent OS, with
+  Aura its shared workspace; positioning only, no connector is claimed) → product
+  features beside real C code → three short key-feature columns → why, as constraint
+  and answer rows plus case-study evidence → three steps → use cases and community side
+  by side → get the SDK. Copy states only shipped capabilities; ML is not claimed.
+  Published headings keep their IDs and text (checked by `compare-urls`).
 - **First viewport:** left, the headline ("Device trust and intrusion detection for embedded systems.", the last two words in cyan), tagline,
-  Quick Start and GitHub actions, a fact strip; right (from 80rem; below, under the
-  copy), the device monitor, labelled simulated, with scenario and pause controls.
+  Quick Start and GitHub actions, a fact strip (including "Zephyr RTOS module"); right
+  (from 80rem; below, under the copy), the device monitor, labelled simulated, with
+  scenario and pause controls. A "Runs on" platform belt spans the bottom of the hero.
 - **Form:** user-pinned Linuscent identity; user chose a scenario carousel of shipped
   trust checks plus intrusion detection, and subtle motion for reading pages.
 - **Finish:** verify desktop (1440/1920/2560), mobile, both themes, reduced motion,
@@ -47,7 +54,7 @@ appearance, retaining a light-mode option. Two surfaces:
 | Grid line | cyan at 6% | pink at 5% |
 
 Light-mode pink is darkened from Linuscent's `#f74d67` for readable text on white.
-The hero band, monitor and closing band stay "void" in both themes, as on
+The hero band, monitor, Zephyr panel and closing band stay "void" in both themes, as on
 linuscent.com. Tokens live in `styles/brand.css`; landing layout in `styles/home.css`.
 
 Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536px),
@@ -68,6 +75,26 @@ Large screens follow linuscent.com: the root font size rises to 16.5px (≥1536p
   checks are shown (no secure boot or TPM until they ship). Scenario buttons jump
   directly; pauses off-screen, in hidden tabs and via its button. Reduced motion shows
   each scenario's final state with no movement.
+- **Zephyr case study:** `components/case-studies/ZephyrReplay.astro` replays one
+  recorded `scripts/zephyr/run_scenarios.py` run: commands type into a UART line,
+  application threads feed a 32-cell `k_msgq`, each slowed-down 100 ms cycle drains
+  into eight rule meters, and alert JSON lines wipe in. Values, lines and latencies
+  come from `scripts/zephyr/case-study-data/`; seven scenario buttons, pause,
+  off-screen/hidden-tab pausing, and reduced motion showing each final state.
+  `DetectionBudget.astro` draws latency bars against the 200 ms budget once on
+  scroll (only under `motion-ok`).
+- **Platform belt:** `components/home/PlatformMarquee.astro` scrolls a duplicated list
+  (the copy is `aria-hidden` and `inert`) at 46 s per loop. It pauses on hover and
+  keyboard focus (no pause button, by request); reduced motion shows one static wrapped
+  list. Each platform
+  states its validation level (for example "Collectors built · hardware next").
+- **Zephyr highlight:** `components/home/ZephyrHighlight.astro`, a void panel after the
+  start paths; its 16-cell queue fills and drains with the detector pulse and an alert
+  line wipes in, on a 3.2 s CSS loop that stops under reduced motion.
+- **Linuscent stack:** `components/home/LinuscentStack.astro` assembles on reveal:
+  the EmbedIDS device layer rises, three rails grow up, then the Linuscent OS frame with
+  Aura inside settles; device dots pulse. It avoids arrows into Aura, which would imply
+  a data flow that does not exist.
 - **Entrances:** hero copy rises and the monitor "powers on" (clip + brightness);
   homepage sections reveal on scroll; key-feature rules and the getting-started rail
   draw in; page titles draw a short signal line. Documentation images are not
@@ -100,6 +127,15 @@ migration (the cards were rendered by the MkDocs social plugin) and remain in
 `docs/assets/`. No generated artwork was introduced; the device monitor is drawn
 live from a synthetic signal and labelled as simulated. Recorded telemetry charts
 are owned by `edgeml/tools/case_study_charts.py` and must not be hand-edited.
+`docs/assets/case-studies/zephyr/hero.svg` is authored for the case-study index; its
+figures come from `scripts/zephyr/case-study-data/` and its loop stops under reduced
+motion. `docs/assets/images/social/case-studies/zephyr-runtime-security.png` was
+rendered with Playwright to match the MkDocs-era cards (Inter, white ground, chip logo).
+Platform marks in `website/assets/platforms/` are Simple Icons 16.36.0 (CC0) for Linux,
+NVIDIA, Docker, CMake and C, and the official dark-background Zephyr logo from the
+Zephyr v4.2.0 repository (`doc/_static/images/logo-readme-dark.svg`). They are
+trademarks of their owners, shown to state compatibility; keep them unaltered apart
+from the monochrome Simple Icons fill.
 Fontsource packages self-host the same font families as the Linuscent website.
 
 ## Maintenance

@@ -1,0 +1,174 @@
+---
+/**
+ * Trigger-to-alert latency for each Zephyr scenario detection, from
+ * scripts/zephyr/case-study-data/repeat-summary.json (10 runs on native_sim).
+ */
+import summary from '../../../scripts/zephyr/case-study-data/repeat-summary.json';
+import { sourceUrl } from '../../data/repo';
+
+const BUDGET = 200;
+const labels: Record<string, string> = {
+  command_state: 'State abuse',
+  resource_abuse: 'Flood',
+  configuration: 'Config tamper',
+  outbound: 'Outbound',
+  monitor: 'Heartbeat loss',
+  queue_overflow: 'Queue overflow',
+};
+const rows = summary.latency_after_trigger_ms.map((entry) => ({
+  ...entry,
+  label: labels[entry.scenario] ?? entry.scenario,
+  from: entry.min / BUDGET,
+  to: entry.max / BUDGET,
+  text: entry.min === entry.max ? `${entry.max} ms` : `${entry.min}–${entry.max} ms`,
+}));
+const worst = Math.max(...rows.map((row) => row.max));
+---
+
+<figure class="budget not-content" data-budget aria-labelledby="budget-caption">
+  <div class="budget-scale" aria-hidden="true">
+    <span class="scale-track">
+      <span>0</span>
+      <span class="tick-100">100 ms · one sample</span>
+      <span>200 ms budget</span>
+    </span>
+  </div>
+  <table>
+    <caption class="sr-only">
+      Trigger-to-alert latency per detection across {summary.runs} runs. Budget {BUDGET} ms; worst case {worst} ms.
+    </caption>
+    <thead class="sr-only">
+      <tr><th scope="col">Scenario</th><th scope="col">Rule</th><th scope="col">Latency</th></tr>
+    </thead>
+    <tbody>
+      {
+        rows.map((row, i) => (
+          <tr style={`--from:${row.from};--to:${row.to};--i:${i}`}>
+            <th scope="row">{row.label}</th>
+            <td class="rule"><code>{row.rule}</code></td>
+            <td class="track">
+              <span class="bar" aria-hidden="true" />
+              <span class="value">{row.text}</span>
+            </td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <figcaption id="budget-caption">
+    Time from each trigger to the detector sample that raised the alert, in simulated milliseconds over {summary.runs}
+    repeated runs. All runs passed; only heartbeat loss varied. The worst case, {worst} ms, is inside the two-sample
+    budget. Data:
+    <a href={sourceUrl('scripts/zephyr/case-study-data/repeat-summary.json')}><code>repeat-summary.json</code></a>.
+  </figcaption>
+</figure>
+
+<script>
+  // Bars draw in once when the chart scrolls into view; without motion they are already drawn.
+  document.querySelectorAll<HTMLElement>('[data-budget]').forEach((chart) => {
+    if (!document.documentElement.classList.contains('motion-ok')) return;
+    chart.classList.add('is-armed');
+    new IntersectionObserver(
+      ([entry], observer) => {
+        if (!entry.isIntersecting) return;
+        chart.classList.add('is-drawn');
+        observer.disconnect();
+      },
+      { rootMargin: '0px 0px -15% 0px' },
+    ).observe(chart);
+  });
+</script>
+
+<style>
+  .budget {
+    --bar: var(--sl-color-text-accent);
+    --track: color-mix(in srgb, var(--sl-color-gray-5) 70%, transparent);
+    margin: 2rem 0;
+  }
+  .budget-scale,
+  .budget tr {
+    display: grid;
+    grid-template-columns: 8.5rem 11.5rem minmax(0, 1fr);
+    column-gap: 1rem;
+    align-items: center;
+  }
+  .budget-scale {
+    position: relative;
+    padding-bottom: 0.5rem;
+    font: 500 0.68rem/1.3 var(--sl-font-mono);
+    letter-spacing: 0.04em;
+    color: var(--sl-color-gray-3);
+  }
+  .scale-track { position: relative; grid-column: 3; display: flex; justify-content: space-between; }
+  .scale-track .tick-100 { position: absolute; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+  .budget table { display: block; width: 100%; margin: 0; border: 0; overflow: visible; }
+  .budget tbody { display: grid; gap: 0.15rem; }
+  .budget tr { padding: 0.45rem 0; border-top: 1px solid var(--sl-color-hairline-shade); background: none !important; }
+  .budget :is(th, td) { padding: 0 !important; border: 0 !important; text-align: start; }
+  .budget th { font-size: 0.86rem; font-weight: 600; color: var(--sl-color-white); }
+  .budget .rule code { font-size: 0.74rem; color: var(--sl-color-gray-2); background: none; padding: 0; }
+  .track {
+    position: relative;
+    height: 1.6rem;
+    background:
+      linear-gradient(var(--track), var(--track)) left 50% / 100% 2px no-repeat,
+      linear-gradient(color-mix(in srgb, var(--sl-color-gray-3) 60%, transparent), color-mix(in srgb, var(--sl-color-gray-3) 60%, transparent)) 50% 50% / 1px 100% no-repeat,
+      linear-gradient(var(--sl-color-gray-3), var(--sl-color-gray-3)) 100% 50% / 2px 100% no-repeat;
+  }
+  .bar {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: max(calc(var(--to) * 100%), 0.5rem);
+    height: 0.55rem;
+    border-radius: 1rem;
+    /* Solid up to the fastest run, faded across the range when runs differed. */
+    background: linear-gradient(90deg, var(--bar) calc(var(--from) / var(--to) * 100%), color-mix(in srgb, var(--bar) 40%, transparent) calc(var(--from) / var(--to) * 100%));
+    box-shadow: 0 4px 14px -6px var(--bar);
+    transform: translateY(-50%);
+    transform-origin: left;
+  }
+  .value {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--to) * 100% + 0.6rem);
+    font: 500 0.74rem/1 var(--sl-font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--sl-color-white);
+    white-space: nowrap;
+    transform: translateY(-50%);
+  }
+  figcaption { margin-top: 0.85rem; font-size: 0.82rem; line-height: 1.55; color: var(--sl-color-gray-2); }
+  figcaption a { color: var(--sl-color-text-accent); text-underline-offset: 0.2em; }
+  figcaption code { font-size: 0.78rem; color: inherit; background: none; padding: 0; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Draw-in: bars grow from zero on their own stagger, then the values settle. */
+  .budget.is-armed .bar { transform: translateY(-50%) scaleX(0); }
+  .budget.is-armed .value { opacity: 0; }
+  .budget.is-drawn .bar {
+    transform: translateY(-50%) scaleX(1);
+    transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i) * 70ms);
+  }
+  .budget.is-drawn .value {
+    opacity: 1;
+    transition: opacity 0.4s ease calc(var(--i) * 70ms + 0.45s);
+  }
+
+  @media (max-width: 44rem) {
+    .budget-scale, .budget tr { grid-template-columns: minmax(0, 1fr) auto; row-gap: 0.35rem; }
+    .scale-track { grid-column: 1 / -1; margin-right: 4.5rem; }
+    .scale-track .tick-100 { display: none; }
+    .budget .track { grid-column: 1 / -1; margin-right: 4.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .budget .bar, .budget .value { transition: none !important; }
+  }
+</style>
